@@ -30,7 +30,7 @@ make
 Příkaz `make venv` provede spuštění aplikace bez využití služeb programu `Docker`.  Využívá k tomu virtualizované prostředí `venv` pro Python.
 
 ```bash
-sudo apt install python3 python3.10-venv
+sudo apt install python3 python3-venv
 make venv
 source venv/bin/activate
 python3 server/app.py
