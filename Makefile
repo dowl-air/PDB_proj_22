@@ -10,9 +10,9 @@ venv/create:
 	test -d venv || python3 -m venv venv
 
 # only install dependencies when requirements.txt changes
-venv/touchfile: server/requirements.txt
+venv/touchfile: app/requirements.txt
 	test -d venv || virtualenv venv
-	. venv/bin/activate; pip install -Ur server/requirements.txt
+	. venv/bin/activate; pip3 install -Ur app/requirements.txt
 	touch venv/touchfile
 
 test: venv

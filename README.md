@@ -33,5 +33,6 @@ Příkaz `make venv` provede spuštění aplikace bez využití služeb programu
 sudo apt install python3 python3-venv
 make venv
 source venv/bin/activate
-python3 server/app.py
+chmod 775 manage.py
+./manage.py flask run
 ```
