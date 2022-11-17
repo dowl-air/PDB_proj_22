@@ -1,4 +1,6 @@
 
+from .base import Base
+
 from .author import Author
 from .book import Book
 from .book_copy import BookCopy
@@ -9,4 +11,4 @@ from .reservation import Reservation
 from .review import Review
 from .user import User
 
-from .init import MONGO_DEFAULT_PORT, mongo_connect
+from .init import MYSQL_DEFAULT_PORT, sql_init
