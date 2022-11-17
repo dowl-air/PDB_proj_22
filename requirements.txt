@@ -1,0 +1,10 @@
+Flask
+flask-restx
+autopep8
+python-dotenv
+konfik
+flask_sqlalchemy
+pymysql
+cryptography
+PyMongo
+flask_pymongo

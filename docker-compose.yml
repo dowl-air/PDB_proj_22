@@ -1,8 +1,81 @@
 version: '3'
 services:
   server:
-    build: ./app
+    image: pdb_project/rest_api
+    container_name: rest_api
+    build: 
+      context: ./
+      dockerfile: Dockerfile
     ports:
       - "5000:5000"
+    env_file:
+      - .env
+    links:
+      - mysql
+      - mongodb
+    depends_on:
+      - mysql
+      - mongodb
+
+  mysql:
+    image: mysql
+    container_name: mysql-db
     volumes:
-      - .:/code
+        # pass volume named mysql-data to mysql container
+      - mysql-data:/var/lib/mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: pdb
+      MYSQL_USER: pdb
+      MYSQL_PASSWORD: pdb
+      MYSQL_ROOT_PASSWORD: pdb
+
+  phpmyadmin:
+    depends_on:
+      - mysql
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: mysql-phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "5010:80"
+    environment:
+      MYSQL_ROOT_PASSWORD: pdb
+      MYSQL_USER: pdb
+      MYSQL_PASSWORD: pdb
+  
+  mongodb:
+    image: mongo
+    container_name: mongo-db
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/var/lib/mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: pdb
+      MONGO_INITDB_ROOT_PASSWORD: pdb
+      MONGO_INITDB_DATABASE: pdb
+      MONGODB_DATA_DIR: /var/lib/mongo
+      MONDODB_LOG_DIR: /dev/null
+
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    depends_on:
+      - mongodb
+    restart: always
+    ports:
+      - 5020:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: pdb
+      ME_CONFIG_MONGODB_ADMINPASSWORD: pdb
+      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: true
+    links:
+      - mongodb
+
+
+volumes:
+  # persistance data
+  mysql-data:
+    driver: local
+  mongo-data:
+    driver: local
