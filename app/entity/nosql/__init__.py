@@ -8,5 +8,3 @@ from .location import Location
 from .reservation import Reservation
 from .review import Review
 from .user import User
-
-from .init import MONGO_DEFAULT_PORT, mongo_connect

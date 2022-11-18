@@ -6,5 +6,4 @@ konfik
 flask_sqlalchemy
 pymysql
 cryptography
-PyMongo
-flask_pymongo
+flask_mongoengine

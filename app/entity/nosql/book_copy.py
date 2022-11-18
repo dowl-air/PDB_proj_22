@@ -1,5 +1,4 @@
 
-
 import mongoengine as me
 
 from .embedded import EmbeddedLocation
