@@ -32,7 +32,7 @@ class EmbeddedUser(me.EmbeddedDocument):
 	email = me.StringField()
 
 class EmbeddedBook(me.EmbeddedDocument):
-	id = me.IntField(primary_key=True, null=False)
+	id = me.IntField(null=False)
 	name = me.StringField()
 	isbn = me.StringField()
 	release_date = me.DateField()
