@@ -1,9 +1,9 @@
 
 import sqlalchemy as sa
 
-from .base import Base
+from .base import db
 
-class Location(Base):
+class Location(db.Model):
 	__tablename__ = 'location'
 
 	id = sa.Column(sa.Integer(), primary_key=True)

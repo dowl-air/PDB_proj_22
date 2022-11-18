@@ -2,9 +2,9 @@
 import sqlalchemy as sa
 from sqlalchemy.orm import relationship
 
-from .base import Base
+from .base import db
 
-class User(Base):
+class User(db.Model):
 	__tablename__ = 'user'
 
 	id = sa.Column(sa.Integer(), primary_key=True)

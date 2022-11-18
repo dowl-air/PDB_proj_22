@@ -2,9 +2,9 @@
 import sqlalchemy as sa
 import sqlalchemy.dialects.mysql as samysql
 
-from .base import Base
+from .base import db
 
-class Reservation(Base):
+class Reservation(db.Model):
 	__tablename__ = 'reservation'
 
 	id = sa.Column(sa.Integer(), primary_key=True)

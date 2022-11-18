@@ -3,9 +3,9 @@ import sqlalchemy as sa
 from sqlalchemy.orm import relationship
 import sqlalchemy.dialects.mysql as samysql
 
-from .base import Base
+from .base import db
 
-class BookCopy(Base):
+class BookCopy(db.Model):
 	__tablename__ = 'book_copy'
 
 	id = sa.Column(sa.Integer(), primary_key=True)

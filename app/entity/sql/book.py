@@ -2,11 +2,11 @@
 import sqlalchemy as sa
 from sqlalchemy.orm import relationship
 
-from .base import Base
+from .base import db
 
 from .associative_table import Book_Author, Book_Category
 
-class Book(Base):
+class Book(db.Model):
 	__tablename__ = 'book'
 
 	id = sa.Column(sa.Integer(), primary_key=True)
