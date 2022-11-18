@@ -34,6 +34,6 @@ class EmbeddedUser(me.EmbeddedDocument):
 class EmbeddedBook(me.EmbeddedDocument):
 	id = me.IntField(null=False)
 	name = me.StringField()
-	isbn = me.StringField()
+	ISBN = me.StringField()
 	release_date = me.DateField()
 	description = me.StringField()

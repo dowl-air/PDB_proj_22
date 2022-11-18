@@ -11,7 +11,7 @@ class Book(Base):
 
 	id = sa.Column(sa.Integer(), primary_key=True)
 	name = sa.Column(sa.VARCHAR(length=255), nullable=False)
-	isbn = sa.Column(sa.VARCHAR(length=255), nullable=False, unique=True)
+	ISBN = sa.Column(sa.VARCHAR(length=255), nullable=False, unique=True)
 	release_date = sa.Column(sa.Date())
 	description = sa.Column(sa.VARCHAR(length=1000))
 
