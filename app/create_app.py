@@ -18,7 +18,7 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://{}:{}@{}:{}/{}'.format(
         os.getenv('DB_USER', 'pdb'),
         os.getenv('DB_PASSWORD', 'pdb'),
-        os.getenv('DB_HOST', 'localhost'),
+        os.getenv('DB_HOST', 'mysql'),
         os.getenv('DB_PORT', MYSQL_DEFAULT_PORT),
         os.getenv('DB_NAME', 'pdb')
     )
@@ -26,9 +26,9 @@ def create_app():
 
     app.config['MONGODB_SETTINGS'] = [
         {
-            'username': os.getenv('MONGODB_USERNAME', ''),
-            'password': os.getenv('MONGODB_PASSWORD', ''),
-            'host': os.getenv('MONGODB_HOSTNAME', 'localhost'),
+            'username': os.getenv('MONGODB_USERNAME', 'pdb'),
+            'password': os.getenv('MONGODB_PASSWORD', 'pdb'),
+            'host': os.getenv('MONGODB_HOSTNAME', 'mongodb'),
             'port': os.getenv('MONGODB_PORT', MONGO_DEFAULT_PORT),
             'db': os.getenv('MONGODB_DATABASE', 'pdb')
         }
