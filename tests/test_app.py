@@ -1,21 +1,7 @@
 
 from http import HTTPStatus
 
-import pytest
 from flask.testing import FlaskClient
-
-from app.create_app import create_app, db, mongo
-
-@pytest.fixture(scope='module', autouse=True)
-def clear_db():
-	with create_app().app_context():
-		db.drop_all()
-		mongo.connection['default'].drop_database('pdb')
-	
-@pytest.fixture
-def client():
-	with create_app().test_client() as client:
-		yield client
 
 def test_hello_world(client: FlaskClient):
 	resp = client.get('/')
