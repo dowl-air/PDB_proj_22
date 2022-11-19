@@ -3,10 +3,10 @@ from flask import Flask
 from flask_mongoengine import MongoEngine
 import os
 
-from .entity.sql import db
+from entity.sql import db
 
-from .entity.sql import User
-from .entity.nosql import Book as MongoBook
+from entity.sql import User
+from entity.nosql import Book as MongoBook
 
 
 MYSQL_DEFAULT_PORT = 3306
