@@ -8,3 +8,5 @@ from .location import Location
 from .reservation import Reservation
 from .review import Review
 from .user import User
+
+from .base import mongo
