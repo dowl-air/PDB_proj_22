@@ -11,6 +11,12 @@ from app.entity.nosql import (
 	EmbeddedCategory, EmbeddedBook, EmbeddedLocation, EmbeddedBookCopy, AuthorName, EmbeddedUser
 )
 
+from app.entity.sql import (
+	Location as SQLLocation, Category as SQLCategory, Author as SQLAuthor,
+	Book as SQLBook, BookCopy as SQLBookCopy, User as SQLUser, Borrowal as SQLBorrowal,
+	Reservation as SQLReservation, Review as SQLReview
+)
+
 BOOK_COPY_STATE_DELETED = 0
 BOOK_COPY_STATE_GOOD = 1
 BOOK_COPY_STATE_DAMAGED = 2
@@ -121,7 +127,7 @@ bc1984London2 = BookCopy(id=4, book_id=book1984.id, print_date=date(1990, 5, 21)
 	state=BOOK_COPY_STATE_DAMAGED, location=embed_location(locationLondon))
 bc1984London3 = BookCopy(id=5, book_id=book1984.id, print_date=date(2005, 2, 22), note='Lost',
 	state=BOOK_COPY_STATE_DELETED, location=embed_location(locationLondon))
-bcAnimalFarmBrno = BookCopy(id=6, book_id=bookAnimalFarm.id,
+bcAnimalFarmBrno = BookCopy(id=6, book_id=bookAnimalFarm.id, print_date=date(2021, 5, 8),
 	state=BOOK_COPY_STATE_GOOD, location=embed_location(locationBrno))
 bcAnimalFarmLondon = BookCopy(id=8, book_id=bookAnimalFarm.id, print_date=date(2022, 6, 13),
 	state=BOOK_COPY_STATE_NEW, location=embed_location(locationOlomouc))
@@ -129,11 +135,11 @@ bcAnimalFarmOlomouc = BookCopy(id=9, book_id=bookAnimalFarm.id, print_date=date(
 	state=BOOK_COPY_STATE_GOOD, location=embed_location(locationOlomouc))
 bcBraveNewWorldBrno = BookCopy(id=10, book_id=bookBraveNewWorld.id, print_date=date(2019, 8, 18),
 	state=BOOK_COPY_STATE_GOOD, location=embed_location(locationBrno))
-bcBraveNewWorldLondon = BookCopy(id=11, book_id=bookBraveNewWorld.id,
+bcBraveNewWorldLondon = BookCopy(id=11, book_id=bookBraveNewWorld.id, print_date=date(2021, 6, 1),
 	state=BOOK_COPY_STATE_GOOD, location=embed_location(locationLondon))
 bcHobbitBrno = BookCopy(id=12, book_id=bookHobbit.id, print_date=date(2020, 4, 8),
 	state=BOOK_COPY_STATE_GOOD, location=embed_location(locationBrno))
-bcHobbitLondon1 = BookCopy(id=13, book_id=bookHobbit.id,
+bcHobbitLondon1 = BookCopy(id=13, book_id=bookHobbit.id, print_date=date(2018, 11, 4),
 	state=BOOK_COPY_STATE_DAMAGED, location=embed_location(locationLondon))
 bcHobbitLondon2 = BookCopy(id=14, book_id=bookHobbit.id, print_date=date(2021, 3, 11),
 	state=BOOK_COPY_STATE_GOOD, location=embed_location(locationLondon))
@@ -215,9 +221,100 @@ BORROWALS = [borrowalLondon1, borrowalLondon2, borrowalLondon3, borrowalBrno1, b
 RESERVATIONS = [reservationBrno, reservationOlomouc, reservationBrnoActive]
 REVIEWS = [review1984, reviewAnimalFarm, reviewHobbit, reviewGoodOmens1, reviewGoodOmens2]
 
+def convert_location_to_sql(location: Location) -> SQLLocation:
+	return SQLLocation(id=location.id, name=location.name, address=location.address)
+
+def convert_location_list_to_sql(locations: List[Location]) -> List[SQLLocation]:
+	return [convert_location_to_sql(location) for location in locations]
+
+def convert_category_to_sql(category: Category) -> SQLCategory:
+	return SQLCategory(id=category.id, name=category.name, description=category.description)
+
+def convert_category_list_to_sql(categories: List[Category]) -> List[SQLCategory]:
+	return [convert_category_to_sql(category) for category in categories]
+
+def convert_author_to_sql(author: Author) -> SQLAuthor:
+	return SQLAuthor(id=author.id, first_name=author.first_name, last_name=author.last_name,
+		description=author.description)
+
+def convert_author_list_to_sql(authors: List[Author]) -> List[SQLAuthor]:
+	return [convert_author_to_sql(author) for author in authors]
+
+def convert_book_to_sql(book: Book, authors: List[SQLAuthor], categories: List[SQLCategory]):
+	nbook = SQLBook(id=book.id, name=book.id, ISBN=book.ISBN,
+		release_date=book.release_date, description=book.description)
+
+	author_ids = [author.id for author in book.authors]
+	authors = list(filter(lambda x: x.id in author_ids, authors))
+	nbook.authors = authors
+
+	category_ids = [category.id for category in book.categories]
+	categories = list(filter(lambda x: x.id in category_ids, categories))
+	nbook.categories = categories
+
+	return nbook
+
+def convert_book_list_to_sql(books: List[Book], authors: List[SQLAuthor], categories: List[SQLCategory]) -> List[SQLBook]:
+	return [convert_book_to_sql(book, authors, categories) for book in books]
+
+def convert_book_copy_to_sql(copy: BookCopy) -> SQLBookCopy:
+	return SQLBookCopy(id=copy.id, book_id=copy.book_id, location_id=copy.location['id'],
+		print_date=copy.print_date, note=copy.note, state=copy.state)
+
+def convert_book_copy_list_to_sql(copies: List[BookCopy]) -> List[SQLBookCopy]:
+	return [convert_book_copy_to_sql(copy) for copy in copies]
+
+def convert_user_to_sql(user: User) -> SQLUser:
+	return SQLUser(id=user.id, first_name=user.first_name, last_name=user.last_name,
+		role=user.role, email=user.email, password=user.last_name.lower())
+
+def convert_user_list_to_sql(users: List[User]) -> List[SQLUser]:
+	return [convert_user_to_sql(user) for user in users]
+
+def convert_borrowal_to_sql(borrowal: Borrowal) -> SQLBorrowal:
+	return SQLBorrowal(id=borrowal.id, book_copy_id=borrowal.book_copy['id'],
+		customer_id=borrowal.customer['id'], start_date=borrowal.start_date,
+		end_date=borrowal.end_date, returned_date=borrowal.returned_date,
+		state=borrowal.state)
+
+def convert_borrowal_list_to_sql(borrowals: List[Borrowal]) -> List[SQLBorrowal]:
+	return [convert_borrowal_to_sql(borrowal) for borrowal in borrowals]
+
+def convert_reservation_to_sql(reservation: Reservation) -> Reservation:
+	return SQLReservation(id=reservation.id, book_copy_id=reservation.book_copy['id'],
+		customer_id=reservation.customer['id'], start_date=reservation.start_date,
+		end_date=reservation.end_date, state=reservation.state)
+
+def convert_reservation_list_to_sql(reservations: List[Reservation]) -> List[SQLReservation]:
+	return [convert_reservation_to_sql(reservation) for reservation in reservations]
+
+def convert_review_to_sql(review: Review) -> SQLReview:
+	return SQLReview(id=review.id, user_id=review.customer['id'], book_id=review.book_id,
+		title=review.title, content=review.content, rating=review.rating)
+
+def convert_review_list_to_sql(reviews: List[Review]) -> List[SQLReview]:
+	return [convert_review_to_sql(review) for review in reviews]
+
+SQL_LOCATIONS = convert_location_list_to_sql(LOCATIONS)
+SQL_CATEGORIES = convert_category_list_to_sql(CATEGORIES)
+SQL_AUTHORS = convert_author_list_to_sql(AUTHORS)
+SQL_BOOKS = convert_book_list_to_sql(BOOKS, SQL_AUTHORS, SQL_CATEGORIES)
+SQL_BOOK_COPIES = convert_book_copy_list_to_sql(BOOK_COPIES)
+SQL_USERS = convert_user_list_to_sql(USERS)
+SQL_BORROWALS = convert_borrowal_list_to_sql(BORROWALS)
+SQL_RESERVATIONS = convert_reservation_list_to_sql(RESERVATIONS)
+SQL_REVIEWS = convert_review_list_to_sql(REVIEWS)
+
 @pytest.fixture(scope='session', autouse=True)
 def fill_db():
 	with create_app().app_context():
-		for arr in [LOCATIONS, CATEGORIES, AUTHORS, BOOKS, BOOK_COPIES, USERS, BORROWALS, RESERVATIONS]:
+		for arr in [LOCATIONS, CATEGORIES, AUTHORS, BOOKS, BOOK_COPIES, USERS, BORROWALS, RESERVATIONS, REVIEWS]:
 			for it in arr:
 				it.save()
+
+		db.create_all()
+		for arr in [SQL_LOCATIONS, SQL_CATEGORIES, SQL_AUTHORS, SQL_BOOKS, SQL_BOOK_COPIES, SQL_USERS, SQL_BORROWALS, SQL_RESERVATIONS, SQL_REVIEWS]:
+			for it in arr:
+				db.session.add(it)
+			db.session.commit()
+
