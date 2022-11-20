@@ -3,7 +3,8 @@ from flask.testing import FlaskClient
 
 from http import HTTPStatus
 from json import loads
-from bson import json_util
+
+from helpers import entity_compare, expect_error, login, logout
 
 from conftest import (
 	BOOKS,
@@ -19,27 +20,6 @@ from conftest import (
 	review1984, reviewAnimalFarm, reviewHobbit, reviewGoodOmens1, reviewGoodOmens2
 )
 
-def serialize(arg) -> str:
-	if isinstance(arg, list):
-		return json_util.dumps([x.to_mongo() for x in arg])
-
-	return arg.to_json()
-
-def entity_compare(data, entity) -> None:
-	assert loads(data.decode()) == loads(serialize(entity))
-
-def check_error_message(data) -> None:
-	assert data.decode() is not None
-
-def login(client: FlaskClient, email: str, password: str) -> None:
-	resp = client.post('/login', data={'email': email, 'password': password})
-	assert resp.status_code == HTTPStatus.OK
-
-def logout(client: FlaskClient) -> None:
-	resp = client.post('/logout')
-	assert resp.status_code == HTTPStatus.OK
-
-
 def test_get_books(client: FlaskClient):
 	resp = client.get('/books')
 	assert resp.status_code == HTTPStatus.OK
@@ -52,8 +32,7 @@ def test_get_book(client: FlaskClient):
 
 def test_get_book_not_exists(client: FlaskClient):
 	resp = client.get('/books/300')
-	assert resp.status_code not in [HTTPStatus.OK, HTTPStatus.NOT_FOUND]
-	check_error_message(resp.data)
+	expect_error(resp)
 
 def test_get_book_copies(client: FlaskClient):
 	resp = client.get('/book_copies/book/%d' % bookHobbit.id)
@@ -92,9 +71,7 @@ def test_get_author(client: FlaskClient):
 
 def test_get_author_not_exists(client: FlaskClient):
 	resp = client.get('/author/300')
-	assert resp.status_code != HTTPStatus.OK
-	assert resp.status_code not in [HTTPStatus.OK, HTTPStatus.NOT_FOUND]
-	check_error_message(resp.data)
+	expect_error(resp)
 
 def test_get_category(client: FlaskClient):
 	resp = client.get('/category/%d' % categoryComedy.id)
@@ -103,8 +80,7 @@ def test_get_category(client: FlaskClient):
 
 def test_get_category_not_exists(client: FlaskClient):
 	resp = client.get('/category/300')
-	assert resp.status_code not in [HTTPStatus.OK, HTTPStatus.NOT_FOUND]
-	check_error_message(resp.data)
+	expect_error(resp)
 
 def test_get_location(client: FlaskClient):
 	resp = client.get('/location/%d' % locationLondon.id)
@@ -113,8 +89,7 @@ def test_get_location(client: FlaskClient):
 
 def test_get_location_not_exists(client: FlaskClient):
 	resp = client.get('/location/300')
-	assert resp.status_code not in [HTTPStatus.OK, HTTPStatus.NOT_FOUND]
-	check_error_message(resp.data)
+	expect_error(resp)
 
 def test_get_profile(client: FlaskClient):
 	login(client, userCustomerCustomer.email, 'customer') # TODO
