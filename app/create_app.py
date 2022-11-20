@@ -1,7 +1,9 @@
 
 from flask import Flask
-from flask_mongoengine import MongoEngine
 import os
+
+from entity.sql import db
+from entity.nosql import mongo
 
 from entity.sql import User
 from entity.nosql import Book as MongoBook
@@ -31,10 +33,9 @@ def create_app():
             'db': os.getenv('MONGODB_DATABASE', 'pdb')
         }
     ]
-    mongo = MongoEngine(app)
 
-    from entity.sql import db
     db.init_app(app)
+    mongo.init_app(app)
 
     @app.route("/")
     def hello_world():
