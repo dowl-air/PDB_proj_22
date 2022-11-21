@@ -2,7 +2,7 @@
 *.pyc
 venv
 
-temp.py
+temp*.py
 
 __pycache__/
 .pytest_cache/

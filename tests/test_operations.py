@@ -5,13 +5,181 @@ from datetime import date
 from http import HTTPStatus
 from json import loads
 
-from helpers import login, expect_error, entity_compare
+from helpers import login, expect_error, entity_compare, assert_dict_equal
 from conftest import (
 	embed_author_list,
 	authorOrwell, authorHuxley, authorTolkien,
-	book1984, bookBraveNewWorld,
-	locationBrno
+	book1984, bookBraveNewWorld, bookAnimalFarm,
+	locationBrno,
+	categoryFable,
+	bc1984Brno1
 )
+
+class TestCategory:
+	new_id: int
+
+	def test_category_add(self, client: FlaskClient):
+		data = {
+			'name': 'Novel',
+			'description': 'A novel is a relatively long work of narrative fiction, typically...'
+		}
+
+		resp = client.post('/category/add', data=data)
+		assert resp.status_code == HTTPStatus.OK
+		json_data = loads(resp.data.decode())
+		assert 'id' in json_data
+
+		self.new_id = json_data['id']
+
+		resp = client.get('/category/%d' % self.new_id)
+		assert resp.status_code == HTTPStatus.OK
+		category = loads(resp.data.decode())
+		assert data['name'] == category['name']
+		assert data['description'] == category['description']
+
+	def test_category_add_invalid(self, client: FlaskClient):
+		data = {
+			'description': 'Missing category name'
+		}
+
+		resp = client.post('/category/add', data=data)
+		expect_error(resp)
+
+	def test_category_edit(self, client: FlaskClient):
+		data = {
+			'name': 'Edited category name',
+			'description': 'Edited category description'
+		}
+
+		resp = client.patch('/category/%d/edit' % self.new_id, data=data)
+		assert resp.status_code == HTTPStatus.OK
+
+		resp = client.get('/category/%d' % self.new_id)
+		assert resp.status_code == HTTPStatus.OK
+		category = loads(resp.data.decode())
+		assert data['name'] == category['name']
+		assert data['description'] == category['description']
+
+	def test_category_edit_invalid(self, client: FlaskClient):
+		data = {
+			'name': None,
+			'description': 'New description'
+		}
+
+		resp = client.patch('/category/add', data=data)
+		expect_error(resp)
+
+	def test_category_edit_propagation(self, client: FlaskClient):
+		data = {
+			'name': 'Fairy tale',
+			'description': 'Fantastical story'
+		}
+
+		resp = client.patch('/category/%d/edit' % categoryFable.id, data=data)
+		assert resp.status_code == HTTPStatus.OK
+
+		resp = client.get('/book/%d' % self.new_id)
+		assert resp.status_code == HTTPStatus.OK
+		book = loads(resp.data.decode())
+		assert_dict_equal(book['categories'], [data])
+	
+	def test_category_delete(self, client: FlaskClient):
+		resp = client.delete('/category/%d/delete' % self.new_id)
+		assert resp.status_code == HTTPStatus.OK
+
+		resp = client.get('/category/%d' % self.new_id)
+		expect_error(resp)
+
+	def test_category_delete_propagation(self, client: FlaskClient):
+		resp = client.delete('/category/%d/delete' % categoryFable.id)
+		assert resp.status_code == HTTPStatus.OK
+
+		resp = client.get('/book/%d' % bookAnimalFarm.id)
+		assert resp.status_code == HTTPStatus.OK
+		book = loads(resp.data.decode())
+		assert len(book['categories']) == 1
+		assert book['categories'][0]['id'] != categoryFable.id
+		
+class TestLocation:
+	new_id: int
+
+	def test_location_add(self, client: FlaskClient):
+		data = {
+			'name': 'VUT FIT',
+			'address': 'Božetěchova 1/2, 612 00 Brno-Královo Pole'
+		}
+
+		resp = client.post('/location/add', data=data)
+		assert resp.status_code == HTTPStatus.OK
+		json_data = loads(resp.data.decode())
+		assert 'id' in json_data
+
+		self.new_id = json_data['id']
+
+		resp = client.get('/location/%d' % self.new_id)
+		assert resp.status_code == HTTPStatus.OK
+		location = loads(resp.data.decode())
+		assert data['name'] == location['name']
+		assert data['address'] == location['address']
+
+	def test_location_add_invalid(self, client: FlaskClient):
+		data = {
+			'address': 'Missing location name'
+		}
+
+		resp = client.post('/location/add', data=data)
+		expect_error(resp)
+
+	def test_location_edit(self, client: FlaskClient):
+		data = {
+			'name': 'Edited VUT FIT location',
+			'address': 'Edited location address'
+		}
+
+		resp = client.patch('/location/%d/edit' % self.new_id, data=data)
+		assert resp.status_code == HTTPStatus.OK
+
+		resp = client.get('/location/%d' % id)
+		assert resp.status_code == HTTPStatus.OK
+		location = loads(resp.data.decode())
+		assert data['name'] == location['name']
+		assert data['address'] == location['address']
+
+	def test_location_edit_invalid(self, client: FlaskClient):
+		data = {
+			'name': None,
+			'description': 'Invalid edit - no name'
+		}
+
+		resp = client.patch('/location/%d/edit' % self.new_id, data=data)
+		expect_error(resp)
+
+	def test_location_edit_propagation(self, client: FlaskClient):
+		data = {
+			'name': 'Ostrava',
+			'address': 'idk'
+		}
+
+		resp = client.patch('/location/%d/edit' % locationBrno.id, data=data)
+		assert resp.status_code == HTTPStatus.OK
+
+		resp = client.get('/book_copy/%d' % bc1984Brno1.id)
+		assert resp.status_code == HTTPStatus.OK
+		book_copy = loads(resp.data.decode())
+		assert book_copy['location']['name'] == data['name']
+		assert book_copy['location']['address'] == data['address']
+	
+	def test_location_delete(self, client: FlaskClient):
+		resp = client.delete('/location/%d/delete' % self.new_id)
+		assert resp.status_code == HTTPStatus.OK
+
+		resp = client.get('/location/%d' % self.new_id)
+		expect_error(resp)
+
+	# cannot delete location with assigned book copies
+	def test_location_delete_invalid(self, client: FlaskClient):
+		resp = client.delete('/location/%d/delete' % locationBrno.id)
+		expect_error(resp)
 
 NEW_USER_EMAIL = 'new_email@email.cz'
 
