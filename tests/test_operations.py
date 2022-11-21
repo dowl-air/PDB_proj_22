@@ -5,13 +5,98 @@ from datetime import date
 from http import HTTPStatus
 from json import loads
 
-from helpers import login, expect_error, entity_compare
+from helpers import login, expect_error, entity_compare, assert_dict_equal
 from conftest import (
 	embed_author_list,
 	authorOrwell, authorHuxley, authorTolkien,
-	book1984, bookBraveNewWorld,
-	locationBrno
+	book1984, bookBraveNewWorld, bookAnimalFarm,
+	locationBrno,
+	categoryFable
 )
+class TestCategory:
+	new_category_id: int
+
+	def test_category_add(self, client: FlaskClient):
+		data = {
+			'name': 'Novel',
+			'description': 'A novel is a relatively long work of narrative fiction, typically...'
+		}
+
+		resp = client.post('/category/add', data=data)
+		assert resp.status_code == HTTPStatus.OK
+		json_data = loads(resp.data.decode())
+		assert 'id' in json_data
+
+		self.new_category_id = json_data['id']
+
+		resp = client.get('/category/%d' % self.new_category_id)
+		assert resp.status_code == HTTPStatus.OK
+		category = loads(resp.data.decode())
+		assert data['name'] == category['name']
+		assert data['description'] == category['description']
+
+	def test_category_add_invalid(self, client: FlaskClient):
+		data = {
+			'description': 'dsahbdsaansdana'
+		}
+
+		resp = client.post('/category/add', data=data)
+		expect_error(resp)
+
+	def test_category_edit(self, client: FlaskClient):
+		data = {
+			'name': 'Edited category',
+			'description': 'Edited category description'
+		}
+
+		resp = client.patch('/category/%d/edit' % self.new_category_id, data=data)
+		assert resp.status_code == HTTPStatus.OK
+
+		resp = client.get('/category/%d' % id)
+		assert resp.status_code == HTTPStatus.OK
+		category = loads(resp.data.decode())
+		assert data['name'] == category['name']
+		assert data['description'] == category['description']
+
+	def test_category_edit_invalid(self, client: FlaskClient):
+		data = {
+			'name': None,
+			'description': 'New description'
+		}
+
+		resp = client.patch('/category/add', data=data)
+		expect_error(resp)
+
+	def test_category_edit_propagation(self, client: FlaskClient):
+		data = {
+			'name': 'Fairy tale',
+			'description': 'Fantastical story'
+		}
+
+		resp = client.patch('/category/%d/edit' % categoryFable, data=data)
+		assert resp.status_code == HTTPStatus.OK
+
+		resp = client.get('/book/%d' % self.new_category_id)
+		assert resp.status_code == HTTPStatus.OK
+		book = loads(resp.data.decode())
+		assert_dict_equal(book['categories'], [data])
+	
+	def test_category_delete(self, client: FlaskClient):
+		resp = client.delete('/category/%d/delete' % self.new_category_id)
+		assert resp.status_code == HTTPStatus.OK
+
+		resp = client.get('/category/%d' % self.new_category_id)
+		expect_error(resp)
+
+	def test_category_delete_propagation(self, client: FlaskClient):
+		resp = client.delete('/category/%d/delete' % categoryFable.id)
+		assert resp.status_code == HTTPStatus.OK
+
+		resp = client.get('/book/%d' % bookAnimalFarm.id)
+		assert resp.status_code == HTTPStatus.OK
+		book = loads(resp.data.decode())
+		assert len(book['categories']) == 1
+		assert book['categories'][0]['id'] != categoryFable.id
 
 NEW_USER_EMAIL = 'new_email@email.cz'
 
