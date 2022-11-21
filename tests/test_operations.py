@@ -16,7 +16,7 @@ from conftest import (
 )
 
 class TestCategory:
-	new_category_id: int
+	new_id: int
 
 	def test_category_add(self, client: FlaskClient):
 		data = {
@@ -29,9 +29,9 @@ class TestCategory:
 		json_data = loads(resp.data.decode())
 		assert 'id' in json_data
 
-		self.new_category_id = json_data['id']
+		self.new_id = json_data['id']
 
-		resp = client.get('/category/%d' % self.new_category_id)
+		resp = client.get('/category/%d' % self.new_id)
 		assert resp.status_code == HTTPStatus.OK
 		category = loads(resp.data.decode())
 		assert data['name'] == category['name']
@@ -39,7 +39,7 @@ class TestCategory:
 
 	def test_category_add_invalid(self, client: FlaskClient):
 		data = {
-			'description': 'dsahbdsaansdana'
+			'description': 'Missing category name'
 		}
 
 		resp = client.post('/category/add', data=data)
@@ -47,14 +47,14 @@ class TestCategory:
 
 	def test_category_edit(self, client: FlaskClient):
 		data = {
-			'name': 'Edited category',
+			'name': 'Edited category name',
 			'description': 'Edited category description'
 		}
 
-		resp = client.patch('/category/%d/edit' % self.new_category_id, data=data)
+		resp = client.patch('/category/%d/edit' % self.new_id, data=data)
 		assert resp.status_code == HTTPStatus.OK
 
-		resp = client.get('/category/%d' % id)
+		resp = client.get('/category/%d' % self.new_id)
 		assert resp.status_code == HTTPStatus.OK
 		category = loads(resp.data.decode())
 		assert data['name'] == category['name']
@@ -75,19 +75,19 @@ class TestCategory:
 			'description': 'Fantastical story'
 		}
 
-		resp = client.patch('/category/%d/edit' % categoryFable, data=data)
+		resp = client.patch('/category/%d/edit' % categoryFable.id, data=data)
 		assert resp.status_code == HTTPStatus.OK
 
-		resp = client.get('/book/%d' % self.new_category_id)
+		resp = client.get('/book/%d' % self.new_id)
 		assert resp.status_code == HTTPStatus.OK
 		book = loads(resp.data.decode())
 		assert_dict_equal(book['categories'], [data])
 	
 	def test_category_delete(self, client: FlaskClient):
-		resp = client.delete('/category/%d/delete' % self.new_category_id)
+		resp = client.delete('/category/%d/delete' % self.new_id)
 		assert resp.status_code == HTTPStatus.OK
 
-		resp = client.get('/category/%d' % self.new_category_id)
+		resp = client.get('/category/%d' % self.new_id)
 		expect_error(resp)
 
 	def test_category_delete_propagation(self, client: FlaskClient):
