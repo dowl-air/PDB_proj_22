@@ -63,7 +63,7 @@ class TestCategory:
 	def test_category_edit_invalid(self, client: FlaskClient):
 		data = {
 			'name': None,
-			'description': 'New description'
+			'description': 'Invalid edit - no name'
 		}
 
 		resp = client.put('/category/add', data=data)
@@ -78,7 +78,7 @@ class TestCategory:
 		resp = client.put('/category/%d/edit' % categoryFable.id, data=data)
 		assert resp.status_code == HTTPStatus.OK
 
-		resp = client.get('/book/%d' % self.new_id)
+		resp = client.get('/book/%d' % bookAnimalFarm.id)
 		assert resp.status_code == HTTPStatus.OK
 		book = loads(resp.data.decode())
 		assert_dict_equal(book['categories'], [data])
