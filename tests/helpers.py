@@ -3,6 +3,7 @@ from flask.testing import FlaskClient
 from werkzeug.test import TestResponse
 from deepdiff.diff import DeepDiff
 
+from datetime import date
 from http import HTTPStatus
 from json import loads, dumps
 from bson import json_util
@@ -26,7 +27,8 @@ def expect_error(resp: TestResponse) -> None:
 	assert resp.data.decode() is not None
 
 def assert_error_response(resp: TestResponse) -> None:
-	assert resp.status_code not in [HTTPStatus.OK, HTTPStatus.NOT_FOUND, HTTPStatus.UNAUTHORIZED]
+	assert resp.status_code != HTTPStatus.OK
+	assert resp.status_code != HTTPStatus.UNAUTHORIZED
 	assert resp.data.decode() is not None
 
 def login(client: FlaskClient, email: str, password: str) -> None:
@@ -80,3 +82,6 @@ def find_by_id(id: int, arr: list):
 	if len(arr) == 0 or not isinstance(arr[0], dict):
 		return None
 	return find(lambda x: x['id'] == id, arr)
+
+def format_date(d: date) -> str:
+	return d.strftime('%Y-%m-%d')
