@@ -7,17 +7,19 @@ from json import loads
 
 from helpers import (
 	assert_dict_equal, assert_error_response,
-	find_by_id,
-	protected_post, protected_put, protected_delete	
+	find, find_by_id,
+	protected_post, protected_put, protected_delete, protected_patch
 )
 from conftest import (
 	BOOK_COPY_STATE_GOOD, BOOK_COPY_STATE_DAMAGED,
+	RESERVATION_STATE_ACTIVE, RESERVATION_STATE_CLOSED,
 	authorOrwell, authorHuxley, authorTolkien,
 	book1984, bookBraveNewWorld, bookAnimalFarm,
 	locationBrno, locationOlomouc,
 	categoryFable, categoryHistory, categoryNonFiction, categoryFantasy,
-	bc1984Brno1, bc1984London1, bc1984London2,
-	userEmployeeBrno, userAdmin
+	bc1984Brno1, bc1984London1, bc1984London2, bc1984Brno2, bcAnimalFarmBrno,
+	userEmployeeBrno, userAdmin, userCustomerCustomer,
+	reservationBrno
 )
 
 class TestCategory:
@@ -97,7 +99,7 @@ class TestCategory:
 		assert resp.status_code == HTTPStatus.OK
 		book = loads(resp.data.decode())
 		assert_dict_equal(book['categories'], [data])
-	
+
 	def test_category_delete(self, client: FlaskClient):
 		USER = userEmployeeBrno
 
@@ -118,7 +120,7 @@ class TestCategory:
 		book = loads(resp.data.decode())
 		assert len(book['categories']) == 1
 		assert book['categories'][0]['id'] != categoryFable.id
-		
+
 class TestLocation:
 	new_id: int
 
@@ -197,7 +199,7 @@ class TestLocation:
 		book_copy = loads(resp.data.decode())
 		assert book_copy['location']['name'] == data['name']
 		assert book_copy['location']['address'] == data['address']
-	
+
 	def test_location_delete(self, client: FlaskClient):
 		USER = userAdmin
 
@@ -301,7 +303,7 @@ class TestAuthor:
 		author = book['authors'][0]
 		assert author['first_name'] == data['first_name']
 		assert author['last_name'] == data['last_name']
-	
+
 	def test_author_delete(self, client: FlaskClient):
 		USER = userEmployeeBrno
 
@@ -479,7 +481,7 @@ class TestBookCopy:
 		assert copy['note'] == data['note']
 		assert copy['state'] == data['state']
 		assert copy['location_id'] == LOCATION.id
-	
+
 	def test_book_copy_delete(self, client: FlaskClient):
 		USER = userEmployeeBrno
 
@@ -728,7 +730,7 @@ class TestBook:
 		assert book['ISBN'] == data['ISBN']
 		assert book['release_date'] == data['release_date']
 		assert book['description'] == data['description']
-	
+
 	def test_book_delete(self, client: FlaskClient):
 		USER = userEmployeeBrno
 
@@ -825,3 +827,73 @@ class TestUser:
 		profile = loads(resp.data.decode())
 		assert profile['first_name'] == data['first_name']
 		assert profile['last_name'] == data['last_name']
+
+class TestReservations:
+	new_id: int
+
+	def test_reservation_add(self, client: FlaskClient):
+		USER = userCustomerCustomer
+
+		BOOK_COPY = bc1984Brno2
+
+		data = {
+			'book_copy_id': BOOK_COPY.id
+		}
+
+		resp = protected_post('/reservation/add', data, client, USER)
+		assert resp.status_code == HTTPStatus.OK
+		json_data = loads(resp.data.decode())
+		assert 'id' in json_data
+
+		self.new_id = json_data['id']
+
+		resp = client.get('/profile/%d/reservations' % USER.id)
+		assert resp.status_code == HTTPStatus.OK
+		json_data = loads(resp.data.decode())
+		reservation = find_by_id(self.new_id, json_data)
+		assert reservation['book_copy_id'] == BOOK_COPY.id
+		assert reservation['start_date'] == date.today()
+		assert reservation['state'] == RESERVATION_STATE_ACTIVE
+
+	def test_reservation_invalid_reserved(self, client: FlaskClient):
+		USER = userCustomerCustomer
+
+		BOOK_COPY = bcAnimalFarmBrno
+
+		data = {
+			'book_copy_id': BOOK_COPY.id
+		}
+
+		resp = protected_post('/reservation/add', data, client, USER)
+		assert_error_response(resp)
+
+	def test_reservation_invalid_borrowed(self, client: FlaskClient):
+		USER = userCustomerCustomer
+
+		BOOK_COPY = bc1984Brno1
+
+		data = {
+			'book_copy_id': BOOK_COPY.id
+		}
+
+		resp = protected_post('/reservation/add', data, client, USER)
+		assert_error_response(resp)
+
+	def test_reservation_cancel(self, client: FlaskClient):
+		USER = userCustomerCustomer
+
+		resp = protected_patch('/reservation/%d/cancel' % self.new_id, {}, client, USER)
+		assert resp.status_code == HTTPStatus.OK
+
+		resp = client.get('/profile/%d/reservations' % USER.id)
+		assert resp.status_code == HTTPStatus.OK
+		json_data = loads(resp.data.decode())
+		reservation = find_by_id(self.new_id, json_data)
+		assert reservation['state'] == RESERVATION_STATE_CLOSED
+
+	def test_reservation_cancel_invalid(self, client: FlaskClient):
+		USER = userCustomerCustomer
+
+		# reservation is already closed
+		resp = protected_patch('/reservation/%d/cancel' % reservationBrno.id, {}, client, USER)
+		assert_error_response(resp)

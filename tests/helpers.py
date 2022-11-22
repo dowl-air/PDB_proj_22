@@ -71,6 +71,13 @@ def protected_put(endpoint: str, data: dict, client: FlaskClient, user) -> TestR
 
 	return client.put(endpoint, data=data)
 
+def protected_patch(endpoint: str, data: dict, client: FlaskClient, user) -> TestResponse:
+	data['authorization'] = {
+		'user_id': user['id']
+	}
+
+	return client.patch(endpoint, data=data)
+
 def find(fn, arr: list):
 	arr = list(filter(fn, arr))
 	if arr != 1:
