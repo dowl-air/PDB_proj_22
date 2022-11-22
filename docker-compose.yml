@@ -35,13 +35,16 @@ services:
       - mysql
     image: phpmyadmin/phpmyadmin:latest
     container_name: mysql-phpmyadmin
-    restart: unless-stopped
+    restart: always
     ports:
       - "5010:80"
     environment:
+      PMA_HOST: mysql
       MYSQL_ROOT_PASSWORD: pdb
       MYSQL_USER: pdb
       MYSQL_PASSWORD: pdb
+    links:
+      - mysql
   
   mongodb:
     image: mongo
