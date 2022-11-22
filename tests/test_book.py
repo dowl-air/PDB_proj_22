@@ -15,7 +15,7 @@ from conftest import (
 	authorOrwell, authorHuxley, authorTolkien,
 	book1984, bookAnimalFarm,
 	categoryFable, categoryHistory, categoryNonFiction, categoryFantasy,
-	userEmployeeBrno,
+	userEmployeeBrno
 )
 
 class TestBook:
