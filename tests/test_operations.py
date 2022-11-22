@@ -791,8 +791,8 @@ class TestUser:
 
 		# missing password
 		data = template.copy()
-		data['location_id'] = None
-		resp = client.post('/book_copy/add', data=data)
+		data['password'] = None
+		resp = client.post('/register', data=data)
 		assert_error_response(resp)
 
 	def test_login(self, client: FlaskClient):
