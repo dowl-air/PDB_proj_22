@@ -4,144 +4,151 @@ from flask.testing import FlaskClient
 from http import HTTPStatus
 from json import loads
 
-from helpers import entity_compare, expect_error, login, logout
-
+from helpers import to_json, assert_error_response
 from conftest import (
-	BOOKS,
+	BOOKS, BOOK_COPIES, BORROWALS, RESERVATIONS, REVIEWS,
+	BORROWAL_STATE_ACTIVE,
 	book1984, bookHobbit, bookGoodOmens, bookBraveNewWorld,
-	bcHobbitBrno, bcHobbitLondon1, bcHobbitLondon2, bcHobbitOlomouc,
-	bc1984Brno1, bc1984Brno2, bcAnimalFarmBrno,
+	bcHobbitBrno, bcHobbitLondon1, bc1984Brno1, bc1984Brno2, bcAnimalFarmBrno,
 	authorOrwell,
 	categoryComedy,
 	locationLondon,
-	userCustomerCustomer, userCustomerReviewer, userEmployeeBrno,
-	borrowalLondon1, borrowalLondon3, borrowalBrno1, borrowalBrno2, borrowalBrnoActive1,
-	reservationBrno, reservationBrnoActive,
-	review1984, reviewAnimalFarm, reviewHobbit, reviewGoodOmens1, reviewGoodOmens2
+	userCustomerCustomer, userCustomerReviewer
 )
 
 def test_get_books(client: FlaskClient):
 	resp = client.get('/books')
 	assert resp.status_code == HTTPStatus.OK
-	entity_compare(resp.data, BOOKS)
+	assert loads(resp.data.decode()) == to_json(BOOKS)
 
 def test_get_book(client: FlaskClient):
-	resp = client.get('/books/%d' % book1984.id)
+	BOOK = book1984
+
+	resp = client.get('/books/%d' % BOOK.id)
 	assert resp.status_code == HTTPStatus.OK
-	entity_compare(resp.data, book1984)
+	assert loads(resp.data.decode()) == to_json(BOOK)
 
 def test_get_book_not_exists(client: FlaskClient):
 	resp = client.get('/books/300')
-	expect_error(resp)
+	assert_error_response(resp)
 
 def test_get_book_copies(client: FlaskClient):
-	resp = client.get('/book_copies/book/%d' % bookHobbit.id)
+	BOOK = bookHobbit
+	resp = client.get('/books/%d/book-copies/' % BOOK.id)
 	assert resp.status_code == HTTPStatus.OK
-	entity_compare(resp.data, [bcHobbitBrno, bcHobbitLondon1, bcHobbitLondon2, bcHobbitOlomouc])
+	assert loads(resp.data.decode()) == to_json(list(filter(lambda x: x.book_id == BOOK.id, BOOK_COPIES)))
 
 def test_get_book_copy(client: FlaskClient):
-	resp = client.get('/book_copies/%d' % bcHobbitLondon1.id)
-	assert resp.status_code == HTTPStatus.OK
-	entity_compare(resp.data, bcHobbitLondon1)
+	BOOK_COPY = bcHobbitLondon1
 
-def test_get_book_borrowed_state_not_borrowed(client: FlaskClient):
-	resp = client.get('/book/%d/borrowed_state' % bcHobbitBrno.id)
+	resp = client.get('/book-copies/%d' % BOOK_COPY.id)
+	assert resp.status_code == HTTPStatus.OK
+	assert loads(resp.data.decode()) == to_json(BOOK_COPY)
+
+def test_get_book_copy_borrowed_state_not_borrowed(client: FlaskClient):
+	BOOK_COPY = bcHobbitBrno
+
+	resp = client.get('/book-copies/%d/borrowed' % BOOK_COPY.id)
 	assert resp.status_code == HTTPStatus.OK
 	assert loads(resp.data.decode()) == {'borrowed': False}
 
-def test_get_book_borrowed_state_borrowed(client: FlaskClient):
-	resp = client.get('/book/%d/borrowed_state' % bc1984Brno1.id)
+def test_get_book_copy_borrowed_state_borrowed(client: FlaskClient):
+	BOOK_COPY = bc1984Brno1
+
+	resp = client.get('/book-copies/%d/borrowed' % BOOK_COPY.id)
 	assert resp.status_code == HTTPStatus.OK
 	assert loads(resp.data.decode()) == {'borrowed': True}
 
-def test_get_book_reserved_state_not_reserved(client: FlaskClient):
-	resp = client.get('/book/%d/reserved_state' % bc1984Brno2.id)
+def test_get_book_copy_reserved_state_not_reserved(client: FlaskClient):
+	BOOK_COPY = bc1984Brno2
+
+	resp = client.get('/book-copies/%d/reserved' % BOOK_COPY.id)
 	assert resp.status_code == HTTPStatus.OK
 	assert loads(resp.data.decode()) == {'reserved': False}
 
-def test_get_book_reserved_state_reserved(client: FlaskClient):
-	resp = client.get('/book/%d/reserved_state' % bcAnimalFarmBrno.id)
+def test_get_book_copy_reserved_state_reserved(client: FlaskClient):
+	BOOK_COPY = bcAnimalFarmBrno
+
+	resp = client.get('/book-copies/%d/reserved' % BOOK_COPY.id)
 	assert resp.status_code == HTTPStatus.OK
 	assert loads(resp.data.decode()) == {'reserved': True}
 
 def test_get_author(client: FlaskClient):
-	resp = client.get('/author/%d' % authorOrwell.id)
-	assert resp.status_code == HTTPStatus.OK
-	entity_compare(resp.data, authorOrwell)
+	AUTHOR = authorOrwell
 
-def test_get_author_not_exists(client: FlaskClient):
-	resp = client.get('/author/300')
-	expect_error(resp)
+	resp = client.get('/authors/%d' % AUTHOR.id)
+	assert resp.status_code == HTTPStatus.OK
+	assert loads(resp.data.decode()) == to_json(AUTHOR)
+
+def test_get_author_invalid(client: FlaskClient):
+	resp = client.get('/authors/300')
+	assert_error_response(resp)
 
 def test_get_category(client: FlaskClient):
-	resp = client.get('/category/%d' % categoryComedy.id)
+	CATEGORY = categoryComedy
+
+	resp = client.get('/categories/%d' % CATEGORY.id)
 	assert resp.status_code == HTTPStatus.OK
-	entity_compare(resp.data, categoryComedy)
+	assert loads(resp.data.decode()) == to_json(CATEGORY)
 
 def test_get_category_not_exists(client: FlaskClient):
-	resp = client.get('/category/300')
-	expect_error(resp)
+	resp = client.get('/categories/300')
+	assert_error_response(resp)
 
 def test_get_location(client: FlaskClient):
-	resp = client.get('/location/%d' % locationLondon.id)
+	LOCATION = locationLondon
+
+	resp = client.get('/locations/%d' % LOCATION.id)
 	assert resp.status_code == HTTPStatus.OK
-	entity_compare(resp.data, locationLondon)
+	assert loads(resp.data.decode()) == to_json(LOCATION)
 
 def test_get_location_not_exists(client: FlaskClient):
-	resp = client.get('/location/300')
-	expect_error(resp)
+	resp = client.get('/locations/300')
+	assert_error_response(resp)
 
 def test_get_profile(client: FlaskClient):
-	login(client, userCustomerCustomer.email, 'customer') # TODO
+	CUSTOMER = userCustomerCustomer
 
-	resp = client.get('/profile/%d' % userCustomerCustomer.id) # TODO
+	resp = client.get('/profile/%d' % CUSTOMER.id) # TODO
 	assert resp.status_code == HTTPStatus.OK
-	entity_compare(resp.data, userCustomerCustomer)
+	assert loads(resp.data.decode()) == to_json(CUSTOMER)
 
-	logout(client)
+def test_get_customer_borrowals(client: FlaskClient):
+	CUSTOMER = userCustomerCustomer
 
-def test_get_borrowals(client: FlaskClient):
-	login(client, userCustomerCustomer.email, 'customer') # TODO
-
-	resp = client.get('/profile/borrowals/%d' % userCustomerCustomer.id) # TODO
+	resp = client.get('/profile/%d/borrowals' % CUSTOMER.id) # TODO
 	assert resp.status_code == HTTPStatus.OK
-	entity_compare(resp.data, [borrowalLondon1, borrowalLondon3, borrowalBrno1, borrowalBrno2])
+	assert loads(resp.data.decode()) == to_json(list(filter(lambda x: x.customer.id == CUSTOMER.id, BORROWALS)))
 
-	logout(client)
+def test_get_customer_reservations(client: FlaskClient):
+	CUSTOMER = userCustomerCustomer
 
-def test_get_reservations(client: FlaskClient):
-	login(client, userCustomerCustomer.email, 'customer') # TODO
-
-	resp = client.get('/profile/reservations/%d' % userCustomerCustomer.id) # TODO
+	resp = client.get('/profile/%d/reservations' % CUSTOMER.id) # TODO
 	assert resp.status_code == HTTPStatus.OK
-	entity_compare(resp.data, [reservationBrno, reservationBrnoActive])
+	assert loads(resp.data.decode()) == to_json(list(filter(lambda x: x.customer.id == CUSTOMER.id, RESERVATIONS)))
 
-	logout(client)
+def test_get_customer_reviews(client: FlaskClient):
+	CUSTOMER = userCustomerReviewer
+
+	resp = client.get('/profile/%d/reviews' % CUSTOMER.id) # TODO
+	assert resp.status_code == HTTPStatus.OK
+	assert loads(resp.data.decode()) == to_json(list(filter(lambda x: x.customer.id == CUSTOMER.id, REVIEWS)))
 
 def test_get_reviews(client: FlaskClient):
-	login(client, userCustomerReviewer.email, 'reviewer') # TODO
+	BOOK = bookGoodOmens
 
-	resp = client.get('/profile/reviews/%d' % userCustomerReviewer.id) # TODO
+	resp = client.get('/books/%d/reviews' % BOOK.id)
 	assert resp.status_code == HTTPStatus.OK
-	entity_compare(resp.data, [review1984, reviewAnimalFarm, reviewHobbit, reviewGoodOmens1])
-
-	logout(client)
-
-def test_get_reviews(client: FlaskClient):
-	resp = client.get('/reviews/book/%d' % bookGoodOmens.id) # TODO
-	assert resp.status_code == HTTPStatus.OK
-	entity_compare(resp.data, [reviewGoodOmens1, reviewGoodOmens2])
+	assert loads(resp.data.decode()) == to_json(list(filter(lambda x: x['book_id'] == BOOK.id, REVIEWS)))
 
 def test_get_reviews_none(client: FlaskClient):
-	resp = client.get('/reviews/book/%d' % bookBraveNewWorld.id) # TODO
+	BOOK = bookBraveNewWorld
+
+	resp = client.get('/books/%d/reviews' % BOOK.id)
 	assert resp.status_code == HTTPStatus.OK
-	entity_compare(resp.data, [])
+	assert loads(resp.data.decode()) == to_json([])
 
 def test_get_active_borrowals(client: FlaskClient):
-	login(client, userEmployeeBrno.email, 'brno') # TODO
-
 	resp = client.get('/active_borrowals')
 	assert resp.status_code == HTTPStatus.OK
-	entity_compare(resp.data, [borrowalBrnoActive1])
-
-	logout(client)
+	assert loads(resp.data.decode()) == to_json(list(filter(lambda x: x.state == BORROWAL_STATE_ACTIVE, BORROWALS)))
