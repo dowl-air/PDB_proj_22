@@ -3,7 +3,8 @@ from flask import Flask
 import os
 import connexion
 
-from entity.sql import db, ma
+from entity.sql import db
+from entity.sql.base import ma
 from entity.nosql import mongo
 
 from entity.sql import User, Book
