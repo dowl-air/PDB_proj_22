@@ -33,7 +33,7 @@ def update(id, author):
         update_author = author_schema.load(author, session=db.session, instance=existing_author)
         db.session.merge(update_author)
         db.session.commit()
-        return book_schema.dump(existing_author), 201
+        return author_schema.dump(existing_author), 201
     else:
         abort(404, f"Author with id \"{id}\" not found.")
 

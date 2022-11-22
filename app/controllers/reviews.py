@@ -33,7 +33,7 @@ def update(id, review):
         update_review = review_schema.load(review, session=db.session, instance=existing_review)
         db.session.merge(update_review)
         db.session.commit()
-        return book_schema.dump(existing_review), 201
+        return review_schema.dump(existing_review), 201
     else:
         abort(404, f"Review with id \"{id}\" not found.")
 
