@@ -102,7 +102,7 @@ def to_json(x) -> dict:
 	if x is None:
 		return None
 	elif isinstance(x, list):
-		return map(lambda x: to_json(x), x)
+		return list(map(lambda x: to_json(x), x))
 	elif isinstance(x, Location):
 		return {
 			'id': x.id,
