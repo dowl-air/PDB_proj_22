@@ -7,3 +7,7 @@ flask_sqlalchemy
 pymysql
 cryptography
 flask_mongoengine
+flask_marshmallow
+marshmallow-sqlalchemy
+connexion[swagger-ui]
+pytest
