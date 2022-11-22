@@ -22,17 +22,18 @@ class TestBookCopy:
 	new_id: int = 0
 
 	def test_book_copy_add(self, client: FlaskClient):
+		USER = userEmployeeBrno
+
 		LOCATION = locationBrno
+		BOOK = book1984
 
 		data = {
-			'book_id': book1984.id,
+			'book_id': BOOK.id,
 			'location_id': LOCATION.id,
 			'print_date': format_date(date(2019, 10, 5)),
 			'note': 'Note',
 			'state': BOOK_COPY_STATE_GOOD
 		}
-
-		USER = userEmployeeBrno
 
 		resp = protected_post('/book-copies', data, client, USER)
 		assert resp.status_code == HTTPStatus.OK
