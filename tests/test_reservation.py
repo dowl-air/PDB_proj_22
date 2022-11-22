@@ -37,7 +37,7 @@ class TestReservation:
 
 		self.new_id = json_data['id']
 
-		resp = client.get('/profile/%d/reservations' % USER.id)
+		resp = client.get('/profile/%d/reservations' % USER.id) # TODO
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
 		reservation = find_by_id(self.new_id, json_data)
@@ -76,7 +76,7 @@ class TestReservation:
 		resp = protected_patch('/reservations/%d/cancel' % self.new_id, {}, client, USER)
 		assert resp.status_code == HTTPStatus.OK
 
-		resp = client.get('/profile/%d/reservations' % USER.id)
+		resp = client.get('/profile/%d/reservations' % USER.id) # TODO
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
 		reservation = find_by_id(self.new_id, json_data)

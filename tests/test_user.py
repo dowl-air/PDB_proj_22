@@ -1,13 +1,12 @@
 
-
 from flask.testing import FlaskClient
 
 from http import HTTPStatus
 from json import loads
 
 from helpers import (
-	assert_error_response,
-	protected_put
+	protected_put,
+	assert_error_response
 )
 
 class TestUser:
@@ -82,10 +81,10 @@ class TestUser:
 			'last_name': 'Edited-last-name'
 		}
 
-		resp = protected_put('/profile/edit', data, client, USER)
+		resp = protected_put('/profile', data, client, USER)
 		assert resp.status_code == HTTPStatus.OK
 
-		resp = client.get('/profile/%d' % USER['id'])
+		resp = client.get('/profile/%d' % USER['id']) # TODO
 		assert resp.status_code == HTTPStatus.OK
 		profile = loads(resp.data.decode())
 		assert profile['first_name'] == data['first_name']
