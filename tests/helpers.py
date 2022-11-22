@@ -31,6 +31,11 @@ def assert_error_response(resp: TestResponse) -> None:
 	assert resp.status_code != HTTPStatus.UNAUTHORIZED
 	assert resp.data.decode() is not None
 
+	# check that this is not an automated response to a nonexistent endpoint
+	if resp.status_code == HTTPStatus.NOT_FOUND:
+		json_data = loads(resp.data.decode())
+		assert json_data['detail'] != 'The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.'
+
 def login(client: FlaskClient, email: str, password: str) -> None:
 	resp = client.post('/login', data={'email': email, 'password': password})
 	assert resp.status_code == HTTPStatus.OK
