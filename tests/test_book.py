@@ -18,8 +18,8 @@ from conftest import (
 )
 
 class TestBook:
-	new_id: int
-	new_book_author_id: int
+	new_id: int = 0
+	new_book_author_id: int = 0
 
 	def test_book_add(self, client: FlaskClient):
 		USER = userEmployeeBrno

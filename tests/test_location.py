@@ -15,7 +15,7 @@ from conftest import (
 )
 
 class TestLocation:
-	new_id: int
+	new_id: int = 0
 
 	def test_location_add(self, client: FlaskClient):
 		data = {

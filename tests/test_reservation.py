@@ -18,7 +18,7 @@ from conftest import (
 )
 
 class TestReservation:
-	new_id: int
+	new_id: int = 0
 
 	def test_reservation_add(self, client: FlaskClient):
 		USER = userCustomerCustomer
@@ -40,6 +40,7 @@ class TestReservation:
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
 		reservation = find_by_id(self.new_id, json_data)
+		assert reservation is not None
 		assert reservation['book_copy_id'] == BOOK_COPY.id
 		assert reservation['start_date'] == date.today()
 		assert reservation['state'] == RESERVATION_STATE_ACTIVE
@@ -78,6 +79,7 @@ class TestReservation:
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
 		reservation = find_by_id(self.new_id, json_data)
+		assert reservation is not None
 		assert reservation['state'] == RESERVATION_STATE_CLOSED
 
 	def test_reservation_cancel_invalid(self, client: FlaskClient):

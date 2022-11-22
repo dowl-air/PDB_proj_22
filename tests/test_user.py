@@ -12,6 +12,7 @@ from helpers import (
 
 class TestUser:
 	NEW_USER = {
+		'id': 0,
 		'first_name': 'First',
 		'last_name': 'Last',
 		'email': 'new_email@email.cz',
@@ -19,7 +20,14 @@ class TestUser:
 	}
 
 	def test_register(self, client: FlaskClient):
-		resp = client.post('/register', data=self.NEW_USER)
+		data = {
+			'first_name': self.NEW_USER['first_name'],
+			'last_name': self.NEW_USER['last_name'],
+			'email': self.NEW_USER['email'],
+			'password': self.NEW_USER['password']
+		}
+
+		resp = client.post('/register', data=data)
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
 		assert 'id' in json_data

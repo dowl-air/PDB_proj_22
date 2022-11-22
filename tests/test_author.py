@@ -15,7 +15,7 @@ from conftest import (
 )
 
 class TestAuthor:
-	new_id: int
+	new_id: int = 0
 
 	def test_author_add(self, client: FlaskClient):
 		data = {

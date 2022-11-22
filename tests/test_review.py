@@ -15,7 +15,7 @@ from conftest import (
 )
 
 class TestReview:
-	new_id: int
+	new_id: int = 0
 	NEW_REVIEW_BOOK_ID = book1984.id
 
 	def test_review_add(self, client: FlaskClient):

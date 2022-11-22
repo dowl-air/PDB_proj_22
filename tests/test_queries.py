@@ -52,12 +52,12 @@ def test_get_book_borrowed_state_not_borrowed(client: FlaskClient):
 def test_get_book_borrowed_state_borrowed(client: FlaskClient):
 	resp = client.get('/book/%d/borrowed_state' % bc1984Brno1.id)
 	assert resp.status_code == HTTPStatus.OK
-	assert loads(resp.data.decode()) == {'borrowed': True} 
+	assert loads(resp.data.decode()) == {'borrowed': True}
 
 def test_get_book_reserved_state_not_reserved(client: FlaskClient):
 	resp = client.get('/book/%d/reserved_state' % bc1984Brno2.id)
 	assert resp.status_code == HTTPStatus.OK
-	assert loads(resp.data.decode()) == {'reserved': False} 
+	assert loads(resp.data.decode()) == {'reserved': False}
 
 def test_get_book_reserved_state_reserved(client: FlaskClient):
 	resp = client.get('/book/%d/reserved_state' % bcAnimalFarmBrno.id)

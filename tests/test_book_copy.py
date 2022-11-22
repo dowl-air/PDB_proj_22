@@ -18,7 +18,7 @@ from conftest import (
 )
 
 class TestBookCopy:
-	new_id: int
+	new_id: int = 0
 
 	def test_book_copy_add(self, client: FlaskClient):
 		LOCATION = locationBrno

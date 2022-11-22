@@ -16,7 +16,7 @@ from conftest import (
 )
 
 class TestCategory:
-	new_id: int
+	new_id: int = 0
 
 	def test_category_add(self, client: FlaskClient):
 		USER = userEmployeeBrno

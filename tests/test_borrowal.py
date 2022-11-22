@@ -18,7 +18,7 @@ from conftest import (
 )
 
 class TestBorrowal:
-	new_id: int
+	new_id: int = 0
 
 	def test_borrowal_add(self, client: FlaskClient):
 		USER = userEmployeeBrno
