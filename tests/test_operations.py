@@ -5,14 +5,18 @@ from datetime import date
 from http import HTTPStatus
 from json import loads
 
-from helpers import login, expect_error, entity_compare, assert_dict_equal
+from helpers import (
+	login, expect_error, entity_compare, assert_dict_equal, assert_error_response,
+	protected_post, protected_put, protected_delete	
+)
 from conftest import (
 	embed_author_list,
 	authorOrwell, authorHuxley, authorTolkien,
 	book1984, bookBraveNewWorld, bookAnimalFarm,
 	locationBrno,
 	categoryFable,
-	bc1984Brno1
+	bc1984Brno1,
+	userEmployeeBrno, userAdmin
 )
 
 class TestCategory:
@@ -24,7 +28,9 @@ class TestCategory:
 			'description': 'A novel is a relatively long work of narrative fiction, typically...'
 		}
 
-		resp = client.post('/category/add', data=data)
+		USER = userEmployeeBrno
+
+		resp = protected_post('/category/add', data, client, USER)
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
 		assert 'id' in json_data
@@ -42,8 +48,10 @@ class TestCategory:
 			'description': 'Missing category name'
 		}
 
-		resp = client.post('/category/add', data=data)
-		expect_error(resp)
+		USER = userEmployeeBrno
+
+		resp = protected_post('/category/add', data, client, USER)
+		assert_error_response(resp)
 
 	def test_category_edit(self, client: FlaskClient):
 		data = {
@@ -51,7 +59,9 @@ class TestCategory:
 			'description': 'Edited category description'
 		}
 
-		resp = client.put('/category/%d/edit' % self.new_id, data=data)
+		USER = userEmployeeBrno
+
+		resp = protected_put('/category/%d/edit' % self.new_id, data, client, USER)
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/category/%d' % self.new_id)
@@ -66,8 +76,10 @@ class TestCategory:
 			'description': 'Invalid edit - no name'
 		}
 
-		resp = client.put('/category/add', data=data)
-		expect_error(resp)
+		USER = userEmployeeBrno
+
+		resp = protected_put('/category/%d/edit' % self.new_id, data, client, USER)
+		assert_error_response(resp)
 
 	def test_category_edit_propagation(self, client: FlaskClient):
 		data = {
@@ -75,7 +87,9 @@ class TestCategory:
 			'description': 'Fantastical story'
 		}
 
-		resp = client.put('/category/%d/edit' % categoryFable.id, data=data)
+		USER = userEmployeeBrno
+
+		resp = protected_put('/category/%d/edit' % categoryFable.id, data, client, USER)
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/book/%d' % bookAnimalFarm.id)
@@ -84,14 +98,18 @@ class TestCategory:
 		assert_dict_equal(book['categories'], [data])
 	
 	def test_category_delete(self, client: FlaskClient):
-		resp = client.delete('/category/%d/delete' % self.new_id)
+		USER = userEmployeeBrno
+
+		resp = protected_delete('/category/%d/delete' % self.new_id, client, USER)
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/category/%d' % self.new_id)
-		expect_error(resp)
+		assert_error_response(resp)
 
 	def test_category_delete_propagation(self, client: FlaskClient):
-		resp = client.delete('/category/%d/delete' % categoryFable.id)
+		USER = userEmployeeBrno
+
+		resp = protected_delete('/category/%d/delete' % categoryFable.id, client, USER)
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/book/%d' % bookAnimalFarm.id)
@@ -109,7 +127,9 @@ class TestLocation:
 			'address': 'Božetěchova 1/2, 612 00 Brno-Královo Pole'
 		}
 
-		resp = client.post('/location/add', data=data)
+		USER = userAdmin
+
+		resp = protected_post('/location/add', data, client, USER)
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
 		assert 'id' in json_data
@@ -127,8 +147,10 @@ class TestLocation:
 			'address': 'Missing location name'
 		}
 
-		resp = client.post('/location/add', data=data)
-		expect_error(resp)
+		USER = userAdmin
+
+		resp = protected_post('/location/add', data, client, USER)
+		assert_error_response(resp)
 
 	def test_location_edit(self, client: FlaskClient):
 		data = {
@@ -136,7 +158,9 @@ class TestLocation:
 			'address': 'Edited location address'
 		}
 
-		resp = client.put('/location/%d/edit' % self.new_id, data=data)
+		USER = userAdmin
+
+		resp = protected_put('/location/%d/edit' % self.new_id, data, client, USER)
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/location/%d' % id)
@@ -151,8 +175,10 @@ class TestLocation:
 			'description': 'Invalid edit - no name'
 		}
 
-		resp = client.put('/location/%d/edit' % self.new_id, data=data)
-		expect_error(resp)
+		USER = userAdmin
+
+		resp = protected_put('/location/%d/edit' % self.new_id, data, client, USER)
+		assert_error_response(resp)
 
 	def test_location_edit_propagation(self, client: FlaskClient):
 		data = {
@@ -160,7 +186,9 @@ class TestLocation:
 			'address': 'idk'
 		}
 
-		resp = client.put('/location/%d/edit' % locationBrno.id, data=data)
+		USER = userAdmin
+
+		resp = protected_put('/location/%d/edit' % locationBrno.id, data, client, USER)
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/book_copy/%d' % bc1984Brno1.id)
@@ -170,16 +198,20 @@ class TestLocation:
 		assert book_copy['location']['address'] == data['address']
 	
 	def test_location_delete(self, client: FlaskClient):
-		resp = client.delete('/location/%d/delete' % self.new_id)
+		USER = userAdmin
+
+		resp = protected_delete('/location/%d/delete' % self.new_id, client, USER)
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/location/%d' % self.new_id)
-		expect_error(resp)
+		assert_error_response(resp)
 
 	# cannot delete location with assigned book copies
 	def test_location_delete_invalid(self, client: FlaskClient):
-		resp = client.delete('/location/%d/delete' % locationBrno.id)
-		expect_error(resp)
+		USER = userAdmin
+
+		resp = protected_delete('/location/%d/delete' % locationBrno.id, client, USER)
+		assert_error_response(resp)
 
 class TestAuthor:
 	new_id: int
@@ -191,7 +223,9 @@ class TestAuthor:
 			'description': 'A czech 20th century novellist...'
 		}
 
-		resp = client.post('/author/add', data=data)
+		USER = userEmployeeBrno
+
+		resp = protected_post('/author/add', data, client, USER)
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
 		assert 'id' in json_data
@@ -211,8 +245,10 @@ class TestAuthor:
 			'description': 'Missing last name'
 		}
 
-		resp = client.post('/author/add', data=data)
-		expect_error(resp)
+		USER = userEmployeeBrno
+
+		resp = protected_post('/author/add', data, client, USER)
+		assert_error_response(resp)
 
 	def test_author_edit(self, client: FlaskClient):
 		data = {
@@ -221,7 +257,9 @@ class TestAuthor:
 			'description': 'Edited author description'
 		}
 
-		resp = client.put('/author/%d/edit' % self.new_id, data=data)
+		USER = userEmployeeBrno
+
+		resp = protected_put('/author/%d/edit' % self.new_id, data, client, USER)
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/author/%d' % self.new_id)
@@ -238,8 +276,10 @@ class TestAuthor:
 			'description': 'Invalid edit - no first name'
 		}
 
-		resp = client.put('/author/%d/edit' % self.new_id, data=data)
-		expect_error(resp)
+		USER = userEmployeeBrno
+
+		resp = protected_put('/author/%d/edit' % self.new_id, data, client, USER)
+		assert_error_response(resp)
 
 	def test_author_edit_propagation(self, client: FlaskClient):
 		data = {
@@ -248,7 +288,9 @@ class TestAuthor:
 			'description': 'Wrong author'
 		}
 
-		resp = client.put('/author/%d/edit' % authorHuxley.id, data=data)
+		USER = userEmployeeBrno
+
+		resp = protected_put('/author/%d/edit' % authorHuxley.id, data, client, USER)
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/book/%d' % bookBraveNewWorld)
@@ -260,14 +302,18 @@ class TestAuthor:
 		assert author['last_name'] == data['last_name']
 	
 	def test_author_delete(self, client: FlaskClient):
-		resp = client.delete('/author/%d/delete' % self.new_id)
+		USER = userEmployeeBrno
+
+		resp = protected_delete('/author/%d/delete' % self.new_id, client, USER)
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/author/%d' % self.new_id)
-		expect_error(resp)
+		assert_error_response(resp)
 
 	def test_author_delete_propagation(self, client: FlaskClient):
-		resp = client.delete('/author/%d/delete' % authorHuxley.id)
+		USER = userEmployeeBrno
+
+		resp = protected_delete('/author/%d/delete' % authorHuxley.id, client, USER)
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/book/%d' % bookBraveNewWorld.id)
