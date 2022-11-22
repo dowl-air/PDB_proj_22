@@ -51,7 +51,7 @@ class TestCategory:
 			'description': 'Edited category description'
 		}
 
-		resp = client.patch('/category/%d/edit' % self.new_id, data=data)
+		resp = client.put('/category/%d/edit' % self.new_id, data=data)
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/category/%d' % self.new_id)
@@ -66,7 +66,7 @@ class TestCategory:
 			'description': 'New description'
 		}
 
-		resp = client.patch('/category/add', data=data)
+		resp = client.put('/category/add', data=data)
 		expect_error(resp)
 
 	def test_category_edit_propagation(self, client: FlaskClient):
@@ -75,7 +75,7 @@ class TestCategory:
 			'description': 'Fantastical story'
 		}
 
-		resp = client.patch('/category/%d/edit' % categoryFable.id, data=data)
+		resp = client.put('/category/%d/edit' % categoryFable.id, data=data)
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/book/%d' % self.new_id)
@@ -136,7 +136,7 @@ class TestLocation:
 			'address': 'Edited location address'
 		}
 
-		resp = client.patch('/location/%d/edit' % self.new_id, data=data)
+		resp = client.put('/location/%d/edit' % self.new_id, data=data)
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/location/%d' % id)
@@ -151,7 +151,7 @@ class TestLocation:
 			'description': 'Invalid edit - no name'
 		}
 
-		resp = client.patch('/location/%d/edit' % self.new_id, data=data)
+		resp = client.put('/location/%d/edit' % self.new_id, data=data)
 		expect_error(resp)
 
 	def test_location_edit_propagation(self, client: FlaskClient):
@@ -160,7 +160,7 @@ class TestLocation:
 			'address': 'idk'
 		}
 
-		resp = client.patch('/location/%d/edit' % locationBrno.id, data=data)
+		resp = client.put('/location/%d/edit' % locationBrno.id, data=data)
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/book_copy/%d' % bc1984Brno1.id)
@@ -221,7 +221,7 @@ class TestAuthor:
 			'description': 'Edited author description'
 		}
 
-		resp = client.patch('/author/%d/edit' % self.new_id, data=data)
+		resp = client.put('/author/%d/edit' % self.new_id, data=data)
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/author/%d' % self.new_id)
@@ -238,7 +238,7 @@ class TestAuthor:
 			'description': 'Invalid edit - no first name'
 		}
 
-		resp = client.patch('/author/%d/edit' % self.new_id, data=data)
+		resp = client.put('/author/%d/edit' % self.new_id, data=data)
 		expect_error(resp)
 
 	def test_author_edit_propagation(self, client: FlaskClient):
@@ -248,7 +248,7 @@ class TestAuthor:
 			'description': 'Wrong author'
 		}
 
-		resp = client.patch('/author/%d/edit' % authorHuxley.id, data=data)
+		resp = client.put('/author/%d/edit' % authorHuxley.id, data=data)
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/book/%d' % bookBraveNewWorld)
