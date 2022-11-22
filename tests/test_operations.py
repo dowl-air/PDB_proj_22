@@ -441,19 +441,19 @@ class TestBookCopy:
 		# missing book id
 		data = template.copy()
 		data['book_id'] = None
-		resp = protected_post('/book_copy/%d/edit', data, client, USER)
+		resp = protected_post('/book_copy/%d/edit' % self.new_id, data, client, USER)
 		assert_error_response(resp)
 
 		# missing location id
 		data = template.copy()
 		data['location_id'] = None
-		resp = protected_post('/book_copy/%d/edit', data, client, USER)
+		resp = protected_post('/book_copy/%d/edit' % self.new_id, data, client, USER)
 		assert_error_response(resp)
 
 		# missing print date
 		data = template.copy()
 		data['print_date'] = None
-		resp = protected_post('/book_copy/%d/edit', data, client, USER)
+		resp = protected_post('/book_copy/%d/edit' % self.new_id, data, client, USER)
 		assert_error_response(resp)
 
 	def test_book_copy_edit_propagation(self, client: FlaskClient):
