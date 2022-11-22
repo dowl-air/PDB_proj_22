@@ -77,4 +77,6 @@ def find(fn, arr: list):
 	return arr[0]
 
 def find_by_id(id: int, arr: list):
+	if len(arr) == 0 or not isinstance(arr[0], dict):
+		return None
 	return find(lambda x: x['id'] == id, arr)
