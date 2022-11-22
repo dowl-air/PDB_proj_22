@@ -168,6 +168,7 @@ paths:
           content:
             application/json:
               schema:
+                x-body-name: "author"
                 $ref: "#/components/schemas/Author"
       responses:
         200:
@@ -199,6 +200,7 @@ paths:
         content:
           application/json:
             schema:
+              x-body-name: "author"
               $ref: "#/components/schemas/Author"
     delete:
       operationId: controllers.authors.delete
@@ -233,6 +235,7 @@ paths:
           content:
             application/json:
               schema:
+                x-body-name: "book"
                 $ref: "#/components/schemas/Book"
       responses:
         "201":
@@ -262,6 +265,7 @@ paths:
         content:
           application/json:
             schema:
+              x-body-name: "book"
               $ref: "#/components/schemas/Book"
     delete:
       operationId: "controllers.books.delete"
@@ -296,6 +300,7 @@ paths:
           content:
             application/json:
               schema:
+                x-body-name: "book_copy"
                 $ref: "#/components/schemas/BookCopy"
       responses:
         200:
@@ -327,6 +332,7 @@ paths:
           content:
             application/json:
               schema:
+                x-body-name: "book_copy"
                 $ref: "#/components/schemas/BookCopy"
     delete:
       operationId: controllers.book_copies.delete
@@ -361,6 +367,7 @@ paths:
           content:
             application/json:
               schema:
+                x-body-name: "category"
                 $ref: "#/components/schemas/Category"
       responses:
         200:
@@ -392,6 +399,7 @@ paths:
           content:
             application/json:
               schema:
+                x-body-name: "category"
                 $ref: "#/components/schemas/Category"
     delete:
       operationId: controllers.categories.delete
@@ -426,6 +434,7 @@ paths:
           content:
             application/json:
               schema:
+                x-body-name: "location"
                 $ref: "#/components/schemas/Location"
       responses:
         200:
@@ -457,6 +466,7 @@ paths:
           content:
             application/json:
               schema:
+                x-body-name: "location"
                 $ref: "#/components/schemas/Location"
     delete:
       operationId: controllers.locations.delete
@@ -491,6 +501,7 @@ paths:
           content:
             application/json:
               schema:
+                x-body-name: "review"
                 $ref: "#/components/schemas/Review"
       responses:
         200:
@@ -522,6 +533,7 @@ paths:
           content:
             application/json:
               schema:
+                x-body-name: "review"
                 $ref: "#/components/schemas/Review"
     delete:
       operationId: controllers.reviews.delete
