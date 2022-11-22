@@ -7,19 +7,21 @@ from json import loads
 
 from helpers import (
 	assert_dict_equal, assert_error_response,
-	find, find_by_id,
+	find_by_id,
 	protected_post, protected_put, protected_delete, protected_patch
 )
 from conftest import (
 	BOOK_COPY_STATE_GOOD, BOOK_COPY_STATE_DAMAGED,
 	RESERVATION_STATE_ACTIVE, RESERVATION_STATE_CLOSED,
+	BORROWAL_STATE_ACTIVE,
 	authorOrwell, authorHuxley, authorTolkien,
 	book1984, bookBraveNewWorld, bookAnimalFarm,
 	locationBrno, locationOlomouc,
 	categoryFable, categoryHistory, categoryNonFiction, categoryFantasy,
-	bc1984Brno1, bc1984London1, bc1984London2, bc1984Brno2, bcAnimalFarmBrno,
+	bc1984Brno1, bc1984London1, bc1984London2, bc1984Brno2, bcAnimalFarmBrno, bcHobbitOlomouc,
 	userEmployeeBrno, userAdmin, userCustomerCustomer,
-	reservationBrno
+	reservationBrno,
+	borrowalLondon3
 )
 
 class TestCategory:
@@ -828,7 +830,7 @@ class TestUser:
 		assert profile['first_name'] == data['first_name']
 		assert profile['last_name'] == data['last_name']
 
-class TestReservations:
+class TestReservation:
 	new_id: int
 
 	def test_reservation_add(self, client: FlaskClient):
@@ -855,7 +857,7 @@ class TestReservations:
 		assert reservation['start_date'] == date.today()
 		assert reservation['state'] == RESERVATION_STATE_ACTIVE
 
-	def test_reservation_invalid_reserved(self, client: FlaskClient):
+	def test_reservation_add_invalid_reserved(self, client: FlaskClient):
 		USER = userCustomerCustomer
 
 		BOOK_COPY = bcAnimalFarmBrno
@@ -867,7 +869,7 @@ class TestReservations:
 		resp = protected_post('/reservation/add', data, client, USER)
 		assert_error_response(resp)
 
-	def test_reservation_invalid_borrowed(self, client: FlaskClient):
+	def test_reservation_add_invalid_borrowed(self, client: FlaskClient):
 		USER = userCustomerCustomer
 
 		BOOK_COPY = bc1984Brno1
@@ -896,4 +898,80 @@ class TestReservations:
 
 		# reservation is already closed
 		resp = protected_patch('/reservation/%d/cancel' % reservationBrno.id, {}, client, USER)
+		assert_error_response(resp)
+
+class TestBorrowal:
+	new_id: int
+
+	def test_borrowal_add(self, client: FlaskClient):
+		USER = userEmployeeBrno
+
+		BOOK_COPY = bcHobbitOlomouc
+		CUSTOMER = userCustomerCustomer
+
+		data = {
+			'book_copy_id': BOOK_COPY.id,
+			'customer_id': CUSTOMER.id
+		}
+
+		resp = protected_post('/borrowal/add', data, client, USER)
+		assert resp.status_code == HTTPStatus.OK
+		json_data = loads(resp.data.decode())
+		assert 'id' in json_data
+
+		self.new_id = json_data['id']
+
+		resp = client.get('/profile/%d/borrowals' % CUSTOMER.id)
+		assert resp.status_code == HTTPStatus.OK
+		json_data = loads(resp.data.decode())
+		borrowal = find_by_id(self.new_id, json_data)
+		assert borrowal['book_copy_id'] == BOOK_COPY.id
+		assert borrowal['start_date'] == date.today()
+		assert borrowal['state'] == BORROWAL_STATE_ACTIVE
+
+	def test_borrowal_add_invalid_reserved(self, client: FlaskClient):
+		USER = userEmployeeBrno
+
+		BOOK_COPY = bcAnimalFarmBrno
+		CUSTOMER = userCustomerCustomer
+
+		data = {
+			'book_copy_id': BOOK_COPY.id,
+			'customer_id': CUSTOMER.id
+		}
+
+		resp = protected_post('/borrowal/add', data, client, USER)
+		assert_error_response(resp)
+
+	def test_borrowal_add_invalid_borrowed(self, client: FlaskClient):
+		USER = userEmployeeBrno
+
+		BOOK_COPY = bc1984Brno1
+		CUSTOMER = userCustomerCustomer
+
+		data = {
+			'book_copy_id': BOOK_COPY.id,
+			'customer_id': CUSTOMER.id
+		}
+
+		resp = protected_post('/borrowal/add', data, client, USER)
+		assert_error_response(resp)
+
+	def test_borrowal_return(self, client: FlaskClient):
+		USER = userEmployeeBrno
+
+		resp = protected_patch('/borrowal/%d/return' % self.new_id, {}, client, USER)
+		assert resp.status_code == HTTPStatus.OK
+
+		resp = client.get('/active_borrowals')
+		assert resp.status_code == HTTPStatus.OK
+		json_data = loads(resp.data.decode())
+		reservation = find_by_id(self.new_id, json_data)
+		assert reservation['state'] == RESERVATION_STATE_CLOSED
+
+	def test_borrowal_return_invalid(self, client: FlaskClient):
+		USER = userCustomerCustomer
+
+		# borrowal already ended
+		resp = protected_patch('/borrowal/%d/return' % borrowalLondon3.id, {}, client, USER)
 		assert_error_response(resp)
