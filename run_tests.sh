@@ -7,4 +7,4 @@ export MONGODB_USERNAME=""
 export MONGODB_PASSWORD=""
 export MONGODB_HOSTNAME="localhost"
 
-pytest -W ignore::DeprecationWarning --verbose ./tests/ -rP
+pytest -W ignore::DeprecationWarning --verbose ./tests/ -rap
