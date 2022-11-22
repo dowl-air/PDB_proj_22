@@ -9,7 +9,6 @@ class BorrowalSchema(ma.SQLAlchemyAutoSchema):
         model = Borrowal
         load_instance = True
         sqla_session = db.session
-        include_relationships = True
 
 
 borrowal_schema = BorrowalSchema()
@@ -21,7 +20,6 @@ class ReviewSchema(ma.SQLAlchemyAutoSchema):
         model = Review
         load_instance = True
         sqla_session = db.session
-        include_relationships = True
 
 
 review_schema = ReviewSchema()
@@ -33,7 +31,6 @@ class LocationSchema(ma.SQLAlchemyAutoSchema):
         model = Location
         load_instance = True
         sqla_session = db.session
-        include_relationships = True
 
 
 location_schema = LocationSchema()
@@ -45,7 +42,6 @@ class ReservationSchema(ma.SQLAlchemyAutoSchema):
         model = Reservation
         load_instance = True
         sqla_session = db.session
-        include_relationships = True
 
 
 reservation_schema = ReservationSchema()
@@ -97,8 +93,6 @@ class BookSchema(ma.SQLAlchemyAutoSchema):
         sqla_session = db.session
         include_relationships = True
 
-    authors = fields.Nested(AuthorSchema, many=True)
-    categories = fields.Nested(CategorySchema, many=True)
     copies = fields.Nested(BookCopySchema, many=True)
     reviews = fields.Nested(ReviewSchema, many=True)
 
