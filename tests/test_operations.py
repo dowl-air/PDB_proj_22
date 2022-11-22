@@ -1,23 +1,17 @@
 
 from flask.testing import FlaskClient
 
-from datetime import date, timedelta
+from datetime import date
 from http import HTTPStatus
 from json import loads
 
 from helpers import (
-	login,
-	expect_error,
-	entity_compare,
 	assert_dict_equal, assert_error_response,
 	find_by_id,
 	protected_post, protected_put, protected_delete	
 )
 from conftest import (
-	embed_author_list,
-
 	BOOK_COPY_STATE_GOOD, BOOK_COPY_STATE_DAMAGED,
-
 	authorOrwell, authorHuxley, authorTolkien,
 	book1984, bookBraveNewWorld, bookAnimalFarm,
 	locationBrno, locationOlomouc,
