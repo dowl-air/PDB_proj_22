@@ -4,7 +4,7 @@ from werkzeug.test import TestResponse
 from deepdiff.diff import DeepDiff
 
 from http import HTTPStatus
-from json import loads
+from json import loads, dumps
 from bson import json_util
 
 from typing import Optional
@@ -48,35 +48,27 @@ def assert_dict_equal(actual, expected, ignore_list=['dictionary_item_removed', 
 	assert actual == expected
 
 def protected_post(endpoint: str, data: dict, client: FlaskClient, user) -> TestResponse:
-	data['authorization'] = {
-		'user_id': user['id']
-	}
+	data['user_id'] = user['id']
 
-	return client.post(endpoint, data=data)
+	return client.post(endpoint, data=dumps(data), content_type='application/json')
 
 def protected_delete(endpoint: str, client: FlaskClient, user, data: Optional[dict] = None) -> TestResponse:
 	if data is None:
 		data = {}
 
-	data['authorization'] = {
-		'user_id': user['id']
-	}
+	data['user_id'] = user['id']
 
-	return client.delete(endpoint, data=data)
+	return client.delete(endpoint, data=dumps(data), content_type='application/json')
 
 def protected_put(endpoint: str, data: dict, client: FlaskClient, user) -> TestResponse:
-	data['authorization'] = {
-		'user_id': user['id']
-	}
+	data['user_id'] = user['id']
 
-	return client.put(endpoint, data=data)
+	return client.put(endpoint, data=dumps(data), content_type='application/json')
 
 def protected_patch(endpoint: str, data: dict, client: FlaskClient, user) -> TestResponse:
-	data['authorization'] = {
-		'user_id': user['id']
-	}
+	data['user_id'] = user['id']
 
-	return client.patch(endpoint, data=data)
+	return client.patch(endpoint, data=dumps(data), content_type='application/json')
 
 def find(fn, arr: list):
 	arr = list(filter(fn, arr))
