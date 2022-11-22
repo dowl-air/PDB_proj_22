@@ -28,12 +28,12 @@ class TestCategory:
 	new_id: int
 
 	def test_category_add(self, client: FlaskClient):
+		USER = userEmployeeBrno
+
 		data = {
 			'name': 'Novel',
 			'description': 'A novel is a relatively long work of narrative fiction, typically...'
 		}
-
-		USER = userEmployeeBrno
 
 		resp = protected_post('/category/add', data, client, USER)
 		assert resp.status_code == HTTPStatus.OK
@@ -45,26 +45,27 @@ class TestCategory:
 		resp = client.get('/category/%d' % self.new_id)
 		assert resp.status_code == HTTPStatus.OK
 		category = loads(resp.data.decode())
-		assert data['name'] == category['name']
-		assert data['description'] == category['description']
+		assert category['name'] == data['name']
+		assert category['description'] == data['description']
 
 	def test_category_add_invalid(self, client: FlaskClient):
+		USER = userEmployeeBrno
+
 		data = {
+			'name': None,
 			'description': 'Missing category name'
 		}
-
-		USER = userEmployeeBrno
 
 		resp = protected_post('/category/add', data, client, USER)
 		assert_error_response(resp)
 
 	def test_category_edit(self, client: FlaskClient):
+		USER = userEmployeeBrno
+
 		data = {
 			'name': 'Edited category name',
 			'description': 'Edited category description'
 		}
-
-		USER = userEmployeeBrno
 
 		resp = protected_put('/category/%d/edit' % self.new_id, data, client, USER)
 		assert resp.status_code == HTTPStatus.OK
@@ -72,35 +73,41 @@ class TestCategory:
 		resp = client.get('/category/%d' % self.new_id)
 		assert resp.status_code == HTTPStatus.OK
 		category = loads(resp.data.decode())
-		assert data['name'] == category['name']
-		assert data['description'] == category['description']
+		assert category['name'] == data['name']
+		assert category['description'] == data['description']
 
 	def test_category_edit_invalid(self, client: FlaskClient):
+		USER = userEmployeeBrno
+
 		data = {
 			'name': None,
 			'description': 'Invalid edit - no name'
 		}
 
-		USER = userEmployeeBrno
-
 		resp = protected_put('/category/%d/edit' % self.new_id, data, client, USER)
 		assert_error_response(resp)
 
 	def test_category_edit_propagation(self, client: FlaskClient):
+		USER = userEmployeeBrno
+
+		CATEGORY = categoryFable
+		BOOK = bookAnimalFarm
+
 		data = {
 			'name': 'Fairy tale',
 			'description': 'Fantastical story'
 		}
 
-		USER = userEmployeeBrno
-
-		resp = protected_put('/category/%d/edit' % categoryFable.id, data, client, USER)
+		resp = protected_put('/category/%d/edit' % CATEGORY.id, data, client, USER)
 		assert resp.status_code == HTTPStatus.OK
 
-		resp = client.get('/book/%d' % bookAnimalFarm.id)
+		resp = client.get('/book/%d' % BOOK.id)
 		assert resp.status_code == HTTPStatus.OK
 		book = loads(resp.data.decode())
-		assert_dict_equal(book['categories'], [data])
+		category = find_by_id(CATEGORY.id, book['categories'])
+		assert category is not None
+		assert category['name'] == data['name']
+		assert category['description'] == data['description']
 
 	def test_category_delete(self, client: FlaskClient):
 		USER = userEmployeeBrno
@@ -114,14 +121,17 @@ class TestCategory:
 	def test_category_delete_propagation(self, client: FlaskClient):
 		USER = userEmployeeBrno
 
-		resp = protected_delete('/category/%d/delete' % categoryFable.id, client, USER)
+		CATEGORY = categoryFable
+		BOOK = bookAnimalFarm
+
+		resp = protected_delete('/category/%d/delete' % CATEGORY.id, client, USER)
 		assert resp.status_code == HTTPStatus.OK
 
-		resp = client.get('/book/%d' % bookAnimalFarm.id)
+		resp = client.get('/book/%d' % BOOK.id)
 		assert resp.status_code == HTTPStatus.OK
 		book = loads(resp.data.decode())
-		assert len(book['categories']) == 1
-		assert book['categories'][0]['id'] != categoryFable.id
+		category = find_by_id(CATEGORY.id, book['categories'])
+		assert category is None
 
 class TestLocation:
 	new_id: int
