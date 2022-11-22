@@ -38,7 +38,7 @@ def logout(client: FlaskClient) -> None:
 	assert resp.status_code == HTTPStatus.OK
 
 def assert_dict_equal(actual, expected, ignore_list=['dictionary_item_removed', 'iterable_item_removed']) -> None:
-	diff = DeepDiff(actual, expected)
+	diff = DeepDiff(actual, expected, ignore_order=True, report_repetition=True)
 	diff_keys = list(diff.keys())
 	if diff_keys:
 		diff_keys = list(filter(lambda x: x not in ignore_list, diff_keys))
@@ -71,3 +71,11 @@ def protected_put(endpoint: str, data: dict, client: FlaskClient, user) -> TestR
 
 	return client.put(endpoint, data=data)
 
+def find(fn, arr: list):
+	arr = list(filter(fn, arr))
+	if arr != 1:
+		return None
+	return arr[0]
+
+def find_by_id(id: int, arr: list):
+	return find(lambda x: x['id'] == id, arr)
