@@ -1,0 +1,547 @@
+# swagger.yml
+# OpenAPI description file
+
+openapi: 3.0.0
+info:
+  title: "Bookshop API"
+  description: "An API about people and books. Project to PDB."
+  version: "1.0.0"
+
+components:
+  schemas:
+    Author:
+      type: "object"
+      required:
+        - last_name
+      properties:
+        first_name:
+          type: "string"
+        last_name:
+          type: "string"
+        description:
+          type: "string"
+    Book:
+      type: "object"
+      required:
+        - name
+        - ISBN
+        - authors
+        - categories
+      properties:
+        name:
+          type: "string"
+        ISBN:
+          type: "string"
+        release_date:
+          type: "string"
+          format: "date"
+        description:
+          type: "string"
+        authors:
+          type: array
+          items:
+            type: integer
+        categories:
+          type: array
+          items:
+            type: integer
+    BookCopy:
+      type: "object"
+      required:
+        - book_id
+        - location_id
+        - print_date
+        - state
+      properties:
+        note:
+          type: string
+        book_id:
+          type: integer
+        location_id:
+          type: integer
+        print_date:
+          type: string
+          format: date
+        state:
+          type: integer
+    Category:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+    Location:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        address:
+          type: string
+    Review:
+      type: object
+      required:
+        - user_id
+        - book_id
+        - title
+      properties:
+        user_id:
+          type: integer
+        book_id:
+          type: integer
+        title:
+          type: string
+        content:
+          type: string
+        rating:
+          type: integer
+    
+    
+          
+  parameters:
+    book_id:
+      name: id
+      description: "ID of book"
+      in: path
+      required: True
+      schema:
+        type: "integer"
+    author_id:
+      name: id
+      description: "ID of author"
+      in: path
+      required: True
+      schema:
+        type: "integer"
+    book_copy_id:
+      name: id
+      description: ID of book copy
+      in: path
+      required: True
+      schema:
+        type: integer
+    category_id:
+      name: id
+      description: ID of category
+      in: path
+      required: True
+      schema:
+        type: integer
+    location_id:
+      name: id
+      description: ID of location
+      in: path
+      required: True
+      schema:
+        type: integer
+    review_id:
+      name: id
+      description: ID of review
+      in: path
+      required: True
+      schema:
+        type: integer
+
+
+paths:
+  /authors:
+    get:
+      operationId: controllers.authors.get_all
+      tags:
+        - Authors
+      summary: Get all authors
+      responses:
+        200:
+          description: Successfully read authors list.
+    post:
+      operationId: controllers.authors.create
+      tags:
+        - Authors
+      summary: Create one author
+      requestBody:
+          description: Author to create
+          required: True
+          content:
+            application/json:
+              schema:
+                x-body-name: "author"
+                $ref: "#/components/schemas/Author"
+      responses:
+        200:
+          description: Successfully created author.
+  /authors/{id}:
+    get:
+      operationId: controllers.authors.get
+      tags:
+        - Authors
+      summary: Get one author
+      parameters:
+        - $ref:  "#/components/parameters/author_id"
+      responses:
+        200:
+          description: Successfully read author.
+    put:
+      operationId: controllers.authors.update
+      tags:
+        - Authors
+      summary: Update specified author
+      parameters:
+        - $ref: "#/components/parameters/author_id"
+      responses:
+        200:
+          description: Successfully updated author.
+      requestBody:
+        description: Author to update
+        required: True
+        content:
+          application/json:
+            schema:
+              x-body-name: "author"
+              $ref: "#/components/schemas/Author"
+    delete:
+      operationId: controllers.authors.delete
+      tags:
+        - Authors
+      summary: Delete specified author
+      parameters:
+        - $ref: "#/components/parameters/author_id"
+      responses:
+        204:
+          description: Successfully deleted author.
+  
+  
+
+  /books:
+    get:
+      operationId: "controllers.books.get_all"
+      tags:
+        - Books
+      summary: "Read the list of all Books"
+      responses:
+        "200":
+          description: "Successfully read books list."
+    post:
+      operationId: "controllers.books.create"
+      tags:
+        - Books
+      summary: "Create a new book"
+      requestBody:
+          description: "Book to create"
+          required: True
+          content:
+            application/json:
+              schema:
+                x-body-name: "book"
+                $ref: "#/components/schemas/Book"
+      responses:
+        "201":
+          description: "Successfully created book."
+  /books/{id}:
+    get:
+      operationId: "controllers.books.get"
+      tags:
+        - Books
+      summary: "Get one book"
+      parameters:
+        - $ref:  "#/components/parameters/book_id"
+      responses:
+        "200":
+          description: "Successfully read book."
+    put:
+      operationId: "controllers.books.update"
+      tags:
+        - Books
+      summary: "Update a book"
+      parameters:
+        - $ref: "#/components/parameters/book_id"
+      responses:
+        "200":
+          description: "Successfully updated book."
+      requestBody:
+        content:
+          application/json:
+            schema:
+              x-body-name: "book"
+              $ref: "#/components/schemas/Book"
+    delete:
+      operationId: "controllers.books.delete"
+      tags:
+        - Books
+      summary: "Delete a book"
+      parameters:
+        - $ref: "#/components/parameters/book_id"
+      responses:
+        "204":
+          description: "Successfully deleted book"
+  
+  
+  
+  /book-copies:
+    get:
+      operationId: controllers.book_copies.get_all
+      tags:
+        - Book Copies
+      summary: Get all book copies.
+      responses:
+        200:
+          description: Successfully read book copies list.
+    post:
+      operationId: controllers.book_copies.create
+      tags:
+        - Book Copies
+      summary: Create book copy
+      requestBody:
+          description: Book copy to create
+          required: True
+          content:
+            application/json:
+              schema:
+                x-body-name: "book_copy"
+                $ref: "#/components/schemas/BookCopy"
+      responses:
+        200:
+          description: Successfully created book copy.
+  /book-copies/{id}:
+    get:
+      operationId: controllers.book_copies.get
+      tags:
+        - Book Copies
+      summary: Get one book copy
+      parameters:
+        - $ref:  "#/components/parameters/book_copy_id"
+      responses:
+        200:
+          description: Successfully read book copy.
+    put:
+      operationId: controllers.book_copies.update
+      tags:
+        - Book Copies
+      summary: Update specified book copy
+      parameters:
+        - $ref: "#/components/parameters/book_copy_id"
+      responses:
+        200:
+          description: Successfully updated book.
+      requestBody:
+          description: Book copy to update
+          required: True
+          content:
+            application/json:
+              schema:
+                x-body-name: "book_copy"
+                $ref: "#/components/schemas/BookCopy"
+    delete:
+      operationId: controllers.book_copies.delete
+      tags:
+        - Book Copies
+      summary: Delete specified book copy
+      parameters:
+        - $ref: "#/components/parameters/book_copy_id"
+      responses:
+        204:
+          description: Successfully deleted book copy.
+  
+  
+  
+  /categories:
+    get:
+      operationId: controllers.categories.get_all
+      tags:
+        - Categories
+      summary: Get all categories
+      responses:
+        200:
+          description: Successfully read categories.
+    post:
+      operationId: controllers.categories.create
+      tags:
+        - Categories
+      summary: Create category
+      requestBody:
+          description: Category to create
+          required: True
+          content:
+            application/json:
+              schema:
+                x-body-name: "category"
+                $ref: "#/components/schemas/Category"
+      responses:
+        200:
+          description: Successfully created category.
+  /categories/{id}:
+    get:
+      operationId: controllers.categories.get
+      tags:
+        - Categories
+      summary: Get one category
+      parameters:
+        - $ref:  "#/components/parameters/category_id"
+      responses:
+        200:
+          description: Successfully read category.
+    put:
+      operationId: controllers.categories.update
+      tags:
+        - Categories
+      summary: Update specified category
+      parameters:
+        - $ref: "#/components/parameters/category_id"
+      responses:
+        200:
+          description: Successfully updated category.
+      requestBody:
+          description: Category to update
+          required: True
+          content:
+            application/json:
+              schema:
+                x-body-name: "category"
+                $ref: "#/components/schemas/Category"
+    delete:
+      operationId: controllers.categories.delete
+      tags:
+        - Categories
+      summary: Delete specified category
+      parameters:
+        - $ref: "#/components/parameters/category_id"
+      responses:
+        204:
+          description: Successfully deleted category.
+  
+  
+  
+  /locations:
+    get:
+      operationId: controllers.locations.get_all
+      tags:
+        - Locations
+      summary: Get all locations
+      responses:
+        200:
+          description: Successfully read locations.
+    post:
+      operationId: controllers.locations.create
+      tags:
+        - Locations
+      summary: Create location
+      requestBody:
+          description: Location to create
+          required: True
+          content:
+            application/json:
+              schema:
+                x-body-name: "location"
+                $ref: "#/components/schemas/Location"
+      responses:
+        200:
+          description: Successfully created location.
+  /locations/{id}:
+    get:
+      operationId: controllers.locations.get
+      tags:
+        - Locations
+      summary: Get one location
+      parameters:
+        - $ref:  "#/components/parameters/location_id"
+      responses:
+        200:
+          description: Successfully read location.
+    put:
+      operationId: controllers.locations.update
+      tags:
+        - Locations
+      summary: Update specified location
+      parameters:
+        - $ref: "#/components/parameters/location_id"
+      responses:
+        200:
+          description: Successfully updated location.
+      requestBody:
+          description: Location to update
+          required: True
+          content:
+            application/json:
+              schema:
+                x-body-name: "location"
+                $ref: "#/components/schemas/Location"
+    delete:
+      operationId: controllers.locations.delete
+      tags:
+        - Locations
+      summary: Delete specified location
+      parameters:
+        - $ref: "#/components/parameters/location_id"
+      responses:
+        204:
+          description: Successfully deleted location.
+  
+  
+  
+  /reviews:
+    get:
+      operationId: controllers.reviews.get_all
+      tags:
+        - Reviews
+      summary: Get all reviews
+      responses:
+        200:
+          description: Successfully read reviews.
+    post:
+      operationId: controllers.reviews.create
+      tags:
+        - Reviews
+      summary: Create review
+      requestBody:
+          description: Review to create
+          required: True
+          content:
+            application/json:
+              schema:
+                x-body-name: "review"
+                $ref: "#/components/schemas/Review"
+      responses:
+        200:
+          description: Successfully created review.
+  /reviews/{id}:
+    get:
+      operationId: controllers.reviews.get
+      tags:
+        - Reviews
+      summary: Get one review
+      parameters:
+        - $ref:  "#/components/parameters/review_id"
+      responses:
+        200:
+          description: Successfully read review.
+    put:
+      operationId: controllers.reviews.update
+      tags:
+        - Reviews
+      summary: Update specified review
+      parameters:
+        - $ref: "#/components/parameters/review_id"
+      responses:
+        200:
+          description: Successfully updated review.
+      requestBody:
+          description: Review to update
+          required: True
+          content:
+            application/json:
+              schema:
+                x-body-name: "review"
+                $ref: "#/components/schemas/Review"
+    delete:
+      operationId: controllers.reviews.delete
+      tags:
+        - Reviews
+      summary: Delete specified review
+      parameters:
+        - $ref: "#/components/parameters/review_id"
+      responses:
+        204:
+          description: Successfully deleted review.

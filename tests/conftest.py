@@ -92,6 +92,8 @@ categoryFable = Category(id=3, name='Fable')
 categoryFantasy = Category(id=4, name='Fantasy')
 categorySatire = Category(id=5, name='Satire')
 categoryComedy = Category(id=6, name='Comedy')
+categoryHistory = Category(id=7, name='History')
+categoryNonFiction = Category(id=8, name='Non-fiction')
 
 authorOrwell = Author(id=1, first_name='George', last_name='Orwell')
 authorHuxley = Author(id=2, first_name='Aldous', last_name='Huxley')
@@ -208,7 +210,7 @@ reviewGoodOmens1 = Review(id=4, book_id=bookGoodOmens.id, title='Good Omens Revi
 reviewGoodOmens2 = Review(id=5, book_id=bookGoodOmens.id, title='Liked it!', rating=9, customer=embed_user(userCustomerCustomer))
 
 LOCATIONS = [locationBrno, locationLondon, locationOlomouc]
-CATEGORIES = [categorySciFi, categoryDystopia, categoryFable, categoryFantasy, categorySatire, categoryComedy]
+CATEGORIES = [categorySciFi, categoryDystopia, categoryFable, categoryFantasy, categorySatire, categoryComedy, categoryHistory, categoryNonFiction]
 AUTHORS = [authorOrwell, authorHuxley, authorTolkien, authorGaiman, authorPratchet]
 BOOKS = [book1984, bookAnimalFarm, bookBraveNewWorld, bookHobbit, bookGoodOmens]
 BOOK_COPIES = [bc1984Brno1, bc1984Brno2, bc1984London1, bc1984London2, bc1984London3,
