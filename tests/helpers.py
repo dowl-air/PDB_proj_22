@@ -57,6 +57,10 @@ def format_date(d: Optional[date]) -> Optional[str]:
 class ClientWrapper:
 	def __init__(self, client: FlaskClient) -> None:
 		self.client = client
+		self.token: Optional[str] = None
+
+	def set_token(self, token: Optional[str]) -> None:
+		self.token = token
 
 	def get(self, endpoint: str, *, token: Optional[str] = None) -> TestResponse:
 		return self.client.get(endpoint, headers=self._auth_headers(token))
@@ -73,9 +77,21 @@ class ClientWrapper:
 	def patch(self, endpoint: str, data: dict, *, token: Optional[str] = None) -> TestResponse:
 		return self.client.patch(endpoint, data=dumps(data), content_type='application/json', headers=self._auth_headers(token))
 
+	def login(self, user: User) -> None:
+		data = {
+			'email': user.email,
+			'password': user.last_name.lower()
+		}
+
+		resp = self.post('/login', data)
+		assert resp.status_code == HTTPStatus.OK
+		self.set_token(resp.data.decode())
+
 	def _auth_headers(self, token: Optional[str]) -> Optional[dict]:
 		if token is None:
-			return None
+			if self.token is None:
+				return None
+			token = self.token
 		return {'Authorization': f'Bearer {token}'}
 
 # converts a mongo entity to a dict (or a list of entities to a list of dicts)

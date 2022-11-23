@@ -32,4 +32,6 @@ def fill_db() -> None:
 
 @pytest.fixture
 def client() -> ClientWrapper:
-	return ClientWrapper(create_app().test_client())
+	client = ClientWrapper(create_app().test_client())
+	return client
+	# TODO logout

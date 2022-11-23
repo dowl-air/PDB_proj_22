@@ -1,4 +1,6 @@
 
+import pytest
+
 from http import HTTPStatus
 
 from helpers import ClientWrapper
@@ -24,3 +26,9 @@ def test_authorized(client: ClientWrapper):
 	resp = client.get('/authorized', token=token)
 	assert resp.status_code == HTTPStatus.OK
 	assert resp.data.decode() is not None
+
+def test_authorized_helper(client: ClientWrapper):
+	client.login(user_customer_Customer)
+	resp = client.get('/authorized')
+	assert resp.status_code == HTTPStatus.OK
+	assert resp.data.decode() is not None	
