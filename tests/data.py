@@ -4,6 +4,7 @@ from datetime import date, timedelta
 from app.entity.nosql import (
 	Location, Category, Author, Book, BookCopy, User, Borrowal, Reservation, Review
 )
+from app.entity import UserRole
 
 from data_helpers import (
 	embed_book_list, embed_author_list, embed_book_copy_list, embed_category_list,
@@ -19,10 +20,6 @@ BOOK_COPY_STATE_DELETED = 0
 BOOK_COPY_STATE_GOOD = 1
 BOOK_COPY_STATE_DAMAGED = 2
 BOOK_COPY_STATE_NEW = 3
-
-USER_ROLE_CUSTOMER = 'customer'
-USER_ROLE_EMPLOYEE = 'employee'
-USER_ROLE_ADMIN = 'admin'
 
 BORROWAL_STATE_ACTIVE = 1
 BORROWAL_STATE_RETURNED = 0
@@ -151,13 +148,13 @@ book_Hobbit.categories = embed_category_list([category_fantasy])
 book_Good_Omens.categories = embed_category_list([category_fantasy, category_comedy])
 
 # USERS
-user_customer_Customer = User(id=1, first_name='Customer', last_name='Customer', role=USER_ROLE_CUSTOMER, email='customer@customer.com')
-user_customer_Smith = User(id=2, first_name='John', last_name='Smith', role=USER_ROLE_CUSTOMER, email='smith@customer.com')
-user_customer_Reviewer = User(id=3, first_name='Joe', last_name='Reviewer', role=USER_ROLE_CUSTOMER, email='reviewer@customer.com')
-user_employee_Brno = User(id=4, first_name='Employee', last_name='Brno', role=USER_ROLE_EMPLOYEE, email='brno@employee.com')
-user_employee_London = User(id=5, first_name='Employee', last_name='London', role=USER_ROLE_EMPLOYEE, email='london@employee.com')
-user_employee_Olomouc = User(id=6, first_name='Employee', last_name='Olomouc', role=USER_ROLE_EMPLOYEE, email='olomouc@employee.com')
-user_admin_Admin = User(id=7, first_name='Admin', last_name='Admin', role=USER_ROLE_ADMIN, email='admin@admin.com')
+user_customer_Customer = User(id=1, first_name='Customer', last_name='Customer', role=UserRole.CUSTOMER, email='customer@customer.com')
+user_customer_Smith = User(id=2, first_name='John', last_name='Smith', role=UserRole.CUSTOMER, email='smith@customer.com')
+user_customer_Reviewer = User(id=3, first_name='Joe', last_name='Reviewer', role=UserRole.CUSTOMER, email='reviewer@customer.com')
+user_employee_Brno = User(id=4, first_name='Employee', last_name='Brno', role=UserRole.EMPLOYEE, email='brno@employee.com')
+user_employee_London = User(id=5, first_name='Employee', last_name='London', role=UserRole.EMPLOYEE, email='london@employee.com')
+user_employee_Olomouc = User(id=6, first_name='Employee', last_name='Olomouc', role=UserRole.EMPLOYEE, email='olomouc@employee.com')
+user_admin_Admin = User(id=7, first_name='Admin', last_name='Admin', role=UserRole.ADMIN, email='admin@admin.com')
 
 # BORROWALS
 start_date = date(2019, 10, 4)
