@@ -37,32 +37,6 @@ def assert_dict_equal(actual, expected, ignore_list=['dictionary_item_removed', 
 
 	assert actual == expected
 
-def post(endpoint: str, data: dict, client: FlaskClient) -> TestResponse:
-	return client.post(endpoint, data=dumps(data), content_type='application/json')
-
-def protected_post(endpoint: str, data: dict, client: FlaskClient, user) -> TestResponse:
-	data['user_id'] = user['id']
-
-	return post(endpoint, data, client)
-
-def protected_delete(endpoint: str, client: FlaskClient, user, data: Optional[dict] = None) -> TestResponse:
-	if data is None:
-		data = {}
-
-	data['user_id'] = user['id']
-
-	return client.delete(endpoint, data=dumps(data), content_type='application/json')
-
-def protected_put(endpoint: str, data: dict, client: FlaskClient, user) -> TestResponse:
-	data['user_id'] = user['id']
-
-	return client.put(endpoint, data=dumps(data), content_type='application/json')
-
-def protected_patch(endpoint: str, data: dict, client: FlaskClient, user) -> TestResponse:
-	data['user_id'] = user['id']
-
-	return client.patch(endpoint, data=dumps(data), content_type='application/json')
-
 def find(fn, arr: list):
 	arr = list(filter(fn, arr))
 	if arr != 1:
@@ -78,6 +52,35 @@ def format_date(d: Optional[date]) -> Optional[str]:
 	if d is None:
 		return None
 	return d.strftime('%Y-%m-%d')
+
+# wrapper around a flask test client
+class ClientWrapper:
+	def __init__(self, client: FlaskClient) -> None:
+		self.client = client
+
+	def get(self, endpoint: str) -> TestResponse:
+		return self.client.get(endpoint)
+	
+	def post(self, endpoint: str, data: dict) -> TestResponse:
+		return self.client.post(endpoint, data=dumps(data), content_type='application/json')
+
+	def protected_post(self, endpoint: str, data: dict, user) -> TestResponse:
+		data['user_id'] = user['id']
+		return self.post(endpoint, data)
+
+	def protected_delete(self, endpoint: str, data: dict, user) -> TestResponse:
+		if data is None:
+			data = {}
+		data['user_id'] = user['id']
+		return self.client.delete(endpoint, data=dumps(data), content_type='application/json')
+
+	def protected_put(self, endpoint: str, data: dict, user) -> TestResponse:
+		data['user_id'] = user['id']
+		return self.client.put(endpoint, data=dumps(data), content_type='application/json')
+
+	def protected_patch(self, endpoint: str, data: dict, user) -> TestResponse:
+		data['user_id'] = user['id']
+		return self.client.patch(endpoint, data=dumps(data), content_type='application/json')
 
 # converts a mongo entity to a dict (or a list of entities to a list of dicts)
 def to_json(x) -> dict:

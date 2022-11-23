@@ -1,9 +1,9 @@
 
 import pytest
-from flask.testing import FlaskClient
 
 from app.create_app import create_app, db, mongo
 
+from helpers import ClientWrapper
 from data import (
 	LOCATIONS, CATEGORIES, AUTHORS, BOOKS, BOOK_COPIES, USERS, BORROWALS, RESERVATIONS, REVIEWS,
 	SQL_LOCATIONS, SQL_CATEGORIES, SQL_AUTHORS, SQL_BOOKS, SQL_BOOK_COPIES, SQL_USERS, SQL_BORROWALS, SQL_RESERVATIONS, SQL_REVIEWS
@@ -31,5 +31,5 @@ def fill_db() -> None:
 			db.session.commit()
 
 @pytest.fixture
-def client() -> FlaskClient:
-	return create_app().test_client()
+def client() -> ClientWrapper:
+	return ClientWrapper(create_app().test_client())

@@ -1,11 +1,9 @@
 
-from flask.testing import FlaskClient
-
 from http import HTTPStatus
 from json import loads
 
 from helpers import (
-	protected_post, protected_put, protected_delete,
+	ClientWrapper,
 	assert_error_response,
 	find_by_id
 )
@@ -18,7 +16,7 @@ class TestReview:
 	new_id: int = 0
 	NEW_REVIEW_BOOK_ID = book_1984.id
 
-	def test_review_add(self, client: FlaskClient):
+	def test_review_add(self, client: ClientWrapper):
 		USER = user_customer_Customer
 
 		data = {
@@ -27,7 +25,7 @@ class TestReview:
 			'rating': 7
 		}
 
-		resp = protected_post('/books/%d/reviews' % self.NEW_REVIEW_BOOK_ID, data, client, USER)
+		resp = client.protected_post('/books/%d/reviews' % self.NEW_REVIEW_BOOK_ID, data, USER)
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
 		assert 'id' in json_data
@@ -56,7 +54,7 @@ class TestReview:
 		assert review['content'] == data['content']
 		assert review['rating'] == data['rating']
 
-	def test_review_add_invalid(self, client: FlaskClient):
+	def test_review_add_invalid(self, client: ClientWrapper):
 		USER = user_customer_Customer
 
 		BOOK = book_Brave_New_World
@@ -70,14 +68,14 @@ class TestReview:
 		# missing title
 		data = template.copy()
 		data['title'] = None
-		resp = protected_post('/books/%d/reviews' % BOOK.id, data, client, USER)
+		resp = client.protected_post('/books/%d/reviews' % BOOK.id, data, USER)
 		assert_error_response(resp)
 
 		# invalid book id
-		resp = protected_post('/books/%d/reviews' % 300, data, client, USER)
+		resp = client.protected_post('/books/%d/reviews' % 300, data, USER)
 		assert_error_response(resp)
 
-	def test_review_edit(self, client: FlaskClient):
+	def test_review_edit(self, client: ClientWrapper):
 		USER = user_customer_Customer
 
 		data = {
@@ -86,7 +84,7 @@ class TestReview:
 			'rating': 5
 		}
 
-		resp = protected_put('/reviews/%d' % self.new_id, data, client, USER)
+		resp = client.protected_put('/reviews/%d' % self.new_id, data, USER)
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/books/%d/reviews' % self.NEW_REVIEW_BOOK_ID)
@@ -98,7 +96,7 @@ class TestReview:
 		assert review['content'] == data['content']
 		assert review['rating'] == data['rating']
 
-	def test_review_edit_invalid(self, client: FlaskClient):
+	def test_review_edit_invalid(self, client: ClientWrapper):
 		USER = user_customer_Customer
 
 		data = {
@@ -107,13 +105,13 @@ class TestReview:
 			'rating': 5
 		}
 
-		resp = protected_put('/reviews/%d' % self.new_id, data, client, USER)
+		resp = client.protected_put('/reviews/%d' % self.new_id, data, USER)
 		assert_error_response(resp)
 
-	def test_review_delete(self, client: FlaskClient):
+	def test_review_delete(self, client: ClientWrapper):
 		USER = user_customer_Customer
 
-		resp = protected_delete('/reviews/%d' % self.new_id, client, USER)
+		resp = client.protected_delete('/reviews/%d' % self.new_id, {}, USER)
 		assert resp.status_code == HTTPStatus.OK
 
 		# delete propagation

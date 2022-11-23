@@ -1,12 +1,10 @@
 
-from flask.testing import FlaskClient
-
 from datetime import date
 from http import HTTPStatus
 from json import loads
 
 from helpers import (
-	protected_post, protected_patch,
+	ClientWrapper,
 	assert_error_response,
 	find_by_id,
 	format_date
@@ -21,7 +19,7 @@ from data import (
 class TestReservation:
 	new_id: int = 0
 
-	def test_reservation_add(self, client: FlaskClient):
+	def test_reservation_add(self, client: ClientWrapper):
 		USER = user_customer_Customer
 
 		BOOK_COPY = bc_1984_Brno_2
@@ -30,7 +28,7 @@ class TestReservation:
 			'book_copy_id': BOOK_COPY.id
 		}
 
-		resp = protected_post('/reservations', data, client, USER)
+		resp = client.protected_post('/reservations', data, USER)
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
 		assert 'id' in json_data
@@ -46,7 +44,7 @@ class TestReservation:
 		assert reservation['start_date'] == format_date(date.today())
 		assert reservation['state'] == RESERVATION_STATE_ACTIVE
 
-	def test_reservation_add_invalid_reserved(self, client: FlaskClient):
+	def test_reservation_add_invalid_reserved(self, client: ClientWrapper):
 		USER = user_customer_Customer
 
 		BOOK_COPY = bc_Animal_Farm_Brno
@@ -55,10 +53,10 @@ class TestReservation:
 			'book_copy_id': BOOK_COPY.id
 		}
 
-		resp = protected_post('/reservations', data, client, USER)
+		resp = client.protected_post('/reservations', data, USER)
 		assert_error_response(resp)
 
-	def test_reservation_add_invalid_borrowed(self, client: FlaskClient):
+	def test_reservation_add_invalid_borrowed(self, client: ClientWrapper):
 		USER = user_customer_Customer
 
 		BOOK_COPY = bc_1984_Brno_1
@@ -67,13 +65,13 @@ class TestReservation:
 			'book_copy_id': BOOK_COPY.id
 		}
 
-		resp = protected_post('/reservations', data, client, USER)
+		resp = client.protected_post('/reservations', data, USER)
 		assert_error_response(resp)
 
-	def test_reservation_cancel(self, client: FlaskClient):
+	def test_reservation_cancel(self, client: ClientWrapper):
 		USER = user_customer_Customer
 
-		resp = protected_patch('/reservations/%d/cancel' % self.new_id, {}, client, USER)
+		resp = client.protected_patch('/reservations/%d/cancel' % self.new_id, {}, USER)
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/profile/%d/reservations' % USER.id) # TODO
@@ -83,9 +81,9 @@ class TestReservation:
 		assert reservation is not None
 		assert reservation['state'] == RESERVATION_STATE_CLOSED
 
-	def test_reservation_cancel_invalid(self, client: FlaskClient):
+	def test_reservation_cancel_invalid(self, client: ClientWrapper):
 		USER = user_customer_Customer
 
 		# reservation is already closed
-		resp = protected_patch('/reservations/%d/cancel' % reservation_Brno.id, {}, client, USER)
+		resp = client.protected_patch('/reservations/%d/cancel' % reservation_Brno.id, {}, USER)
 		assert_error_response(resp)

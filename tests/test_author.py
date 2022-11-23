@@ -1,11 +1,9 @@
 
-from flask.testing import FlaskClient
-
 from http import HTTPStatus
 from json import loads
 
 from helpers import (
-	protected_post, protected_put, protected_delete,
+	ClientWrapper,
 	assert_error_response,
 	find_by_id
 )
@@ -18,7 +16,7 @@ from data import (
 class TestAuthor:
 	new_id: int = 0
 
-	def test_author_add(self, client: FlaskClient):
+	def test_author_add(self, client: ClientWrapper):
 		USER = user_employee_Brno
 
 		data = {
@@ -27,7 +25,7 @@ class TestAuthor:
 			'description': 'A czech 20th century novellist...'
 		}
 
-		resp = protected_post('/authors', data, client, USER)
+		resp = client.protected_post('/authors', data, USER)
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
 		assert 'id' in json_data
@@ -41,7 +39,7 @@ class TestAuthor:
 		assert data['last_name'] == author['last_name']
 		assert data['description'] == author['description']
 
-	def test_author_add_invalid(self, client: FlaskClient):
+	def test_author_add_invalid(self, client: ClientWrapper):
 		USER = user_employee_Brno
 
 		data = {
@@ -49,10 +47,10 @@ class TestAuthor:
 			'description': 'Missing last name'
 		}
 
-		resp = protected_post('/authors', data, client, USER)
+		resp = client.protected_post('/authors', data, USER)
 		assert_error_response(resp)
 
-	def test_author_edit(self, client: FlaskClient):
+	def test_author_edit(self, client: ClientWrapper):
 		USER = user_employee_Brno
 
 		data = {
@@ -61,7 +59,7 @@ class TestAuthor:
 			'description': 'Edited author description'
 		}
 
-		resp = protected_put('/authors/%d' % self.new_id, data, client, USER)
+		resp = client.protected_put('/authors/%d' % self.new_id, data, USER)
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/authors/%d' % self.new_id)
@@ -71,7 +69,7 @@ class TestAuthor:
 		assert data['last_name'] == author['last_name']
 		assert data['description'] == author['description']
 
-	def test_author_edit_invalid(self, client: FlaskClient):
+	def test_author_edit_invalid(self, client: ClientWrapper):
 		USER = user_employee_Brno
 
 		data = {
@@ -80,10 +78,10 @@ class TestAuthor:
 			'description': 'Invalid edit - no first name'
 		}
 
-		resp = protected_put('/authors/%d' % self.new_id, data, client, USER)
+		resp = client.protected_put('/authors/%d' % self.new_id, data, USER)
 		assert_error_response(resp)
 
-	def test_author_edit_propagation(self, client: FlaskClient):
+	def test_author_edit_propagation(self, client: ClientWrapper):
 		USER = user_employee_Brno
 
 		AUTHOR = author_Huxley
@@ -95,7 +93,7 @@ class TestAuthor:
 			'description': 'Wrong author'
 		}
 
-		resp = protected_put('/authors/%d' % AUTHOR.id, data, client, USER)
+		resp = client.protected_put('/authors/%d' % AUTHOR.id, data, USER)
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/books/%d' % BOOK)
@@ -106,16 +104,16 @@ class TestAuthor:
 		assert author['first_name'] == data['first_name']
 		assert author['last_name'] == data['last_name']
 
-	def test_author_delete(self, client: FlaskClient):
+	def test_author_delete(self, client: ClientWrapper):
 		USER = user_employee_Brno
 
-		resp = protected_delete('/authors/%d' % self.new_id, client, USER)
+		resp = client.protected_delete('/authors/%d' % self.new_id, {}, USER)
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/authors/%d' % self.new_id)
 		assert_error_response(resp)
 
-	def test_author_delete_propagation(self, client: FlaskClient):
+	def test_author_delete_propagation(self, client: ClientWrapper):
 		USER = user_employee_Brno
 
 		BOOK = book_Brave_New_World
@@ -126,7 +124,7 @@ class TestAuthor:
 		book = loads(resp.data.decode())
 		assert find_by_id(AUTHOR.id, book['authors']) is not None
 
-		resp = protected_delete('/authors/%d' % AUTHOR.id, client, USER)
+		resp = client.protected_delete('/authors/%d' % AUTHOR.id, {}, USER)
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/books/%d' % BOOK.id)
