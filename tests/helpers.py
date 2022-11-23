@@ -6,7 +6,6 @@ from deepdiff.diff import DeepDiff
 from datetime import date
 from http import HTTPStatus
 from json import loads, dumps
-from bson import json_util
 
 from typing import Optional
 
@@ -15,22 +14,8 @@ from app.entity.nosql import (
 	EmbeddedCategory, EmbeddedBook, EmbeddedLocation, EmbeddedBookCopy, AuthorName, EmbeddedUser
 )
 
-def serialize(arg) -> str:
-	if isinstance(arg, list):
-		return json_util.dumps([x.to_mongo() for x in arg])
-
-	return arg.to_json()
-
-def entity_compare(data, entity) -> None:
-	assert loads(data.decode()) == loads(serialize(entity))
-
-def check_error_message(data) -> None:
-	assert data.decode() is not None
-
-def expect_error(resp: TestResponse) -> None:
-	assert resp.status_code not in [HTTPStatus.OK, HTTPStatus.NOT_FOUND]
-	assert resp.data.decode() is not None
-
+# asserts that the response is an error
+# (other than unauthorized access or default nonexistent endpoint)
 def assert_error_response(resp: TestResponse) -> None:
 	assert resp.status_code != HTTPStatus.OK
 	assert resp.status_code != HTTPStatus.UNAUTHORIZED
@@ -41,14 +26,7 @@ def assert_error_response(resp: TestResponse) -> None:
 		json_data = loads(resp.data.decode())
 		assert json_data['detail'] != 'The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.'
 
-def login(client: FlaskClient, email: str, password: str) -> None:
-	resp = client.post('/login', data={'email': email, 'password': password})
-	assert resp.status_code == HTTPStatus.OK
-
-def logout(client: FlaskClient) -> None:
-	resp = client.post('/logout')
-	assert resp.status_code == HTTPStatus.OK
-
+# asserts that JSON objects equal while ignoring additional fields in the tested object
 def assert_dict_equal(actual, expected, ignore_list=['dictionary_item_removed', 'iterable_item_removed']) -> None:
 	diff = DeepDiff(actual, expected, ignore_order=True, report_repetition=True)
 	diff_keys = list(diff.keys())
@@ -98,6 +76,7 @@ def format_date(d: Optional[date]) -> Optional[str]:
 		return None
 	return d.strftime('%Y-%m-%d')
 
+# converts a mongo entity to a dict (or a list of entities to a list of dicts)
 def to_json(x) -> dict:
 	if x is None:
 		return None
@@ -224,4 +203,4 @@ def to_json(x) -> dict:
 			'description': x.description
 		}
 	else:
-		raise Exception('to_json: NOT IMPLEMENTED')
+		raise Exception('to_json: Unexpected type')
