@@ -11,3 +11,4 @@ flask_marshmallow
 marshmallow-sqlalchemy
 connexion[swagger-ui]
 pytest
+deepdiff
