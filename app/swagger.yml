@@ -283,6 +283,8 @@ paths:
       tags:
         - Authors
       summary: Update specified author
+      security:
+      - jwt: []
       parameters:
         - $ref: "#/components/parameters/author_id"
       responses:
@@ -301,6 +303,8 @@ paths:
       tags:
         - Authors
       summary: Delete specified author
+      security:
+      - jwt: []
       parameters:
         - $ref: "#/components/parameters/author_id"
       responses:
@@ -331,6 +335,8 @@ paths:
               schema:
                 x-body-name: "book"
                 $ref: "#/components/schemas/Book"
+      security:
+      - jwt: []
       responses:
         "201":
           description: "Successfully created book."
@@ -350,6 +356,8 @@ paths:
       tags:
         - Books
       summary: "Update a book"
+      security:
+      - jwt: []
       parameters:
         - $ref: "#/components/parameters/book_id"
       responses:
@@ -366,6 +374,8 @@ paths:
       tags:
         - Books
       summary: "Delete a book"
+      security:
+      - jwt: []
       parameters:
         - $ref: "#/components/parameters/book_id"
       responses:
@@ -396,6 +406,8 @@ paths:
               schema:
                 x-body-name: "book_copy"
                 $ref: "#/components/schemas/BookCopy"
+      security:
+      - jwt: []
       responses:
         200:
           description: Successfully created book copy.
@@ -417,6 +429,8 @@ paths:
       summary: Update specified book copy
       parameters:
         - $ref: "#/components/parameters/book_copy_id"
+      security:
+      - jwt: []
       responses:
         200:
           description: Successfully updated book.
@@ -435,6 +449,8 @@ paths:
       summary: Delete specified book copy
       parameters:
         - $ref: "#/components/parameters/book_copy_id"
+      security:
+      - jwt: []
       responses:
         204:
           description: Successfully deleted book copy.
@@ -463,6 +479,8 @@ paths:
               schema:
                 x-body-name: "category"
                 $ref: "#/components/schemas/Category"
+      security:
+      - jwt: []
       responses:
         200:
           description: Successfully created category.
@@ -484,6 +502,8 @@ paths:
       summary: Update specified category
       parameters:
         - $ref: "#/components/parameters/category_id"
+      security:
+      - jwt: []
       responses:
         200:
           description: Successfully updated category.
@@ -502,6 +522,8 @@ paths:
       summary: Delete specified category
       parameters:
         - $ref: "#/components/parameters/category_id"
+      security:
+      - jwt: []
       responses:
         204:
           description: Successfully deleted category.
@@ -530,6 +552,8 @@ paths:
               schema:
                 x-body-name: "location"
                 $ref: "#/components/schemas/Location"
+      security:
+      - jwt: []
       responses:
         200:
           description: Successfully created location.
@@ -551,6 +575,8 @@ paths:
       summary: Update specified location
       parameters:
         - $ref: "#/components/parameters/location_id"
+      security:
+      - jwt: []
       responses:
         200:
           description: Successfully updated location.
@@ -569,6 +595,8 @@ paths:
       summary: Delete specified location
       parameters:
         - $ref: "#/components/parameters/location_id"
+      security:
+      - jwt: []
       responses:
         204:
           description: Successfully deleted location.
@@ -597,6 +625,8 @@ paths:
               schema:
                 x-body-name: "review"
                 $ref: "#/components/schemas/Review"
+      security:
+      - jwt: []
       responses:
         200:
           description: Successfully created review.
@@ -618,6 +648,8 @@ paths:
       summary: Update specified review
       parameters:
         - $ref: "#/components/parameters/review_id"
+      security:
+      - jwt: []
       responses:
         200:
           description: Successfully updated review.
@@ -636,6 +668,8 @@ paths:
       summary: Delete specified review
       parameters:
         - $ref: "#/components/parameters/review_id"
+      security:
+      - jwt: []
       responses:
         204:
           description: Successfully deleted review.
@@ -675,6 +709,8 @@ paths:
               schema:
                 x-body-name: "reservation"
                 $ref: "#/components/schemas/Reservation"
+      security:
+      - jwt: []
       responses:
         200:
           description: Successfully created reservation.
@@ -686,6 +722,8 @@ paths:
       summary: Delete reservation
       parameters:
         - $ref: "#/components/parameters/reservation_id"
+      security:
+      - jwt: []
       responses:
         204:
           description: Successfully deleted reservation.
@@ -706,6 +744,8 @@ paths:
               schema:
                 x-body-name: "borrowal"
                 $ref: "#/components/schemas/Borrowal"
+      security:
+      - jwt: []
       responses:
         200:
           description: Successfully created borrowal.
@@ -717,6 +757,8 @@ paths:
       summary: Finish borrowal
       parameters:
         - $ref: "#/components/parameters/borrowal_id"
+      security:
+      - jwt: []
       responses:
         200:
           description: Successfully finished borrowal.
