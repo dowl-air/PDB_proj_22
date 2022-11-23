@@ -16,14 +16,14 @@ class TestLocation:
 	new_id: int = 0
 
 	def test_location_add(self, client: ClientWrapper):
-		USER = user_admin_Admin
+		client.login(user_admin_Admin)
 
 		data = {
 			'name': 'VUT FIT',
 			'address': 'Božetěchova 1/2, 612 00 Brno-Královo Pole'
 		}
 
-		resp = client.protected_post('/locations', data, USER)
+		resp = client.post('/locations', data)
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
 		assert 'id' in json_data
@@ -37,24 +37,24 @@ class TestLocation:
 		assert data['address'] == location['address']
 
 	def test_location_add_invalid(self, client: ClientWrapper):
-		USER = user_admin_Admin
+		client.login(user_admin_Admin)
 
 		data = {
 			'address': 'Missing location name'
 		}
 
-		resp = client.protected_post('/locations', data, USER)
+		resp = client.post('/locations', data)
 		assert_error_response(resp)
 
 	def test_location_edit(self, client: ClientWrapper):
-		USER = user_admin_Admin
+		client.login(user_admin_Admin)
 
 		data = {
 			'name': 'Edited VUT FIT location',
 			'address': 'Edited location address'
 		}
 
-		resp = client.protected_put('/locations/%d' % self.new_id, data, USER)
+		resp = client.put('/locations/%d' % self.new_id, data)
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/locations/%d' % id)
@@ -64,18 +64,18 @@ class TestLocation:
 		assert data['address'] == location['address']
 
 	def test_location_edit_invalid(self, client: ClientWrapper):
-		USER = user_admin_Admin
+		client.login(user_admin_Admin)
 
 		data = {
 			'name': None,
 			'description': 'Invalid edit - no name'
 		}
 
-		resp = client.protected_put('/locations/%d' % self.new_id, data, USER)
+		resp = client.put('/locations/%d' % self.new_id, data)
 		assert_error_response(resp)
 
 	def test_location_edit_propagation(self, client: ClientWrapper):
-		USER = user_admin_Admin
+		client.login(user_admin_Admin)
 
 		data = {
 			'name': 'Ostrava',
@@ -85,7 +85,7 @@ class TestLocation:
 		LOCATION = location_Brno
 		BOOK_COPY = bc_1984_Brno_1
 
-		resp = client.protected_put('/locations/%d' % LOCATION.id, data, USER)
+		resp = client.put('/locations/%d' % LOCATION.id, data)
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/book-copies/%d' % BOOK_COPY.id)
@@ -95,9 +95,9 @@ class TestLocation:
 		assert book_copy['location']['address'] == data['address']
 
 	def test_location_delete(self, client: ClientWrapper):
-		USER = user_admin_Admin
+		client.login(user_admin_Admin)
 
-		resp = client.protected_delete('/locations/%d' % self.new_id, {}, USER)
+		resp = client.delete('/locations/%d' % self.new_id, {})
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/locations/%d' % self.new_id)
@@ -105,9 +105,9 @@ class TestLocation:
 
 	# cannot delete location with assigned book copies
 	def test_location_delete_invalid(self, client: ClientWrapper):
-		USER = user_admin_Admin
+		client.login(user_admin_Admin)
 
 		LOCATION = location_Brno
 
-		resp = client.protected_delete('/locations/%d' % LOCATION.id, {}, USER)
+		resp = client.delete('/locations/%d' % LOCATION.id, {})
 		assert_error_response(resp)

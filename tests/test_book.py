@@ -21,7 +21,7 @@ class TestBook:
 	new_book_author_id: int = 0
 
 	def test_book_add(self, client: ClientWrapper):
-		USER = user_employee_Brno
+		client.login(user_employee_Brno)
 
 		AUTHOR = author_Orwell
 		CATEGORY1 = category_history
@@ -36,7 +36,7 @@ class TestBook:
 			'categories': [CATEGORY1.id, CATEGORY2.id]
 		}
 
-		resp = client.protected_post('/books', data, USER)
+		resp = client.post('/books', data)
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
 		assert 'id' in json_data
@@ -73,7 +73,7 @@ class TestBook:
 		assert book['description'] == data['description']
 
 	def test_book_add_invalid(self, client: ClientWrapper):
-		USER = user_employee_Brno
+		client.login(user_employee_Brno)
 
 		AUTHOR = author_Tolkien
 		CATEGORY = category_fantasy
@@ -90,35 +90,35 @@ class TestBook:
 		# missing name
 		data = template.copy()
 		data['name'] = None
-		resp = client.protected_post('/books', data, USER)
+		resp = client.post('/books', data)
 		assert_error_response(resp)
 
 		# missing ISBN
 		data = template.copy()
 		data['ISBN'] = None
-		resp = client.protected_post('/books', data, USER)
+		resp = client.post('/books', data)
 		assert_error_response(resp)
 
 		# duplicate ISBN
 		data = template.copy()
 		data['ISBN'] = book_1984.ISBN
-		resp = client.protected_post('/books', data, USER)
+		resp = client.post('/books', data)
 		assert_error_response(resp)
 
 		# unknown author
 		data = template.copy()
 		data['authors'] = [300]
-		resp = client.protected_post('/books', data, USER)
+		resp = client.post('/books', data)
 		assert_error_response(resp)
 
 		# unknown category
 		data = template.copy()
 		data['categories'] = [300]
-		resp = client.protected_post('/books', data, USER)
+		resp = client.post('/books', data)
 		assert_error_response(resp)
 
 	def test_book_edit(self, client: ClientWrapper):
-		USER = user_employee_Brno
+		client.login(user_employee_Brno)
 
 		AUTHOR = author_Huxley
 		CATEGORY = category_fable
@@ -132,7 +132,7 @@ class TestBook:
 			'categories': [CATEGORY.id]
 		}
 
-		resp = client.protected_put('/books/%d' % self.new_id, data, USER)
+		resp = client.put('/books/%d' % self.new_id, data)
 		assert resp.status_code == HTTPStatus.OK
 
 		self.new_book_author_id = AUTHOR.id
@@ -156,7 +156,7 @@ class TestBook:
 		assert category['description'] == CATEGORY.description
 
 	def test_book_edit_invalid(self, client: ClientWrapper):
-		USER = user_employee_Brno
+		client.login(user_employee_Brno)
 
 		AUTHOR = author_Tolkien
 		CATEGORY = category_fantasy
@@ -173,35 +173,35 @@ class TestBook:
 		# missing name
 		data = template.copy()
 		data['name'] = None
-		resp = client.protected_put('/books/%d' % self.new_id, data, USER)
+		resp = client.put('/books/%d' % self.new_id, data)
 		assert_error_response(resp)
 
 		# missing ISBN
 		data = template.copy()
 		data['ISBN'] = None
-		resp = client.protected_put('/books/%d' % self.new_id, data, USER)
+		resp = client.put('/books/%d' % self.new_id, data)
 		assert_error_response(resp)
 
 		# duplicate ISBN
 		data = template.copy()
 		data['ISBN'] = book_1984.ISBN
-		resp = client.protected_put('/books/%d' % self.new_id, data, USER)
+		resp = client.put('/books/%d' % self.new_id, data)
 		assert_error_response(resp)
 
 		# unknown author
 		data = template.copy()
 		data['authors'] = [300]
-		resp = client.protected_put('/books/%d' % self.new_id, data, USER)
+		resp = client.put('/books/%d' % self.new_id, data)
 		assert_error_response(resp)
 
 		# unknown category
 		data = template.copy()
 		data['categories'] = [300]
-		resp = client.protected_put('/books/%d' % self.new_id, data, USER)
+		resp = client.put('/books/%d' % self.new_id, data)
 		assert_error_response(resp)
 
 	def test_book_edit_propagation(self, client: ClientWrapper):
-		USER = user_employee_Brno
+		client.login(user_employee_Brno)
 
 		BOOK = book_Animal_Farm
 		ORIGINAL_AUTHOR_ID = book_Animal_Farm.authors[0]['id']
@@ -216,7 +216,7 @@ class TestBook:
 			'categories': []
 		}
 
-		resp = client.protected_put('/books/%d' % BOOK.id, data, USER)
+		resp = client.put('/books/%d' % BOOK.id, data)
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/authors/%d' % ORIGINAL_AUTHOR_ID)
@@ -234,9 +234,9 @@ class TestBook:
 		assert book['description'] == data['description']
 
 	def test_book_delete(self, client: ClientWrapper):
-		USER = user_employee_Brno
+		client.login(user_employee_Brno)
 
-		resp = client.protected_delete('/books/%d' % self.new_id, {}, USER)
+		resp = client.delete('/books/%d' % self.new_id, {})
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/books/%d' % self.new_id)
@@ -250,9 +250,9 @@ class TestBook:
 
 	# cannot delete book with copies
 	def test_book_delete_invalid(self, client: ClientWrapper):
-		USER = user_employee_Brno
+		client.login(user_employee_Brno)
 
 		BOOK = book_1984
 
-		resp = client.protected_delete('/books/%d' % BOOK.id, {}, USER)
+		resp = client.delete('/books/%d' % BOOK.id, {})
 		assert_error_response(resp)

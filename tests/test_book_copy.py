@@ -20,7 +20,7 @@ class TestBookCopy:
 	new_id: int = 0
 
 	def test_book_copy_add(self, client: ClientWrapper):
-		USER = user_employee_Brno
+		client.login(user_employee_Brno)
 
 		LOCATION = location_Brno
 		BOOK = book_1984
@@ -33,7 +33,7 @@ class TestBookCopy:
 			'state': BOOK_COPY_STATE_GOOD
 		}
 
-		resp = client.protected_post('/book-copies', data, USER)
+		resp = client.post('/book-copies', data)
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
 		assert 'id' in json_data
@@ -53,7 +53,7 @@ class TestBookCopy:
 		assert location['address'] == LOCATION.address
 
 	def test_book_copy_add_invalid(self, client: ClientWrapper):
-		USER = user_employee_Brno
+		client.login(user_employee_Brno)
 
 		BOOK = book_1984
 		LOCATION = location_Brno
@@ -69,23 +69,23 @@ class TestBookCopy:
 		# missing book id
 		data = template.copy()
 		data['book_id'] = None
-		resp = client.protected_post('/book_copies', data, USER)
+		resp = client.post('/book_copies', data)
 		assert_error_response(resp)
 
 		# missing location id
 		data = template.copy()
 		data['location_id'] = None
-		resp = client.protected_post('/book_copies', data, USER)
+		resp = client.post('/book_copies', data)
 		assert_error_response(resp)
 
 		# missing print date
 		data = template.copy()
 		data['print_date'] = None
-		resp = client.protected_post('/book_copies', data, USER)
+		resp = client.post('/book_copies', data)
 		assert_error_response(resp)
 
 	def test_book_copy_edit(self, client: ClientWrapper):
-		USER = user_employee_Brno
+		client.login(user_employee_Brno)
 
 		BOOK = book_Animal_Farm
 		LOCATION = location_Olomouc
@@ -98,7 +98,7 @@ class TestBookCopy:
 			'state': BOOK_COPY_STATE_DAMAGED
 		}
 
-		resp = client.protected_put('/book-copies/%d' % self.new_id, data, USER)
+		resp = client.put('/book-copies/%d' % self.new_id, data)
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/book-copies/%d' % self.new_id)
@@ -114,7 +114,7 @@ class TestBookCopy:
 		assert location['address'] == LOCATION.address
 
 	def test_book_copy_edit_invalid(self, client: ClientWrapper):
-		USER = user_employee_Brno
+		client.login(user_employee_Brno)
 
 		BOOK = book_1984
 		LOCATION = location_Brno
@@ -130,23 +130,23 @@ class TestBookCopy:
 		# missing book id
 		data = template.copy()
 		data['book_id'] = None
-		resp = client.protected_put('/book-copies/%d' % self.new_id, data, USER)
+		resp = client.put('/book-copies/%d' % self.new_id, data)
 		assert_error_response(resp)
 
 		# missing location id
 		data = template.copy()
 		data['location_id'] = None
-		resp = client.protected_put('/book-copies/%d' % self.new_id, data, USER)
+		resp = client.put('/book-copies/%d' % self.new_id, data)
 		assert_error_response(resp)
 
 		# missing print date
 		data = template.copy()
 		data['print_date'] = None
-		resp = client.protected_put('/book-copies/%d' % self.new_id, data, USER)
+		resp = client.put('/book-copies/%d' % self.new_id, data)
 		assert_error_response(resp)
 
 	def test_book_copy_edit_propagation(self, client: ClientWrapper):
-		USER = user_employee_Brno
+		client.login(user_employee_Brno)
 
 		BOOK_COPY = bc_1984_Brno_1
 		BOOK = book_Animal_Farm
@@ -160,7 +160,7 @@ class TestBookCopy:
 			'state': BOOK_COPY_STATE_DAMAGED
 		}
 
-		resp = client.protected_put('/book-copies/%d' % BOOK_COPY.id, data, USER)
+		resp = client.put('/book-copies/%d' % BOOK_COPY.id, data)
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/book/%d' % BOOK.id)
@@ -176,9 +176,9 @@ class TestBookCopy:
 		assert copy['location_id'] == LOCATION.id
 
 	def test_book_copy_delete(self, client: ClientWrapper):
-		USER = user_employee_Brno
+		client.login(user_employee_Brno)
 
-		resp = client.protected_delete('/book-copies/%d' % self.new_id, {}, USER)
+		resp = client.delete('/book-copies/%d' % self.new_id, {})
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/book-copies/%d' % self.new_id)
@@ -186,19 +186,20 @@ class TestBookCopy:
 
 	# cannot delete book copy with borrowals
 	def test_book_copy_delete_invalid(self, client: ClientWrapper):
-		USER = user_employee_Brno
+		client.login(user_employee_Brno)
+
 		BOOK_COPY = bc_1984_London_1
 
-		resp = client.protected_delete('/book-copies/%d' % BOOK_COPY.id, {}, USER)
+		resp = client.delete('/book-copies/%d' % BOOK_COPY.id, {})
 		assert_error_response(resp)
 
 	def test_book_copy_delete_propagation(self, client: ClientWrapper):
-		USER = user_employee_Brno
+		client.login(user_employee_Brno)
 
 		BOOK_COPY = bc_1984_London_2
 		BOOK = book_1984
 
-		resp = client.protected_delete('/book-copies/%d' % BOOK_COPY.id, {}, USER)
+		resp = client.delete('/book-copies/%d' % BOOK_COPY.id, {})
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/book/%d' % BOOK.id)

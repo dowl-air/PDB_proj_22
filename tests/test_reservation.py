@@ -21,6 +21,7 @@ class TestReservation:
 
 	def test_reservation_add(self, client: ClientWrapper):
 		USER = user_customer_Customer
+		client.login(USER)
 
 		BOOK_COPY = bc_1984_Brno_2
 
@@ -28,7 +29,7 @@ class TestReservation:
 			'book_copy_id': BOOK_COPY.id
 		}
 
-		resp = client.protected_post('/reservations', data, USER)
+		resp = client.post('/reservations', data)
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
 		assert 'id' in json_data
@@ -45,7 +46,7 @@ class TestReservation:
 		assert reservation['state'] == RESERVATION_STATE_ACTIVE
 
 	def test_reservation_add_invalid_reserved(self, client: ClientWrapper):
-		USER = user_customer_Customer
+		client.login(user_customer_Customer)
 
 		BOOK_COPY = bc_Animal_Farm_Brno
 
@@ -53,11 +54,11 @@ class TestReservation:
 			'book_copy_id': BOOK_COPY.id
 		}
 
-		resp = client.protected_post('/reservations', data, USER)
+		resp = client.post('/reservations', data)
 		assert_error_response(resp)
 
 	def test_reservation_add_invalid_borrowed(self, client: ClientWrapper):
-		USER = user_customer_Customer
+		client.login(user_customer_Customer)
 
 		BOOK_COPY = bc_1984_Brno_1
 
@@ -65,13 +66,14 @@ class TestReservation:
 			'book_copy_id': BOOK_COPY.id
 		}
 
-		resp = client.protected_post('/reservations', data, USER)
+		resp = client.post('/reservations', data)
 		assert_error_response(resp)
 
 	def test_reservation_cancel(self, client: ClientWrapper):
 		USER = user_customer_Customer
+		client.login(USER)
 
-		resp = client.protected_patch('/reservations/%d/cancel' % self.new_id, {}, USER)
+		resp = client.patch('/reservations/%d/cancel' % self.new_id, {})
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/profile/%d/reservations' % USER.id) # TODO
@@ -82,8 +84,8 @@ class TestReservation:
 		assert reservation['state'] == RESERVATION_STATE_CLOSED
 
 	def test_reservation_cancel_invalid(self, client: ClientWrapper):
-		USER = user_customer_Customer
+		client.login(user_customer_Customer)
 
 		# reservation is already closed
-		resp = client.protected_patch('/reservations/%d/cancel' % reservation_Brno.id, {}, USER)
+		resp = client.patch('/reservations/%d/cancel' % reservation_Brno.id, {})
 		assert_error_response(resp)

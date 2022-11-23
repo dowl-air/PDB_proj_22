@@ -18,6 +18,7 @@ class TestReview:
 
 	def test_review_add(self, client: ClientWrapper):
 		USER = user_customer_Customer
+		client.login(USER)
 
 		data = {
 			'title': '1984 Review',
@@ -25,7 +26,7 @@ class TestReview:
 			'rating': 7
 		}
 
-		resp = client.protected_post('/books/%d/reviews' % self.NEW_REVIEW_BOOK_ID, data, USER)
+		resp = client.post('/books/%d/reviews' % self.NEW_REVIEW_BOOK_ID, data)
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
 		assert 'id' in json_data
@@ -55,7 +56,7 @@ class TestReview:
 		assert review['rating'] == data['rating']
 
 	def test_review_add_invalid(self, client: ClientWrapper):
-		USER = user_customer_Customer
+		client.login(user_customer_Customer)
 
 		BOOK = book_Brave_New_World
 
@@ -68,15 +69,15 @@ class TestReview:
 		# missing title
 		data = template.copy()
 		data['title'] = None
-		resp = client.protected_post('/books/%d/reviews' % BOOK.id, data, USER)
+		resp = client.post('/books/%d/reviews' % BOOK.id, data)
 		assert_error_response(resp)
 
 		# invalid book id
-		resp = client.protected_post('/books/%d/reviews' % 300, data, USER)
+		resp = client.post('/books/%d/reviews' % 300, data)
 		assert_error_response(resp)
 
 	def test_review_edit(self, client: ClientWrapper):
-		USER = user_customer_Customer
+		client.login(user_customer_Customer)
 
 		data = {
 			'title': 'Edited review title',
@@ -84,7 +85,7 @@ class TestReview:
 			'rating': 5
 		}
 
-		resp = client.protected_put('/reviews/%d' % self.new_id, data, USER)
+		resp = client.put('/reviews/%d' % self.new_id, data)
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/books/%d/reviews' % self.NEW_REVIEW_BOOK_ID)
@@ -97,7 +98,7 @@ class TestReview:
 		assert review['rating'] == data['rating']
 
 	def test_review_edit_invalid(self, client: ClientWrapper):
-		USER = user_customer_Customer
+		client.login(user_customer_Customer)
 
 		data = {
 			'title': None,
@@ -105,13 +106,14 @@ class TestReview:
 			'rating': 5
 		}
 
-		resp = client.protected_put('/reviews/%d' % self.new_id, data, USER)
+		resp = client.put('/reviews/%d' % self.new_id, data)
 		assert_error_response(resp)
 
 	def test_review_delete(self, client: ClientWrapper):
 		USER = user_customer_Customer
+		client.login(USER)
 
-		resp = client.protected_delete('/reviews/%d' % self.new_id, {}, USER)
+		resp = client.delete('/reviews/%d' % self.new_id, {})
 		assert resp.status_code == HTTPStatus.OK
 
 		# delete propagation

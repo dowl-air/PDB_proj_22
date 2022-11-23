@@ -6,6 +6,7 @@ from helpers import (
 	ClientWrapper,
 	assert_error_response
 )
+from data import user_customer_Customer
 
 class TestUser:
 	NEW_USER = {
@@ -66,7 +67,7 @@ class TestUser:
 		resp = client.post('/login', data)
 		assert resp.status_code == HTTPStatus.OK
 
-	# TODO? JWT
+	# TODO
 	def test_logout(self, client: ClientWrapper):
 		resp = client.post('/logout', {})
 		assert resp.status_code == HTTPStatus.OK
@@ -79,7 +80,7 @@ class TestUser:
 			'last_name': 'Edited-last-name'
 		}
 
-		resp = client.protected_put('/profile', data, USER)
+		resp = client.put('/profile', data)
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/profile/%d' % USER['id']) # TODO
