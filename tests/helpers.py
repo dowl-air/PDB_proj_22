@@ -37,10 +37,13 @@ def assert_dict_equal(actual, expected, ignore_list=['dictionary_item_removed', 
 
 	assert actual == expected
 
+def post(endpoint: str, data: dict, client: FlaskClient) -> TestResponse:
+	return client.post(endpoint, data=dumps(data), content_type='application/json')
+
 def protected_post(endpoint: str, data: dict, client: FlaskClient, user) -> TestResponse:
 	data['user_id'] = user['id']
 
-	return client.post(endpoint, data=dumps(data), content_type='application/json')
+	return post(endpoint, data, client)
 
 def protected_delete(endpoint: str, client: FlaskClient, user, data: Optional[dict] = None) -> TestResponse:
 	if data is None:

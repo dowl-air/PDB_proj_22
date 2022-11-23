@@ -5,7 +5,7 @@ from http import HTTPStatus
 from json import loads
 
 from helpers import (
-	protected_put,
+	protected_put, post,
 	assert_error_response
 )
 
@@ -26,8 +26,8 @@ class TestUser:
 			'password': self.NEW_USER['password']
 		}
 
-		resp = client.post('/register', data=data)
-		assert resp.status_code == HTTPStatus.OK
+		resp = post('/register', data, client)
+		assert resp.status_code == HTTPStatus.CREATED
 		json_data = loads(resp.data.decode())
 		assert 'id' in json_data
 
@@ -44,19 +44,19 @@ class TestUser:
 		# missing email
 		data = template.copy()
 		data['email'] = None
-		resp = client.post('/register', data=data)
+		resp = post('/register', data, client)
 		assert_error_response(resp)
 
 		# duplicate email
 		data = template.copy()
 		data['email'] = self.NEW_USER['email']
-		resp = client.post('/register', data=data)
+		resp = post('/register', data, client)
 		assert_error_response(resp)
 
 		# missing password
 		data = template.copy()
 		data['password'] = None
-		resp = client.post('/register', data=data)
+		resp = post('/register', data, client)
 		assert_error_response(resp)
 
 	def test_login(self, client: FlaskClient):
@@ -65,12 +65,12 @@ class TestUser:
 			'password': self.NEW_USER['password']
 		}
 
-		resp = client.post('/login', data=data)
+		resp = post('/login', data, client)
 		assert resp.status_code == HTTPStatus.OK
 
 	# TODO? JWT
 	def test_logout(self, client: FlaskClient):
-		resp = client.post('/logout')
+		resp = post('/logout', {}, client)
 		assert resp.status_code == HTTPStatus.OK
 
 	def test_profile_edit(self, client: FlaskClient):
