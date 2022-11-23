@@ -9,17 +9,17 @@ from helpers import (
 	assert_error_response,
 	find_by_id
 )
-from conftest import (
-	authorHuxley,
-	bookBraveNewWorld,
-	userEmployeeBrno
+from data import (
+	author_Huxley,
+	book_Brave_New_World,
+	user_employee_Brno
 )
 
 class TestAuthor:
 	new_id: int = 0
 
 	def test_author_add(self, client: FlaskClient):
-		USER = userEmployeeBrno
+		USER = user_employee_Brno
 
 		data = {
 			'first_name': 'Karel',
@@ -42,7 +42,7 @@ class TestAuthor:
 		assert data['description'] == author['description']
 
 	def test_author_add_invalid(self, client: FlaskClient):
-		USER = userEmployeeBrno
+		USER = user_employee_Brno
 
 		data = {
 			'first_name': 'Name',
@@ -53,7 +53,7 @@ class TestAuthor:
 		assert_error_response(resp)
 
 	def test_author_edit(self, client: FlaskClient):
-		USER = userEmployeeBrno
+		USER = user_employee_Brno
 
 		data = {
 			'first_name': 'Edited author first name',
@@ -72,7 +72,7 @@ class TestAuthor:
 		assert data['description'] == author['description']
 
 	def test_author_edit_invalid(self, client: FlaskClient):
-		USER = userEmployeeBrno
+		USER = user_employee_Brno
 
 		data = {
 			'first_name': None,
@@ -84,10 +84,10 @@ class TestAuthor:
 		assert_error_response(resp)
 
 	def test_author_edit_propagation(self, client: FlaskClient):
-		USER = userEmployeeBrno
+		USER = user_employee_Brno
 
-		AUTHOR = authorHuxley
-		BOOK = bookBraveNewWorld
+		AUTHOR = author_Huxley
+		BOOK = book_Brave_New_World
 
 		data = {
 			'first_name': 'Ray',
@@ -107,7 +107,7 @@ class TestAuthor:
 		assert author['last_name'] == data['last_name']
 
 	def test_author_delete(self, client: FlaskClient):
-		USER = userEmployeeBrno
+		USER = user_employee_Brno
 
 		resp = protected_delete('/authors/%d' % self.new_id, client, USER)
 		assert resp.status_code == HTTPStatus.OK
@@ -116,10 +116,10 @@ class TestAuthor:
 		assert_error_response(resp)
 
 	def test_author_delete_propagation(self, client: FlaskClient):
-		USER = userEmployeeBrno
+		USER = user_employee_Brno
 
-		BOOK = bookBraveNewWorld
-		AUTHOR = authorHuxley
+		BOOK = book_Brave_New_World
+		AUTHOR = author_Huxley
 
 		resp = client.get('/books/%d' % BOOK.id)
 		assert resp.status_code == HTTPStatus.OK

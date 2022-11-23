@@ -9,17 +9,17 @@ from helpers import (
 	assert_error_response,
 	find_by_id
 )
-from conftest import (
-	book1984, bookBraveNewWorld,
-	userCustomerCustomer
+from data import (
+	book_1984, book_Brave_New_World,
+	user_customer_Customer
 )
 
 class TestReview:
 	new_id: int = 0
-	NEW_REVIEW_BOOK_ID = book1984.id
+	NEW_REVIEW_BOOK_ID = book_1984.id
 
 	def test_review_add(self, client: FlaskClient):
-		USER = userCustomerCustomer
+		USER = user_customer_Customer
 
 		data = {
 			'title': '1984 Review',
@@ -57,9 +57,9 @@ class TestReview:
 		assert review['rating'] == data['rating']
 
 	def test_review_add_invalid(self, client: FlaskClient):
-		USER = userCustomerCustomer
+		USER = user_customer_Customer
 
-		BOOK = bookBraveNewWorld
+		BOOK = book_Brave_New_World
 
 		template = {
 			'title': 'Brave New World review',
@@ -78,7 +78,7 @@ class TestReview:
 		assert_error_response(resp)
 
 	def test_review_edit(self, client: FlaskClient):
-		USER = userCustomerCustomer
+		USER = user_customer_Customer
 
 		data = {
 			'title': 'Edited review title',
@@ -99,7 +99,7 @@ class TestReview:
 		assert review['rating'] == data['rating']
 
 	def test_review_edit_invalid(self, client: FlaskClient):
-		USER = userCustomerCustomer
+		USER = user_customer_Customer
 
 		data = {
 			'title': None,
@@ -111,7 +111,7 @@ class TestReview:
 		assert_error_response(resp)
 
 	def test_review_delete(self, client: FlaskClient):
-		USER = userCustomerCustomer
+		USER = user_customer_Customer
 
 		resp = protected_delete('/reviews/%d' % self.new_id, client, USER)
 		assert resp.status_code == HTTPStatus.OK

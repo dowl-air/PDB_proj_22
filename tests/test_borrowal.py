@@ -11,21 +11,21 @@ from helpers import (
 	find_by_id,
 	format_date
 )
-from conftest import (
+from data import (
 	BORROWAL_STATE_ACTIVE, BORROWAL_STATE_RETURNED,
-	bc1984Brno1, bcAnimalFarmBrno, bcHobbitOlomouc,
-	userEmployeeBrno, userCustomerCustomer,
-	borrowalLondon3
+	bc_1984_Brno_1, bc_Animal_Farm_Brno, bc_Hobbit_Olomouc,
+	user_employee_Brno, user_customer_Customer,
+	borrowal_London_3
 )
 
 class TestBorrowal:
 	new_id: int = 0
 
 	def test_borrowal_add(self, client: FlaskClient):
-		USER = userEmployeeBrno
+		USER = user_employee_Brno
 
-		BOOK_COPY = bcHobbitOlomouc
-		CUSTOMER = userCustomerCustomer
+		BOOK_COPY = bc_Hobbit_Olomouc
+		CUSTOMER = user_customer_Customer
 
 		data = {
 			'book_copy_id': BOOK_COPY.id,
@@ -48,10 +48,10 @@ class TestBorrowal:
 		assert borrowal['state'] == BORROWAL_STATE_ACTIVE
 
 	def test_borrowal_add_invalid_reserved(self, client: FlaskClient):
-		USER = userEmployeeBrno
+		USER = user_employee_Brno
 
-		BOOK_COPY = bcAnimalFarmBrno
-		CUSTOMER = userCustomerCustomer
+		BOOK_COPY = bc_Animal_Farm_Brno
+		CUSTOMER = user_customer_Customer
 
 		data = {
 			'book_copy_id': BOOK_COPY.id,
@@ -62,10 +62,10 @@ class TestBorrowal:
 		assert_error_response(resp)
 
 	def test_borrowal_add_invalid_borrowed(self, client: FlaskClient):
-		USER = userEmployeeBrno
+		USER = user_employee_Brno
 
-		BOOK_COPY = bc1984Brno1
-		CUSTOMER = userCustomerCustomer
+		BOOK_COPY = bc_1984_Brno_1
+		CUSTOMER = user_customer_Customer
 
 		data = {
 			'book_copy_id': BOOK_COPY.id,
@@ -76,7 +76,7 @@ class TestBorrowal:
 		assert_error_response(resp)
 
 	def test_borrowal_return(self, client: FlaskClient):
-		USER = userEmployeeBrno
+		USER = user_employee_Brno
 
 		resp = protected_patch('/borrowals/%d/return' % self.new_id, {}, client, USER)
 		assert resp.status_code == HTTPStatus.OK
@@ -89,8 +89,8 @@ class TestBorrowal:
 		assert borrowal['state'] == BORROWAL_STATE_RETURNED
 
 	def test_borrowal_return_invalid(self, client: FlaskClient):
-		USER = userCustomerCustomer
+		USER = user_customer_Customer
 
 		# borrowal already ended
-		resp = protected_patch('/borrowals/%d/return' % borrowalLondon3.id, {}, client, USER)
+		resp = protected_patch('/borrowals/%d/return' % borrowal_London_3.id, {}, client, USER)
 		assert_error_response(resp)

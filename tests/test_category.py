@@ -9,17 +9,17 @@ from helpers import (
 	assert_error_response,
 	find_by_id
 )
-from conftest import (
-	bookAnimalFarm,
-	categoryFable,
-	userEmployeeBrno
+from data import (
+	book_Animal_Farm,
+	category_fable,
+	user_employee_Brno
 )
 
 class TestCategory:
 	new_id: int = 0
 
 	def test_category_add(self, client: FlaskClient):
-		USER = userEmployeeBrno
+		USER = user_employee_Brno
 
 		data = {
 			'name': 'Novel',
@@ -40,7 +40,7 @@ class TestCategory:
 		assert category['description'] == data['description']
 
 	def test_category_add_invalid(self, client: FlaskClient):
-		USER = userEmployeeBrno
+		USER = user_employee_Brno
 
 		data = {
 			'name': None,
@@ -51,7 +51,7 @@ class TestCategory:
 		assert_error_response(resp)
 
 	def test_category_edit(self, client: FlaskClient):
-		USER = userEmployeeBrno
+		USER = user_employee_Brno
 
 		data = {
 			'name': 'Edited category name',
@@ -68,7 +68,7 @@ class TestCategory:
 		assert category['description'] == data['description']
 
 	def test_category_edit_invalid(self, client: FlaskClient):
-		USER = userEmployeeBrno
+		USER = user_employee_Brno
 
 		data = {
 			'name': None,
@@ -79,10 +79,10 @@ class TestCategory:
 		assert_error_response(resp)
 
 	def test_category_edit_propagation(self, client: FlaskClient):
-		USER = userEmployeeBrno
+		USER = user_employee_Brno
 
-		CATEGORY = categoryFable
-		BOOK = bookAnimalFarm
+		CATEGORY = category_fable
+		BOOK = book_Animal_Farm
 
 		data = {
 			'name': 'Fairy tale',
@@ -101,7 +101,7 @@ class TestCategory:
 		assert category['description'] == data['description']
 
 	def test_category_delete(self, client: FlaskClient):
-		USER = userEmployeeBrno
+		USER = user_employee_Brno
 
 		resp = protected_delete('/categories/%d' % self.new_id, client, USER)
 		assert resp.status_code == HTTPStatus.OK
@@ -110,10 +110,10 @@ class TestCategory:
 		assert_error_response(resp)
 
 	def test_category_delete_propagation(self, client: FlaskClient):
-		USER = userEmployeeBrno
+		USER = user_employee_Brno
 
-		CATEGORY = categoryFable
-		BOOK = bookAnimalFarm
+		CATEGORY = category_fable
+		BOOK = book_Animal_Farm
 
 		resp = client.get('/books/%d' % BOOK.id)
 		assert resp.status_code == HTTPStatus.OK

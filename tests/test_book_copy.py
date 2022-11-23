@@ -10,22 +10,22 @@ from helpers import (
 	assert_error_response,
 	format_date
 )
-from conftest import (
+from data import (
 	BOOK_COPY_STATE_GOOD, BOOK_COPY_STATE_DAMAGED,
-	book1984, bookAnimalFarm,
-	locationBrno, locationOlomouc,
-	bc1984Brno1, bc1984London1, bc1984London2,
-	userEmployeeBrno
+	book_1984, book_Animal_Farm,
+	location_Brno, location_Olomouc,
+	bc_1984_Brno_1, bc_1984_London_1, bc_1984_London_2,
+	user_employee_Brno
 )
 
 class TestBookCopy:
 	new_id: int = 0
 
 	def test_book_copy_add(self, client: FlaskClient):
-		USER = userEmployeeBrno
+		USER = user_employee_Brno
 
-		LOCATION = locationBrno
-		BOOK = book1984
+		LOCATION = location_Brno
+		BOOK = book_1984
 
 		data = {
 			'book_id': BOOK.id,
@@ -55,10 +55,10 @@ class TestBookCopy:
 		assert location['address'] == LOCATION.address
 
 	def test_book_copy_add_invalid(self, client: FlaskClient):
-		USER = userEmployeeBrno
+		USER = user_employee_Brno
 
-		BOOK = book1984
-		LOCATION = locationBrno
+		BOOK = book_1984
+		LOCATION = location_Brno
 
 		template = {
 			'book_id': BOOK.id,
@@ -87,10 +87,10 @@ class TestBookCopy:
 		assert_error_response(resp)
 
 	def test_book_copy_edit(self, client: FlaskClient):
-		USER = userEmployeeBrno
+		USER = user_employee_Brno
 
-		BOOK = bookAnimalFarm
-		LOCATION = locationOlomouc
+		BOOK = book_Animal_Farm
+		LOCATION = location_Olomouc
 
 		data = {
 			'book_id': BOOK.id,
@@ -116,10 +116,10 @@ class TestBookCopy:
 		assert location['address'] == LOCATION.address
 
 	def test_book_copy_edit_invalid(self, client: FlaskClient):
-		USER = userEmployeeBrno
+		USER = user_employee_Brno
 
-		BOOK = book1984
-		LOCATION = locationBrno
+		BOOK = book_1984
+		LOCATION = location_Brno
 
 		template = {
 			'book_id': BOOK.id,
@@ -148,11 +148,11 @@ class TestBookCopy:
 		assert_error_response(resp)
 
 	def test_book_copy_edit_propagation(self, client: FlaskClient):
-		USER = userEmployeeBrno
+		USER = user_employee_Brno
 
-		BOOK_COPY = bc1984Brno1
-		BOOK = bookAnimalFarm
-		LOCATION = locationOlomouc
+		BOOK_COPY = bc_1984_Brno_1
+		BOOK = book_Animal_Farm
+		LOCATION = location_Olomouc
 
 		data = {
 			'book_id': BOOK.id,
@@ -178,7 +178,7 @@ class TestBookCopy:
 		assert copy['location_id'] == LOCATION.id
 
 	def test_book_copy_delete(self, client: FlaskClient):
-		USER = userEmployeeBrno
+		USER = user_employee_Brno
 
 		resp = protected_delete('/book-copies/%d' % self.new_id, client, USER)
 		assert resp.status_code == HTTPStatus.OK
@@ -188,17 +188,17 @@ class TestBookCopy:
 
 	# cannot delete book copy with borrowals
 	def test_book_copy_delete_invalid(self, client: FlaskClient):
-		USER = userEmployeeBrno
-		BOOK_COPY = bc1984London1
+		USER = user_employee_Brno
+		BOOK_COPY = bc_1984_London_1
 
 		resp = protected_delete('/book-copies/%d' % BOOK_COPY.id, client, USER)
 		assert_error_response(resp)
 
 	def test_book_copy_delete_propagation(self, client: FlaskClient):
-		USER = userEmployeeBrno
+		USER = user_employee_Brno
 
-		BOOK_COPY = bc1984London2
-		BOOK = book1984
+		BOOK_COPY = bc_1984_London_2
+		BOOK = book_1984
 
 		resp = protected_delete('/book-copies/%d' % BOOK_COPY.id, client, USER)
 		assert resp.status_code == HTTPStatus.OK

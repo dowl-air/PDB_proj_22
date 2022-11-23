@@ -11,11 +11,11 @@ from helpers import (
 	find_by_id,
 	format_date
 )
-from conftest import (
-	authorOrwell, authorHuxley, authorTolkien,
-	book1984, bookAnimalFarm,
-	categoryFable, categoryHistory, categoryNonFiction, categoryFantasy,
-	userEmployeeBrno
+from data import (
+	author_Orwell, author_Huxley, author_Tolkien,
+	book_1984, book_Animal_Farm,
+	category_fable, category_history, category_non_fiction, category_fantasy,
+	user_employee_Brno
 )
 
 class TestBook:
@@ -23,11 +23,11 @@ class TestBook:
 	new_book_author_id: int = 0
 
 	def test_book_add(self, client: FlaskClient):
-		USER = userEmployeeBrno
+		USER = user_employee_Brno
 
-		AUTHOR = authorOrwell
-		CATEGORY1 = categoryHistory
-		CATEGORY2 = categoryNonFiction
+		AUTHOR = author_Orwell
+		CATEGORY1 = category_history
+		CATEGORY2 = category_non_fiction
 
 		data = {
 			'name': 'Homage to Catalonia',
@@ -75,10 +75,10 @@ class TestBook:
 		assert book['description'] == data['description']
 
 	def test_book_add_invalid(self, client: FlaskClient):
-		USER = userEmployeeBrno
+		USER = user_employee_Brno
 
-		AUTHOR = authorTolkien
-		CATEGORY = categoryFantasy
+		AUTHOR = author_Tolkien
+		CATEGORY = category_fantasy
 
 		template = {
 			'name': 'The Fellowship of the Ring',
@@ -103,7 +103,7 @@ class TestBook:
 
 		# duplicate ISBN
 		data = template.copy()
-		data['ISBN'] = book1984.ISBN
+		data['ISBN'] = book_1984.ISBN
 		resp = protected_post('/books', data, client, USER)
 		assert_error_response(resp)
 
@@ -120,10 +120,10 @@ class TestBook:
 		assert_error_response(resp)
 
 	def test_book_edit(self, client: FlaskClient):
-		USER = userEmployeeBrno
+		USER = user_employee_Brno
 
-		AUTHOR = authorHuxley
-		CATEGORY = categoryFable
+		AUTHOR = author_Huxley
+		CATEGORY = category_fable
 
 		data = {
 			'name': 'Edited name',
@@ -158,10 +158,10 @@ class TestBook:
 		assert category['description'] == CATEGORY.description
 
 	def test_book_edit_invalid(self, client: FlaskClient):
-		USER = userEmployeeBrno
+		USER = user_employee_Brno
 
-		AUTHOR = authorTolkien
-		CATEGORY = categoryFantasy
+		AUTHOR = author_Tolkien
+		CATEGORY = category_fantasy
 
 		template = {
 			'name': 'Edited name',
@@ -186,7 +186,7 @@ class TestBook:
 
 		# duplicate ISBN
 		data = template.copy()
-		data['ISBN'] = book1984.ISBN
+		data['ISBN'] = book_1984.ISBN
 		resp = protected_put('/books/%d' % self.new_id, data, client, USER)
 		assert_error_response(resp)
 
@@ -203,11 +203,11 @@ class TestBook:
 		assert_error_response(resp)
 
 	def test_book_edit_propagation(self, client: FlaskClient):
-		USER = userEmployeeBrno
+		USER = user_employee_Brno
 
-		BOOK = bookAnimalFarm
-		ORIGINAL_AUTHOR_ID = bookAnimalFarm.authors[0]['id']
-		NEW_AUTHOR = authorHuxley
+		BOOK = book_Animal_Farm
+		ORIGINAL_AUTHOR_ID = book_Animal_Farm.authors[0]['id']
+		NEW_AUTHOR = author_Huxley
 
 		data = {
 			'name': 'Animal Farm (edited)',
@@ -236,7 +236,7 @@ class TestBook:
 		assert book['description'] == data['description']
 
 	def test_book_delete(self, client: FlaskClient):
-		USER = userEmployeeBrno
+		USER = user_employee_Brno
 
 		resp = protected_delete('/books/%d' % self.new_id, client, USER)
 		assert resp.status_code == HTTPStatus.OK
@@ -252,9 +252,9 @@ class TestBook:
 
 	# cannot delete book with copies
 	def test_book_delete_invalid(self, client: FlaskClient):
-		USER = userEmployeeBrno
+		USER = user_employee_Brno
 
-		BOOK = book1984
+		BOOK = book_1984
 
 		resp = protected_delete('/books/%d' % BOOK.id, client, USER)
 		assert_error_response(resp)
