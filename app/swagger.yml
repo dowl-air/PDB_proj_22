@@ -99,8 +99,67 @@ components:
           type: string
         rating:
           type: integer
-    
-    
+    User:
+      type: object
+      required:
+        - role
+        - email
+        - password
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        role:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+          format: password
+    Reservation:
+      type: object
+      required:
+        - book_copy_id
+        - customer_id
+        - start_date
+        - end_date
+        - state
+      properties:
+        book_copy_id:
+          type: integer
+        customer_id:
+          type: integer
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        state:
+          type: integer
+    Borrowal:
+      type: object
+      required:
+        - book_copy_id
+        - customer_id
+        - start_date
+      properties:
+        book_copy_id:
+          type: integer
+        customer_id:
+          type: integer
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        returned_date:
+          type: string
+          format: date
+        state:
+          type: integer
           
   parameters:
     book_id:
@@ -142,6 +201,34 @@ components:
       name: id
       description: ID of review
       in: path
+      required: True
+      schema:
+        type: integer
+    user_id:
+      name: id
+      description: User id
+      in: path
+      required: True
+      schema:
+        type: integer
+    reservation_id:
+      name: id
+      description: Reservation ID
+      in: path
+      required: True
+      schema:
+        type: integer
+    signed_user:
+      name: user
+      description: Signed user id
+      in: cookie
+      required: True
+      schema:
+        type: integer
+    borrowal_id:
+      name: id
+      in: path
+      description: Borrowal ID
       required: True
       schema:
         type: integer
@@ -545,3 +632,85 @@ paths:
       responses:
         204:
           description: Successfully deleted review.
+
+
+
+  /register:
+    post:
+      operationId: controllers.users.create
+      tags:
+        - Users
+      summary: Create new user
+      requestBody:
+          description: Userdata
+          required: True
+          content:
+            application/json:
+              schema:
+                x-body-name: "user"
+                $ref: "#/components/schemas/User"
+      responses:
+        200:
+          description: Successfully created user.
+
+
+  /reservations:
+    post:
+      operationId: controllers.reservations.create
+      tags:
+        - Reservations
+      summary: Create reservation
+      requestBody:
+          description: Reservation data
+          required: True
+          content:
+            application/json:
+              schema:
+                x-body-name: "reservation"
+                $ref: "#/components/schemas/Reservation"
+      responses:
+        200:
+          description: Successfully created reservation.
+  /reservations/{id}:
+    delete:
+      operationId: controllers.reservations.delete
+      tags:
+        - Reservations
+      summary: Delete reservation
+      parameters:
+        - $ref: "#/components/parameters/reservation_id"
+      responses:
+        204:
+          description: Successfully deleted reservation.
+
+
+
+  /borrowals:
+    post:
+      operationId: controllers.borrowals.create
+      tags:
+        - Borrowals
+      summary: Create borrowal
+      requestBody:
+          description: Borrowal data
+          required: True
+          content:
+            application/json:
+              schema:
+                x-body-name: "borrowal"
+                $ref: "#/components/schemas/Borrowal"
+      responses:
+        200:
+          description: Successfully created borrowal.
+  /borrowals/{id}:
+    put:
+      operationId: controllers.borrowals.update
+      tags:
+        - Borrowals
+      summary: Finish borrowal
+      parameters:
+        - $ref: "#/components/parameters/borrowal_id"
+      responses:
+        200:
+          description: Successfully finished borrowal.
+

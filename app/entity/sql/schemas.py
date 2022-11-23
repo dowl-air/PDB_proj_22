@@ -9,6 +9,7 @@ class BorrowalSchema(ma.SQLAlchemyAutoSchema):
         model = Borrowal
         load_instance = True
         sqla_session = db.session
+        include_fk = True
 
 
 borrowal_schema = BorrowalSchema()
@@ -42,6 +43,8 @@ class ReservationSchema(ma.SQLAlchemyAutoSchema):
         model = Reservation
         load_instance = True
         sqla_session = db.session
+        include_relationships = True
+        include_fk = True
 
 
 reservation_schema = ReservationSchema()
