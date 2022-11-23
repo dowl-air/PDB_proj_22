@@ -8,6 +8,12 @@ info:
   version: "1.0.0"
 
 components:
+  securitySchemes:
+    jwt:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      x-bearerInfoFunc: jwt.decode_token
   schemas:
     Author:
       type: "object"
@@ -256,6 +262,8 @@ paths:
               schema:
                 x-body-name: "author"
                 $ref: "#/components/schemas/Author"
+      security:
+      - jwt: []
       responses:
         200:
           description: Successfully created author.
@@ -713,3 +721,46 @@ paths:
         200:
           description: Successfully finished borrowal.
 
+
+
+  /login:
+    post:
+      summary: Return JWT token
+      operationId: jwt.generate_token
+      requestBody:
+          description: User object to login
+          required: True
+          content:
+            application/json:
+              schema:
+                x-body-name: "user"
+                type: object
+                required:
+                  - email
+                  - password
+                properties:
+                  email:
+                    type: string
+                  password:
+                    type: string
+                    format: password
+      responses:
+        '200':
+          description: JWT token
+          content:
+            'text/plain':
+              schema:
+                type: string
+  /authorized:
+    get:
+      summary: Check if user is authorized
+      operationId: jwt.check_authorized
+      responses:
+        '200':
+          description: secret response
+          content:
+            'text/plain':
+              schema:
+                type: string
+      security:
+      - jwt: []
