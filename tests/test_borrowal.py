@@ -37,7 +37,10 @@ class TestBorrowal:
 
 		self.new_id = json_data['id']
 
-		resp = client.get('/profile/%d/borrowals' % CUSTOMER.id) # TODO
+		client.logout()
+		client.login(CUSTOMER)
+
+		resp = client.get('/profile/borrowals')
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
 		borrowal = find_by_id(self.new_id, json_data)

@@ -20,8 +20,7 @@ class TestReservation:
 	new_id: int = 0
 
 	def test_reservation_add(self, client: ClientWrapper):
-		USER = user_customer_Customer
-		client.login(USER)
+		client.login(user_customer_Customer)
 
 		BOOK_COPY = bc_1984_Brno_2
 
@@ -36,7 +35,7 @@ class TestReservation:
 
 		self.new_id = json_data['id']
 
-		resp = client.get('/profile/%d/reservations' % USER.id) # TODO
+		resp = client.get('/profile/reservations')
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
 		reservation = find_by_id(self.new_id, json_data)
@@ -70,13 +69,12 @@ class TestReservation:
 		assert_error_response(resp)
 
 	def test_reservation_cancel(self, client: ClientWrapper):
-		USER = user_customer_Customer
-		client.login(USER)
+		client.login(user_customer_Customer)
 
 		resp = client.patch('/reservations/%d/cancel' % self.new_id, {})
 		assert resp.status_code == HTTPStatus.OK
 
-		resp = client.get('/profile/%d/reservations' % USER.id) # TODO
+		resp = client.get('/profile/reservations')
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
 		reservation = find_by_id(self.new_id, json_data)

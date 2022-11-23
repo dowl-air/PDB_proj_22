@@ -46,7 +46,7 @@ class TestReview:
 		assert customer['last_name'] == USER.last_name
 		assert customer['email'] == USER.email
 
-		resp = client.get('/profile/%d/reviews' % USER.id) # TODO
+		resp = client.get('/profile/reviews')
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
 		review = find_by_id(self.new_id, json_data)
@@ -110,8 +110,7 @@ class TestReview:
 		assert_error_response(resp)
 
 	def test_review_delete(self, client: ClientWrapper):
-		USER = user_customer_Customer
-		client.login(USER)
+		client.login(user_customer_Customer)
 
 		resp = client.delete('/reviews/%d' % self.new_id, {})
 		assert resp.status_code == HTTPStatus.OK
@@ -123,7 +122,7 @@ class TestReview:
 		review = find_by_id(self.new_id, json_data)
 		assert review is None
 
-		resp = client.get('/profile/%d/reviews' % USER.id) # TODO
+		resp = client.get('/profile/reviews')
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
 		review = find_by_id(self.new_id, json_data)

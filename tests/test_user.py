@@ -67,14 +67,7 @@ class TestUser:
 		resp = client.post('/login', data)
 		assert resp.status_code == HTTPStatus.OK
 
-	# TODO
-	def test_logout(self, client: ClientWrapper):
-		resp = client.post('/logout', {})
-		assert resp.status_code == HTTPStatus.OK
-
 	def test_profile_edit(self, client: ClientWrapper):
-		USER = {'id': self.NEW_USER['id']}
-
 		data = {
 			'first_name': 'Edited-first-name',
 			'last_name': 'Edited-last-name'
@@ -83,8 +76,13 @@ class TestUser:
 		resp = client.put('/profile', data)
 		assert resp.status_code == HTTPStatus.OK
 
-		resp = client.get('/profile/%d' % USER['id']) # TODO
+		resp = client.get('/profile')
 		assert resp.status_code == HTTPStatus.OK
 		profile = loads(resp.data.decode())
 		assert profile['first_name'] == data['first_name']
 		assert profile['last_name'] == data['last_name']
+
+	# TODO
+	def test_logout(self, client: ClientWrapper):
+		resp = client.post('/logout', {})
+		assert resp.status_code == HTTPStatus.OK

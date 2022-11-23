@@ -106,29 +106,33 @@ def test_get_location_not_exists(client: ClientWrapper):
 
 def test_get_profile(client: ClientWrapper):
 	CUSTOMER = user_customer_Customer
+	client.login(CUSTOMER)
 
-	resp = client.get('/profile/%d' % CUSTOMER.id) # TODO
+	resp = client.get('/profile')
 	assert resp.status_code == HTTPStatus.OK
 	assert loads(resp.data.decode()) == to_json(CUSTOMER)
 
 def test_get_customer_borrowals(client: ClientWrapper):
 	CUSTOMER = user_customer_Customer
+	client.login(CUSTOMER)
 
-	resp = client.get('/profile/%d/borrowals' % CUSTOMER.id) # TODO
+	resp = client.get('/profile/borrowals')
 	assert resp.status_code == HTTPStatus.OK
 	assert loads(resp.data.decode()) == to_json(list(filter(lambda x: x.customer.id == CUSTOMER.id, BORROWALS)))
 
 def test_get_customer_reservations(client: ClientWrapper):
 	CUSTOMER = user_customer_Customer
+	client.login(CUSTOMER)
 
-	resp = client.get('/profile/%d/reservations' % CUSTOMER.id) # TODO
+	resp = client.get('/profile/reservations')
 	assert resp.status_code == HTTPStatus.OK
 	assert loads(resp.data.decode()) == to_json(list(filter(lambda x: x.customer.id == CUSTOMER.id, RESERVATIONS)))
 
 def test_get_customer_reviews(client: ClientWrapper):
 	CUSTOMER = user_customer_Reviewer
+	client.login(CUSTOMER)
 
-	resp = client.get('/profile/%d/reviews' % CUSTOMER.id) # TODO
+	resp = client.get('/profile/reviews')
 	assert resp.status_code == HTTPStatus.OK
 	assert loads(resp.data.decode()) == to_json(list(filter(lambda x: x.customer.id == CUSTOMER.id, REVIEWS)))
 
