@@ -102,7 +102,6 @@ components:
     User:
       type: object
       required:
-        - role
         - email
         - password
       properties:
