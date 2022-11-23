@@ -7,19 +7,15 @@ from entity.sql import db
 from entity.sql.base import ma
 from entity.nosql import mongo
 
-from entity.sql import User, Book
-from entity.nosql import Book as MongoBook
-
-
 MYSQL_DEFAULT_PORT = 3306
 MONGO_DEFAULT_PORT = 27017
 
 
-def create_app():
+def create_app() -> Flask:
     conn_app = connexion.App(__name__, specification_dir="./")
     conn_app.add_api("swagger.yml")
 
-    app = conn_app.app
+    app: Flask = conn_app.app
 
     app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://{}:{}@{}:{}/{}'.format(
         os.getenv('DB_USER', 'pdb'),
@@ -45,35 +41,8 @@ def create_app():
     ma.init_app(app)
 
     @app.route("/")
-    def hello_world():
+    def hello_world(): # TODO
         return "Hello, World!"
-
-    @app.route("/users")
-    def users():
-        num_users = User.query.count()
-        return f"Number of users: {num_users}"
-
-    @app.route('/add_book/<id>')
-    def add_book(id):
-        book = MongoBook(id=id, name=id)
-        try:
-            book.save(force_insert=True)
-        except:
-            return f'Duplicate book id: {id}'
-
-        return f'Added new book: {id}'
-
-    @app.route('/create_book')
-    def create_book(object):
-        pass
-
-    @app.route('/books')
-    def books():
-        """ books = MongoBook.objects()
-        book_names = [book.name for book in books]
-        return f'Book names: {book_names}' """
-        books = Book.query.all()
-        return books_schema.dump(books)
 
     @app.before_first_request
     def create_tables():
