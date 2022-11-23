@@ -58,29 +58,25 @@ class ClientWrapper:
 	def __init__(self, client: FlaskClient) -> None:
 		self.client = client
 
-	def get(self, endpoint: str) -> TestResponse:
-		return self.client.get(endpoint)
-	
-	def post(self, endpoint: str, data: dict) -> TestResponse:
-		return self.client.post(endpoint, data=dumps(data), content_type='application/json')
+	def get(self, endpoint: str, *, token: Optional[str] = None) -> TestResponse:
+		return self.client.get(endpoint, headers=self._auth_headers(token))
 
-	def protected_post(self, endpoint: str, data: dict, user) -> TestResponse:
-		data['user_id'] = user['id']
-		return self.post(endpoint, data)
+	def post(self, endpoint: str, data: dict, *, token: Optional[str] = None) -> TestResponse:
+		return self.client.post(endpoint, data=dumps(data), content_type='application/json', headers=self._auth_headers(token))
 
-	def protected_delete(self, endpoint: str, data: dict, user) -> TestResponse:
-		if data is None:
-			data = {}
-		data['user_id'] = user['id']
-		return self.client.delete(endpoint, data=dumps(data), content_type='application/json')
+	def delete(self, endpoint: str, data: dict, *, token: Optional[str] = None) -> TestResponse:
+		return self.client.delete(endpoint, data=dumps(data), content_type='application/json', headers=self._auth_headers(token))
 
-	def protected_put(self, endpoint: str, data: dict, user) -> TestResponse:
-		data['user_id'] = user['id']
-		return self.client.put(endpoint, data=dumps(data), content_type='application/json')
+	def put(self, endpoint: str, data: dict, *, token: Optional[str] = None) -> TestResponse:
+		return self.client.put(endpoint, data=dumps(data), content_type='application/json', headers=self._auth_headers(token))
 
-	def protected_patch(self, endpoint: str, data: dict, user) -> TestResponse:
-		data['user_id'] = user['id']
-		return self.client.patch(endpoint, data=dumps(data), content_type='application/json')
+	def patch(self, endpoint: str, data: dict, *, token: Optional[str] = None) -> TestResponse:
+		return self.client.patch(endpoint, data=dumps(data), content_type='application/json', headers=self._auth_headers(token))
+
+	def _auth_headers(self, token: Optional[str]) -> Optional[dict]:
+		if token is None:
+			return None
+		return {'Authorization': f'Bearer {token}'}
 
 # converts a mongo entity to a dict (or a list of entities to a list of dicts)
 def to_json(x) -> dict:
