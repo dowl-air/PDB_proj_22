@@ -82,7 +82,40 @@ class TestUser:
 		assert profile['first_name'] == data['first_name']
 		assert profile['last_name'] == data['last_name']
 
-	# TODO
 	def test_logout(self, client: ClientWrapper):
 		resp = client.post('/logout', {})
 		assert resp.status_code == HTTPStatus.OK
+
+	def test_login_logout_profile_access(self, client: ClientWrapper):
+		data = {
+			'email': self.NEW_USER['email'],
+			'password': self.NEW_USER['password']
+		}
+
+		resp = client.post('/login', data)
+		assert resp.status_code == HTTPStatus.OK
+
+		resp = client.get('/profile')
+		assert resp.status_code == HTTPStatus.OK
+		json_data = loads(resp.data.decode())
+		assert json_data['first_name'] == self.NEW_USER['first_name']
+
+		resp = client.post('/logout', {})
+		assert resp.status_code == HTTPStatus.OK
+
+		resp = client.get('/profile')
+		assert resp.status_code == HTTPStatus.UNAUTHORIZED
+
+	def test_client_login_logout_profile_access(self, client: ClientWrapper):
+		USER = user_customer_Customer
+		client.login(USER)
+
+		resp = client.get('/profile')
+		assert resp.status_code == HTTPStatus.OK
+		json_data = loads(resp.data.decode())
+		assert json_data['first_name'] == USER['first_name']
+
+		client.logout()
+
+		resp = client.get('/profile')
+		assert resp.status_code == HTTPStatus.UNAUTHORIZED
