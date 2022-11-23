@@ -189,10 +189,15 @@ borrowal_Olomouc = Borrowal(
 	id=6, start_date=start_date, end_date=start_date + BORROWAL_LENGTH, returned_date=date(2020, 6, 10), state=BORROWAL_STATE_RETURNED,
 	book_copy=embed_book_copy(bc_Animal_Farm_Olomouc), customer=embed_user(user_customer_Smith), employee=embed_user(user_employee_Olomouc)
 )
-start_date = date(2022, 11, 20)
+start_date = date.today()
 borrowal_Brno_active = Borrowal(
 	id=7, start_date=start_date, end_date=start_date + BORROWAL_LENGTH, state=BORROWAL_STATE_ACTIVE,
 	book_copy=embed_book_copy(bc_1984_Brno_1), customer=embed_user(user_customer_Smith), employee=embed_user(user_employee_Olomouc)
+)
+start_date = date(2020, 11, 6)
+borrowal_Olomouc_active = Borrowal(
+	id=8, start_date=start_date, end_date=start_date + BORROWAL_LENGTH, state=BORROWAL_STATE_ACTIVE, # expired
+	book_copy=embed_book_copy(bc_Brave_New_World_Brno), customer=embed_user(user_customer_Smith), employee=embed_user(user_employee_Brno)
 )
 
 # RESERVATIONS
@@ -206,10 +211,20 @@ reservation_Olomouc = Reservation(
 	id=2, start_date=start_date, end_date=start_date + RESERVATION_LENGTH, state=RESERVATION_STATE_CLOSED,
 	book_copy=embed_book_copy(bc_Animal_Farm_Olomouc), customer=embed_user(user_customer_Smith)
 )
-start_date = date(2022, 11, 20)
+start_date = date.today()
 reservation_Brno_active = Reservation(
 	id=3, start_date=start_date, end_date=start_date + RESERVATION_LENGTH, state=RESERVATION_STATE_ACTIVE,
 	book_copy=embed_book_copy(bc_Animal_Farm_Brno), customer=embed_user(user_customer_Customer)
+)
+start_date = date(2021, 4, 6)
+reservation_London_active_1 = Reservation(
+	id=4, start_date=start_date, end_date=start_date + RESERVATION_LENGTH, state=RESERVATION_STATE_ACTIVE, # expired
+	book_copy=embed_book_copy(bc_Hobbit_London_1), customer=embed_user(user_customer_Smith)
+)
+start_date = date.today()
+reservation_London_active_2 = Reservation(
+	id=5, start_date=start_date, end_date=start_date + RESERVATION_LENGTH, state=RESERVATION_STATE_ACTIVE,
+	book_copy=embed_book_copy(bc_Hobbit_London_2), customer=embed_user(user_customer_Smith)
 )
 
 # REVIEWS
@@ -254,9 +269,9 @@ USERS = [
 ]
 BORROWALS = [
 	borrowal_London_1, borrowal_London_2, borrowal_London_3, borrowal_Brno_1,
-	borrowal_Brno_2, borrowal_Olomouc, borrowal_Brno_active
+	borrowal_Brno_2, borrowal_Olomouc, borrowal_Brno_active, borrowal_Olomouc_active
 ]
-RESERVATIONS = [reservation_Brno, reservation_Olomouc, reservation_Brno_active]
+RESERVATIONS = [reservation_Brno, reservation_Olomouc, reservation_Brno_active, reservation_London_active_1, reservation_London_active_2]
 REVIEWS = [review_1984, review_Animal_Farm, review_Hobbit, review_Good_Omens_1, review_Good_Omens_2]
 
 # SQL versions of Mongo entities

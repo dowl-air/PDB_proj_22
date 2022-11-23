@@ -11,8 +11,8 @@ from helpers import (
 )
 from data import (
 	BORROWAL_STATE_ACTIVE, BORROWAL_STATE_RETURNED,
-	bc_1984_Brno_1, bc_Animal_Farm_Brno, bc_Hobbit_Olomouc,
-	user_employee_Brno, user_customer_Customer,
+	bc_1984_Brno_1, bc_Animal_Farm_Brno, bc_Hobbit_Olomouc, bc_Brave_New_World_Brno, bc_Hobbit_London_1, bc_Hobbit_London_2,
+	user_employee_Brno, user_customer_Customer, user_employee_London,
 	borrowal_London_3
 )
 
@@ -48,10 +48,10 @@ class TestBorrowal:
 		assert borrowal['start_date'] == format_date(date.today())
 		assert borrowal['state'] == BORROWAL_STATE_ACTIVE
 
-	def test_borrowal_add_invalid_reserved(self, client: ClientWrapper):
+	def test_borrowal_add_invalid_reserved(self, client: ClientWrapper): # TODO
 		client.login(user_employee_Brno)
 
-		BOOK_COPY = bc_Animal_Farm_Brno
+		BOOK_COPY = bc_Hobbit_London_2 # active reservation by a different customer
 		CUSTOMER = user_customer_Customer
 
 		data = {
@@ -65,7 +65,7 @@ class TestBorrowal:
 	def test_borrowal_add_invalid_borrowed(self, client: ClientWrapper):
 		client.login(user_employee_Brno)
 
-		BOOK_COPY = bc_1984_Brno_1
+		BOOK_COPY = bc_1984_Brno_1 # borrowed (by a different customer)
 		CUSTOMER = user_customer_Customer
 
 		data = {
@@ -75,6 +75,78 @@ class TestBorrowal:
 
 		resp = client.post('/borrowals', data)
 		assert_error_response(resp)
+
+	def test_borrowal_add_invalid_borrowed_expired(self, client: ClientWrapper):
+		client.login(user_employee_Brno)
+
+		BOOK_COPY = bc_Brave_New_World_Brno # expired borrowal (by a different customer)
+		CUSTOMER = user_customer_Customer
+
+		data = {
+			'book_copy_id': BOOK_COPY.id,
+			'customer_id': CUSTOMER.id
+		}
+
+		resp = client.post('/borrowals', data)
+		assert_error_response(resp)
+
+	def test_borrowal_add_valid_reservation_expired(self, client: ClientWrapper):
+		client.login(user_employee_London)
+
+		BOOK_COPY = bc_Animal_Farm_Brno # reserved by customer 'Customer'
+		CUSTOMER = user_customer_Customer
+
+		data = {
+			'book_copy_id': BOOK_COPY.id,
+			'customer_id': CUSTOMER.id
+		}
+
+		resp = client.post('/borrowals', data)
+		assert resp.status_code == HTTPStatus.OK
+		json_data = loads(resp.data.decode())
+		assert 'id' in json_data
+
+		self.new_id = json_data['id']
+
+		client.logout()
+		client.login(CUSTOMER)
+
+		resp = client.get('/profile/borrowals')
+		assert resp.status_code == HTTPStatus.OK
+		json_data = loads(resp.data.decode())
+		borrowal = find_by_id(self.new_id, json_data)
+		assert borrowal['book_copy_id'] == BOOK_COPY.id
+		assert borrowal['start_date'] == format_date(date.today())
+		assert borrowal['state'] == BORROWAL_STATE_ACTIVE
+
+	def test_borrowal_add_valid_reserved(self, client: ClientWrapper):
+		client.login(user_employee_London)
+
+		BOOK_COPY = bc_Hobbit_London_1
+		CUSTOMER = user_customer_Customer
+
+		data = {
+			'book_copy_id': BOOK_COPY.id,
+			'customer_id': CUSTOMER.id
+		}
+
+		resp = client.post('/borrowals', data)
+		assert resp.status_code == HTTPStatus.OK
+		json_data = loads(resp.data.decode())
+		assert 'id' in json_data
+
+		self.new_id = json_data['id']
+
+		client.logout()
+		client.login(CUSTOMER)
+
+		resp = client.get('/profile/borrowals')
+		assert resp.status_code == HTTPStatus.OK
+		json_data = loads(resp.data.decode())
+		borrowal = find_by_id(self.new_id, json_data)
+		assert borrowal['book_copy_id'] == BOOK_COPY.id
+		assert borrowal['start_date'] == format_date(date.today())
+		assert borrowal['state'] == BORROWAL_STATE_ACTIVE
 
 	def test_borrowal_return(self, client: ClientWrapper):
 		client.login(user_employee_Brno)
