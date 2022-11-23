@@ -34,5 +34,6 @@ def fill_db() -> None:
 def client() -> ClientWrapper:
 	client = ClientWrapper(create_app().test_client())
 	yield client
-	if client.token is not None:
-		client.logout()
+	# TODO
+	#if client.token is not None:
+	#	client.logout()
