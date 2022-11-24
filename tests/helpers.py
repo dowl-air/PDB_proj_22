@@ -80,11 +80,19 @@ class ClientWrapper:
 	def patch(self, endpoint: str, data: dict, *, token: Optional[str] = None) -> TestResponse:
 		return self.client.patch(endpoint, data=dumps(data), content_type='application/json', headers=self._auth_headers(token))
 
-	def login(self, *, user: User) -> None:
-		data = {
-			'email': user.email,
-			'password': user.last_name.lower()
-		}
+	def login(self, *, user: Optional[User] = None, email: Optional[str] = None, password: Optional[str] = None) -> None:
+		if user is not None:
+			data = {
+				'email': user.email,
+				'password': user.last_name.lower()
+			}
+		elif email is not None and password is not None:
+			data = {
+				'email': email,
+				'password': password
+			}
+		else:
+			raise Exception('Login: Pass either a user object or an email and password')
 
 		resp = self.post('/login', data)
 		assert resp.status_code == HTTPStatus.OK
