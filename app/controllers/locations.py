@@ -1,22 +1,29 @@
 from flask.helpers import make_response, abort
+from mongoengine.errors import DoesNotExist
 
 from entity.sql.base import db
 from entity.sql.location import Location
-
 from entity.sql.schemas import location_schema, locations_schema
+
+from entity.nosql.location import Location as MongoLocation
+from entity.nosql.schemas_mongo import location_schema as mongo_location_schema
+from entity.nosql.schemas_mongo import locations_schema as mongo_locations_schema
 
 
 def get_all():
-    locations = Location.query.all()
-    return locations_schema.dump(locations)
+    # Get all locations from mongo database
+    locations = MongoLocation.objects
+    return mongo_locations_schema.dump(locations)
 
 
 def get(id):
-    location = Location.query.filter(Location.id == id).one_or_none()
-    if location is not None:
-        return location_schema.dump(location)
-    else:
-        abort(404, f"Location with id \"{id}\" not found.")
+    # Get one location from mongo database
+    try:
+        location = MongoLocation.objects.get(id=id)
+    except DoesNotExist:
+        abort(404, f"Location with id {id} not found.")
+
+    return mongo_location_schema.dump(location)
 
 
 def create(location):
@@ -33,7 +40,7 @@ def update(id, location):
         update_location = location_schema.load(location, session=db.session, instance=existing_location)
         db.session.merge(update_location)
         db.session.commit()
-        return location_schema.dump(existing_location), 201
+        return location_schema.dump(existing_location), 200
     else:
         abort(404, f"Location with id \"{id}\" not found.")
 

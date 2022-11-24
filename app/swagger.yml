@@ -91,8 +91,6 @@ components:
     Review:
       type: object
       required:
-        - user_id
-        - book_id
         - title
       properties:
         user_id:
@@ -148,7 +146,6 @@ components:
       required:
         - book_copy_id
         - customer_id
-        - start_date
       properties:
         book_copy_id:
           type: integer
@@ -381,6 +378,39 @@ paths:
       responses:
         "204":
           description: "Successfully deleted book"
+  /books/{id}/reviews:
+    post:
+      operationId: controllers.reviews.create
+      tags:
+        - Reviews
+        - Books
+      summary: Create a review
+      parameters:
+        - $ref: "#/components/parameters/book_id"
+      requestBody:
+          description: Review to create
+          required: True
+          content:
+            application/json:
+              schema:
+                x-body-name: "review"
+                $ref: "#/components/schemas/Review"
+      security:
+      - jwt: []
+      responses:
+        201:
+          description: Successfully created review.
+    get:
+      operationId: controllers.reviews.book_get_all
+      tags:
+        - Reviews
+        - Books
+      summary: Get all reviews from specified book
+      parameters:
+        - $ref: "#/components/parameters/book_id"
+      responses:
+        200:
+          description: Successfully read reviews.
   
   
   
@@ -612,24 +642,7 @@ paths:
       responses:
         200:
           description: Successfully read reviews.
-    post:
-      operationId: controllers.reviews.create
-      tags:
-        - Reviews
-      summary: Create review
-      requestBody:
-          description: Review to create
-          required: True
-          content:
-            application/json:
-              schema:
-                x-body-name: "review"
-                $ref: "#/components/schemas/Review"
-      security:
-      - jwt: []
-      responses:
-        200:
-          description: Successfully created review.
+    
   /reviews/{id}:
     get:
       operationId: controllers.reviews.get
