@@ -104,6 +104,7 @@ class ClientWrapper:
 		json_data = loads(resp.data.decode())
 		self.set_token(json_data['token'])
 
+	# simply throws away the token (simulates logout on frontend)
 	def logout(self) -> None:
 		self.token = None
 
