@@ -65,7 +65,7 @@ class TestBook:
 		resp = client.get('/authors/%d' % AUTHOR.id)
 		assert resp.status_code == HTTPStatus.OK
 		author = loads(resp.data.decode())
-		book = find_by_id(self.new_id)
+		book = find_by_id(self.new_id, author['books'])
 		assert book is not None
 		assert book['name'] == data['name']
 		assert book['ISBN'] == data['ISBN']
