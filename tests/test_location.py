@@ -16,7 +16,7 @@ class TestLocation:
 	new_id: int = 0
 
 	def test_location_add(self, client: ClientWrapper):
-		client.login(user_admin_Admin)
+		client.login(user=user_admin_Admin)
 
 		data = {
 			'name': 'VUT FIT',
@@ -28,16 +28,16 @@ class TestLocation:
 		json_data = loads(resp.data.decode())
 		assert 'id' in json_data
 
-		self.new_id = json_data['id']
+		TestLocation.new_id = json_data['id']
 
-		resp = client.get('/locations/%d' % self.new_id)
+		resp = client.get('/locations/%d' % TestLocation.new_id)
 		assert resp.status_code == HTTPStatus.OK
 		location = loads(resp.data.decode())
 		assert data['name'] == location['name']
 		assert data['address'] == location['address']
 
 	def test_location_add_invalid(self, client: ClientWrapper):
-		client.login(user_admin_Admin)
+		client.login(user=user_admin_Admin)
 
 		data = {
 			'address': 'Missing location name'
@@ -47,14 +47,14 @@ class TestLocation:
 		assert_error_response(resp)
 
 	def test_location_edit(self, client: ClientWrapper):
-		client.login(user_admin_Admin)
+		client.login(user=user_admin_Admin)
 
 		data = {
 			'name': 'Edited VUT FIT location',
 			'address': 'Edited location address'
 		}
 
-		resp = client.put('/locations/%d' % self.new_id, data)
+		resp = client.put('/locations/%d' % TestLocation.new_id, data)
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/locations/%d' % id)
@@ -64,18 +64,18 @@ class TestLocation:
 		assert data['address'] == location['address']
 
 	def test_location_edit_invalid(self, client: ClientWrapper):
-		client.login(user_admin_Admin)
+		client.login(user=user_admin_Admin)
 
 		data = {
 			'name': None,
 			'description': 'Invalid edit - no name'
 		}
 
-		resp = client.put('/locations/%d' % self.new_id, data)
+		resp = client.put('/locations/%d' % TestLocation.new_id, data)
 		assert_error_response(resp)
 
 	def test_location_edit_propagation(self, client: ClientWrapper):
-		client.login(user_admin_Admin)
+		client.login(user=user_admin_Admin)
 
 		data = {
 			'name': 'Ostrava',
@@ -95,17 +95,17 @@ class TestLocation:
 		assert book_copy['location']['address'] == data['address']
 
 	def test_location_delete(self, client: ClientWrapper):
-		client.login(user_admin_Admin)
+		client.login(user=user_admin_Admin)
 
-		resp = client.delete('/locations/%d' % self.new_id, {})
+		resp = client.delete('/locations/%d' % TestLocation.new_id, {})
 		assert resp.status_code == HTTPStatus.OK
 
-		resp = client.get('/locations/%d' % self.new_id)
+		resp = client.get('/locations/%d' % TestLocation.new_id)
 		assert_error_response(resp)
 
 	# cannot delete location with assigned book copies
 	def test_location_delete_invalid(self, client: ClientWrapper):
-		client.login(user_admin_Admin)
+		client.login(user=user_admin_Admin)
 
 		LOCATION = location_Brno
 

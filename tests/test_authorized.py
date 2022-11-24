@@ -28,7 +28,7 @@ def test_authorized(client: ClientWrapper):
 	assert resp.data.decode() is not None
 
 def test_authorized_helper(client: ClientWrapper):
-	client.login(user_customer_Customer)
+	client.login(user=user_customer_Customer)
 	resp = client.get('/authorized')
 	assert resp.status_code == HTTPStatus.OK
 	assert resp.data.decode() is not None	

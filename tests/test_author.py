@@ -13,11 +13,12 @@ from data import (
 	user_employee_Brno
 )
 
+
 class TestAuthor:
 	new_id: int = 0
 
 	def test_author_add(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		data = {
 			'first_name': 'Karel',
@@ -30,9 +31,9 @@ class TestAuthor:
 		json_data = loads(resp.data.decode())
 		assert 'id' in json_data
 
-		self.new_id = json_data['id']
+		TestAuthor.new_id = json_data['id']
 
-		resp = client.get('/authors/%d' % self.new_id)
+		resp = client.get('/authors/%d' % TestAuthor.new_id)
 		assert resp.status_code == HTTPStatus.OK
 		author = loads(resp.data.decode())
 		assert data['first_name'] == author['first_name']
@@ -40,7 +41,7 @@ class TestAuthor:
 		assert data['description'] == author['description']
 
 	def test_author_add_invalid(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		data = {
 			'first_name': 'Name',
@@ -51,7 +52,7 @@ class TestAuthor:
 		assert_error_response(resp)
 
 	def test_author_edit(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		data = {
 			'first_name': 'Edited author first name',
@@ -59,10 +60,10 @@ class TestAuthor:
 			'description': 'Edited author description'
 		}
 
-		resp = client.put('/authors/%d' % self.new_id, data)
+		resp = client.put('/authors/%d' % TestAuthor.new_id, data)
 		assert resp.status_code == HTTPStatus.OK
 
-		resp = client.get('/authors/%d' % self.new_id)
+		resp = client.get('/authors/%d' % TestAuthor.new_id)
 		assert resp.status_code == HTTPStatus.OK
 		author = loads(resp.data.decode())
 		assert data['first_name'] == author['first_name']
@@ -70,7 +71,7 @@ class TestAuthor:
 		assert data['description'] == author['description']
 
 	def test_author_edit_invalid(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		data = {
 			'first_name': None,
@@ -78,11 +79,11 @@ class TestAuthor:
 			'description': 'Invalid edit - no first name'
 		}
 
-		resp = client.put('/authors/%d' % self.new_id, data)
+		resp = client.put('/authors/%d' % TestAuthor.new_id, data)
 		assert_error_response(resp)
 
 	def test_author_edit_propagation(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		AUTHOR = author_Huxley
 		BOOK = book_Brave_New_World
@@ -96,7 +97,7 @@ class TestAuthor:
 		resp = client.put('/authors/%d' % AUTHOR.id, data)
 		assert resp.status_code == HTTPStatus.OK
 
-		resp = client.get('/books/%d' % BOOK)
+		resp = client.get('/books/%d' % BOOK.id)
 		assert resp.status_code == HTTPStatus.OK
 		book = loads(resp.data.decode())
 		assert len(book['authors']) == 1
@@ -105,16 +106,16 @@ class TestAuthor:
 		assert author['last_name'] == data['last_name']
 
 	def test_author_delete(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
-		resp = client.delete('/authors/%d' % self.new_id, {})
+		resp = client.delete('/authors/%d' % TestAuthor.new_id, {})
 		assert resp.status_code == HTTPStatus.OK
 
-		resp = client.get('/authors/%d' % self.new_id)
+		resp = client.get('/authors/%d' % TestAuthor.new_id)
 		assert_error_response(resp)
 
 	def test_author_delete_propagation(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		BOOK = book_Brave_New_World
 		AUTHOR = author_Huxley
@@ -130,4 +131,4 @@ class TestAuthor:
 		resp = client.get('/books/%d' % BOOK.id)
 		assert resp.status_code == HTTPStatus.OK
 		book = loads(resp.data.decode())
-		assert len(book['authors']) == 0
+		assert find_by_id(AUTHOR.id, book['authors']) is None
