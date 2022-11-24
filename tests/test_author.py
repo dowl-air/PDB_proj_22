@@ -1,25 +1,23 @@
 
-from flask.testing import FlaskClient
-
 from http import HTTPStatus
 from json import loads
 
 from helpers import (
-	protected_post, protected_put, protected_delete,
-	assert_error_response,
+	ClientWrapper,
+	assert_error_response, assert_ok_created,
 	find_by_id
 )
-from conftest import (
-	authorHuxley,
-	bookBraveNewWorld,
-	userEmployeeBrno
+from data import (
+	author_Huxley,
+	book_Brave_New_World,
+	user_employee_Brno
 )
 
 class TestAuthor:
 	new_id: int = 0
 
-	def test_author_add(self, client: FlaskClient):
-		USER = userEmployeeBrno
+	def test_author_add(self, client: ClientWrapper):
+		client.login(user_employee_Brno)
 
 		data = {
 			'first_name': 'Karel',
@@ -27,8 +25,8 @@ class TestAuthor:
 			'description': 'A czech 20th century novellist...'
 		}
 
-		resp = protected_post('/authors', data, client, USER)
-		assert resp.status_code == HTTPStatus.OK
+		resp = client.post('/authors', data)
+		assert_ok_created(resp.status_code)
 		json_data = loads(resp.data.decode())
 		assert 'id' in json_data
 
@@ -41,19 +39,19 @@ class TestAuthor:
 		assert data['last_name'] == author['last_name']
 		assert data['description'] == author['description']
 
-	def test_author_add_invalid(self, client: FlaskClient):
-		USER = userEmployeeBrno
+	def test_author_add_invalid(self, client: ClientWrapper):
+		client.login(user_employee_Brno)
 
 		data = {
 			'first_name': 'Name',
 			'description': 'Missing last name'
 		}
 
-		resp = protected_post('/authors', data, client, USER)
+		resp = client.post('/authors', data)
 		assert_error_response(resp)
 
-	def test_author_edit(self, client: FlaskClient):
-		USER = userEmployeeBrno
+	def test_author_edit(self, client: ClientWrapper):
+		client.login(user_employee_Brno)
 
 		data = {
 			'first_name': 'Edited author first name',
@@ -61,7 +59,7 @@ class TestAuthor:
 			'description': 'Edited author description'
 		}
 
-		resp = protected_put('/authors/%d' % self.new_id, data, client, USER)
+		resp = client.put('/authors/%d' % self.new_id, data)
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/authors/%d' % self.new_id)
@@ -71,8 +69,8 @@ class TestAuthor:
 		assert data['last_name'] == author['last_name']
 		assert data['description'] == author['description']
 
-	def test_author_edit_invalid(self, client: FlaskClient):
-		USER = userEmployeeBrno
+	def test_author_edit_invalid(self, client: ClientWrapper):
+		client.login(user_employee_Brno)
 
 		data = {
 			'first_name': None,
@@ -80,14 +78,14 @@ class TestAuthor:
 			'description': 'Invalid edit - no first name'
 		}
 
-		resp = protected_put('/authors/%d' % self.new_id, data, client, USER)
+		resp = client.put('/authors/%d' % self.new_id, data)
 		assert_error_response(resp)
 
-	def test_author_edit_propagation(self, client: FlaskClient):
-		USER = userEmployeeBrno
+	def test_author_edit_propagation(self, client: ClientWrapper):
+		client.login(user_employee_Brno)
 
-		AUTHOR = authorHuxley
-		BOOK = bookBraveNewWorld
+		AUTHOR = author_Huxley
+		BOOK = book_Brave_New_World
 
 		data = {
 			'first_name': 'Ray',
@@ -95,7 +93,7 @@ class TestAuthor:
 			'description': 'Wrong author'
 		}
 
-		resp = protected_put('/authors/%d' % AUTHOR.id, data, client, USER)
+		resp = client.put('/authors/%d' % AUTHOR.id, data)
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/books/%d' % BOOK)
@@ -106,27 +104,27 @@ class TestAuthor:
 		assert author['first_name'] == data['first_name']
 		assert author['last_name'] == data['last_name']
 
-	def test_author_delete(self, client: FlaskClient):
-		USER = userEmployeeBrno
+	def test_author_delete(self, client: ClientWrapper):
+		client.login(user_employee_Brno)
 
-		resp = protected_delete('/authors/%d' % self.new_id, client, USER)
+		resp = client.delete('/authors/%d' % self.new_id, {})
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/authors/%d' % self.new_id)
 		assert_error_response(resp)
 
-	def test_author_delete_propagation(self, client: FlaskClient):
-		USER = userEmployeeBrno
+	def test_author_delete_propagation(self, client: ClientWrapper):
+		client.login(user_employee_Brno)
 
-		BOOK = bookBraveNewWorld
-		AUTHOR = authorHuxley
+		BOOK = book_Brave_New_World
+		AUTHOR = author_Huxley
 
 		resp = client.get('/books/%d' % BOOK.id)
 		assert resp.status_code == HTTPStatus.OK
 		book = loads(resp.data.decode())
 		assert find_by_id(AUTHOR.id, book['authors']) is not None
 
-		resp = protected_delete('/authors/%d' % AUTHOR.id, client, USER)
+		resp = client.delete('/authors/%d' % AUTHOR.id, {})
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/books/%d' % BOOK.id)

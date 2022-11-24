@@ -1,31 +1,29 @@
 
-from flask.testing import FlaskClient
-
 from datetime import date
 from http import HTTPStatus
 from json import loads
 
 from helpers import (
-	protected_post, protected_put, protected_delete,
+	ClientWrapper,
 	assert_error_response,
 	format_date
 )
-from conftest import (
+from data import (
 	BOOK_COPY_STATE_GOOD, BOOK_COPY_STATE_DAMAGED,
-	book1984, bookAnimalFarm,
-	locationBrno, locationOlomouc,
-	bc1984Brno1, bc1984London1, bc1984London2,
-	userEmployeeBrno
+	book_1984, book_Animal_Farm,
+	location_Brno, location_Olomouc,
+	bc_1984_Brno_1, bc_1984_London_1, bc_1984_London_2,
+	user_employee_Brno
 )
 
 class TestBookCopy:
 	new_id: int = 0
 
-	def test_book_copy_add(self, client: FlaskClient):
-		USER = userEmployeeBrno
+	def test_book_copy_add(self, client: ClientWrapper):
+		client.login(user_employee_Brno)
 
-		LOCATION = locationBrno
-		BOOK = book1984
+		LOCATION = location_Brno
+		BOOK = book_1984
 
 		data = {
 			'book_id': BOOK.id,
@@ -35,7 +33,7 @@ class TestBookCopy:
 			'state': BOOK_COPY_STATE_GOOD
 		}
 
-		resp = protected_post('/book-copies', data, client, USER)
+		resp = client.post('/book-copies', data)
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
 		assert 'id' in json_data
@@ -54,11 +52,11 @@ class TestBookCopy:
 		assert location['name'] == LOCATION.name
 		assert location['address'] == LOCATION.address
 
-	def test_book_copy_add_invalid(self, client: FlaskClient):
-		USER = userEmployeeBrno
+	def test_book_copy_add_invalid(self, client: ClientWrapper):
+		client.login(user_employee_Brno)
 
-		BOOK = book1984
-		LOCATION = locationBrno
+		BOOK = book_1984
+		LOCATION = location_Brno
 
 		template = {
 			'book_id': BOOK.id,
@@ -71,26 +69,26 @@ class TestBookCopy:
 		# missing book id
 		data = template.copy()
 		data['book_id'] = None
-		resp = protected_post('/book_copies', data, client, USER)
+		resp = client.post('/book_copies', data)
 		assert_error_response(resp)
 
 		# missing location id
 		data = template.copy()
 		data['location_id'] = None
-		resp = protected_post('/book_copies', data, client, USER)
+		resp = client.post('/book_copies', data)
 		assert_error_response(resp)
 
 		# missing print date
 		data = template.copy()
 		data['print_date'] = None
-		resp = protected_post('/book_copies', data, client, USER)
+		resp = client.post('/book_copies', data)
 		assert_error_response(resp)
 
-	def test_book_copy_edit(self, client: FlaskClient):
-		USER = userEmployeeBrno
+	def test_book_copy_edit(self, client: ClientWrapper):
+		client.login(user_employee_Brno)
 
-		BOOK = bookAnimalFarm
-		LOCATION = locationOlomouc
+		BOOK = book_Animal_Farm
+		LOCATION = location_Olomouc
 
 		data = {
 			'book_id': BOOK.id,
@@ -100,7 +98,7 @@ class TestBookCopy:
 			'state': BOOK_COPY_STATE_DAMAGED
 		}
 
-		resp = protected_put('/book-copies/%d' % self.new_id, data, client, USER)
+		resp = client.put('/book-copies/%d' % self.new_id, data)
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/book-copies/%d' % self.new_id)
@@ -115,11 +113,11 @@ class TestBookCopy:
 		assert location['name'] == LOCATION.name
 		assert location['address'] == LOCATION.address
 
-	def test_book_copy_edit_invalid(self, client: FlaskClient):
-		USER = userEmployeeBrno
+	def test_book_copy_edit_invalid(self, client: ClientWrapper):
+		client.login(user_employee_Brno)
 
-		BOOK = book1984
-		LOCATION = locationBrno
+		BOOK = book_1984
+		LOCATION = location_Brno
 
 		template = {
 			'book_id': BOOK.id,
@@ -132,27 +130,27 @@ class TestBookCopy:
 		# missing book id
 		data = template.copy()
 		data['book_id'] = None
-		resp = protected_put('/book-copies/%d' % self.new_id, data, client, USER)
+		resp = client.put('/book-copies/%d' % self.new_id, data)
 		assert_error_response(resp)
 
 		# missing location id
 		data = template.copy()
 		data['location_id'] = None
-		resp = protected_put('/book-copies/%d' % self.new_id, data, client, USER)
+		resp = client.put('/book-copies/%d' % self.new_id, data)
 		assert_error_response(resp)
 
 		# missing print date
 		data = template.copy()
 		data['print_date'] = None
-		resp = protected_put('/book-copies/%d' % self.new_id, data, client, USER)
+		resp = client.put('/book-copies/%d' % self.new_id, data)
 		assert_error_response(resp)
 
-	def test_book_copy_edit_propagation(self, client: FlaskClient):
-		USER = userEmployeeBrno
+	def test_book_copy_edit_propagation(self, client: ClientWrapper):
+		client.login(user_employee_Brno)
 
-		BOOK_COPY = bc1984Brno1
-		BOOK = bookAnimalFarm
-		LOCATION = locationOlomouc
+		BOOK_COPY = bc_1984_Brno_1
+		BOOK = book_Animal_Farm
+		LOCATION = location_Olomouc
 
 		data = {
 			'book_id': BOOK.id,
@@ -162,7 +160,7 @@ class TestBookCopy:
 			'state': BOOK_COPY_STATE_DAMAGED
 		}
 
-		resp = protected_put('/book-copies/%d' % BOOK_COPY.id, data, client, USER)
+		resp = client.put('/book-copies/%d' % BOOK_COPY.id, data)
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/book/%d' % BOOK.id)
@@ -177,30 +175,31 @@ class TestBookCopy:
 		assert copy['state'] == data['state']
 		assert copy['location_id'] == LOCATION.id
 
-	def test_book_copy_delete(self, client: FlaskClient):
-		USER = userEmployeeBrno
+	def test_book_copy_delete(self, client: ClientWrapper):
+		client.login(user_employee_Brno)
 
-		resp = protected_delete('/book-copies/%d' % self.new_id, client, USER)
+		resp = client.delete('/book-copies/%d' % self.new_id, {})
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/book-copies/%d' % self.new_id)
 		assert_error_response(resp)
 
 	# cannot delete book copy with borrowals
-	def test_book_copy_delete_invalid(self, client: FlaskClient):
-		USER = userEmployeeBrno
-		BOOK_COPY = bc1984London1
+	def test_book_copy_delete_invalid(self, client: ClientWrapper):
+		client.login(user_employee_Brno)
 
-		resp = protected_delete('/book-copies/%d' % BOOK_COPY.id, client, USER)
+		BOOK_COPY = bc_1984_London_1
+
+		resp = client.delete('/book-copies/%d' % BOOK_COPY.id, {})
 		assert_error_response(resp)
 
-	def test_book_copy_delete_propagation(self, client: FlaskClient):
-		USER = userEmployeeBrno
+	def test_book_copy_delete_propagation(self, client: ClientWrapper):
+		client.login(user_employee_Brno)
 
-		BOOK_COPY = bc1984London2
-		BOOK = book1984
+		BOOK_COPY = bc_1984_London_2
+		BOOK = book_1984
 
-		resp = protected_delete('/book-copies/%d' % BOOK_COPY.id, client, USER)
+		resp = client.delete('/book-copies/%d' % BOOK_COPY.id, {})
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/book/%d' % BOOK.id)

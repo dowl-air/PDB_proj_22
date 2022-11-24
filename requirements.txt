@@ -10,4 +10,11 @@ flask_mongoengine
 flask_marshmallow
 marshmallow-sqlalchemy
 connexion[swagger-ui]
+
+# testing
 pytest
+deepdiff
+
+# JWT
+python-jose[cryptography]
+six

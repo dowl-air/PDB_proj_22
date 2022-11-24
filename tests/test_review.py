@@ -1,25 +1,24 @@
 
-from flask.testing import FlaskClient
-
 from http import HTTPStatus
 from json import loads
 
 from helpers import (
-	protected_post, protected_put, protected_delete,
+	ClientWrapper,
 	assert_error_response,
 	find_by_id
 )
-from conftest import (
-	book1984, bookBraveNewWorld,
-	userCustomerCustomer
+from data import (
+	book_1984, book_Brave_New_World,
+	user_customer_Customer
 )
 
 class TestReview:
 	new_id: int = 0
-	NEW_REVIEW_BOOK_ID = book1984.id
+	NEW_REVIEW_BOOK_ID = book_1984.id
 
-	def test_review_add(self, client: FlaskClient):
-		USER = userCustomerCustomer
+	def test_review_add(self, client: ClientWrapper):
+		USER = user_customer_Customer
+		client.login(USER)
 
 		data = {
 			'title': '1984 Review',
@@ -27,7 +26,7 @@ class TestReview:
 			'rating': 7
 		}
 
-		resp = protected_post('/books/%d/reviews' % self.NEW_REVIEW_BOOK_ID, data, client, USER)
+		resp = client.post('/books/%d/reviews' % self.NEW_REVIEW_BOOK_ID, data)
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
 		assert 'id' in json_data
@@ -47,7 +46,7 @@ class TestReview:
 		assert customer['last_name'] == USER.last_name
 		assert customer['email'] == USER.email
 
-		resp = client.get('/profile/%d/reviews' % USER.id) # TODO
+		resp = client.get('/profile/reviews')
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
 		review = find_by_id(self.new_id, json_data)
@@ -56,10 +55,10 @@ class TestReview:
 		assert review['content'] == data['content']
 		assert review['rating'] == data['rating']
 
-	def test_review_add_invalid(self, client: FlaskClient):
-		USER = userCustomerCustomer
+	def test_review_add_invalid(self, client: ClientWrapper):
+		client.login(user_customer_Customer)
 
-		BOOK = bookBraveNewWorld
+		BOOK = book_Brave_New_World
 
 		template = {
 			'title': 'Brave New World review',
@@ -70,15 +69,15 @@ class TestReview:
 		# missing title
 		data = template.copy()
 		data['title'] = None
-		resp = protected_post('/books/%d/reviews' % BOOK.id, data, client, USER)
+		resp = client.post('/books/%d/reviews' % BOOK.id, data)
 		assert_error_response(resp)
 
 		# invalid book id
-		resp = protected_post('/books/%d/reviews' % 300, data, client, USER)
+		resp = client.post('/books/%d/reviews' % 300, data)
 		assert_error_response(resp)
 
-	def test_review_edit(self, client: FlaskClient):
-		USER = userCustomerCustomer
+	def test_review_edit(self, client: ClientWrapper):
+		client.login(user_customer_Customer)
 
 		data = {
 			'title': 'Edited review title',
@@ -86,7 +85,7 @@ class TestReview:
 			'rating': 5
 		}
 
-		resp = protected_put('/reviews/%d' % self.new_id, data, client, USER)
+		resp = client.put('/reviews/%d' % self.new_id, data)
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/books/%d/reviews' % self.NEW_REVIEW_BOOK_ID)
@@ -98,8 +97,8 @@ class TestReview:
 		assert review['content'] == data['content']
 		assert review['rating'] == data['rating']
 
-	def test_review_edit_invalid(self, client: FlaskClient):
-		USER = userCustomerCustomer
+	def test_review_edit_invalid(self, client: ClientWrapper):
+		client.login(user_customer_Customer)
 
 		data = {
 			'title': None,
@@ -107,13 +106,13 @@ class TestReview:
 			'rating': 5
 		}
 
-		resp = protected_put('/reviews/%d' % self.new_id, data, client, USER)
+		resp = client.put('/reviews/%d' % self.new_id, data)
 		assert_error_response(resp)
 
-	def test_review_delete(self, client: FlaskClient):
-		USER = userCustomerCustomer
+	def test_review_delete(self, client: ClientWrapper):
+		client.login(user_customer_Customer)
 
-		resp = protected_delete('/reviews/%d' % self.new_id, client, USER)
+		resp = client.delete('/reviews/%d' % self.new_id, {})
 		assert resp.status_code == HTTPStatus.OK
 
 		# delete propagation
@@ -123,7 +122,7 @@ class TestReview:
 		review = find_by_id(self.new_id, json_data)
 		assert review is None
 
-		resp = client.get('/profile/%d/reviews' % USER.id) # TODO
+		resp = client.get('/profile/reviews')
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
 		review = find_by_id(self.new_id, json_data)
