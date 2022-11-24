@@ -120,6 +120,20 @@ components:
         password:
           type: string
           format: password
+    UserUpdate:
+      type: object
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        role:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+          format: password
     Reservation:
       type: object
       required:
@@ -835,3 +849,35 @@ paths:
                     type: object
       security:
       - jwt: []
+
+
+
+  /profile:
+    put:
+      operationId: controllers.users.update
+      tags:
+        - Users
+      summary: Update user profile
+      security:
+      - jwt: []
+      requestBody:
+          description: User object to update
+          required: True
+          content:
+            application/json:
+              schema:
+                x-body-name: "user_data"
+                $ref: "#/components/schemas/UserUpdate"
+      responses:
+        200:
+          description: Successfully changed user profile.
+    get:
+      operationId: controllers.users.get
+      tags:
+        - Users
+      summary: Get logged in user object
+      security:
+      - jwt: []
+      responses:
+        200:
+          description: Successfully got user object.
