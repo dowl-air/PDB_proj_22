@@ -11,9 +11,11 @@ from helpers import (
 )
 from data import (
 	BORROWAL_STATE_ACTIVE, BORROWAL_STATE_RETURNED,
+	RESERVATION_STATE_CLOSED,
 	bc_1984_Brno_1, bc_Animal_Farm_Brno, bc_Hobbit_Olomouc, bc_Brave_New_World_Brno, bc_Hobbit_London_1, bc_Hobbit_London_2,
 	user_employee_Brno, user_customer_Customer, user_employee_London,
-	borrowal_London_3
+	borrowal_London_3,
+	reservation_London_active_1
 )
 
 class TestBorrowal:
@@ -123,6 +125,7 @@ class TestBorrowal:
 		client.login(user=user_employee_London)
 
 		BOOK_COPY = bc_Hobbit_London_1
+		RESERVATION = reservation_London_active_1
 		CUSTOMER = user_customer_Customer
 
 		data = {
@@ -144,9 +147,19 @@ class TestBorrowal:
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
 		borrowal = find_by_id(self.new_id, json_data)
+		assert borrowal is not None
 		assert borrowal['book_copy_id'] == BOOK_COPY.id
 		assert borrowal['start_date'] == format_date(date.today())
 		assert borrowal['state'] == BORROWAL_STATE_ACTIVE
+
+		# reservation has been closed
+		resp = client.get('/profile/reservations')
+		assert resp.status_code == HTTPStatus.OK
+		json_data = loads(resp.data.decode())
+		reservation = find_by_id(RESERVATION.id, json_data)
+		assert reservation is not None
+		assert reservation['book_copy_id'] == BOOK_COPY.id
+		assert reservation['state'] == RESERVATION_STATE_CLOSED
 
 	def test_borrowal_return(self, client: ClientWrapper):
 		client.login(user=user_employee_Brno)
