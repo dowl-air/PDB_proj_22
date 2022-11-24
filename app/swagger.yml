@@ -801,8 +801,19 @@ paths:
         '200':
           description: secret response
           content:
-            'text/plain':
+            'application/json':
               schema:
-                type: string
+                type: object
+                required:
+                  - message
+                  - user_id
+                  - token_info
+                properties:
+                  message:
+                    type: string
+                  user_id:
+                    type: integer
+                  token_info:
+                    type: object
       security:
       - jwt: []
