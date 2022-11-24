@@ -33,7 +33,7 @@ def update(id, location):
         update_location = location_schema.load(location, session=db.session, instance=existing_location)
         db.session.merge(update_location)
         db.session.commit()
-        return location_schema.dump(existing_location), 201
+        return location_schema.dump(existing_location), 200
     else:
         abort(404, f"Location with id \"{id}\" not found.")
 
