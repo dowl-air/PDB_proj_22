@@ -1,22 +1,29 @@
 from flask.helpers import make_response, abort
+from mongoengine.errors import DoesNotExist
 
 from entity.sql.base import db
 from entity.sql.author import Author
-
 from entity.sql.schemas import author_schema, authors_schema
+
+from entity.nosql.author import Author as AuthorMongo
+from entity.nosql.schemas_mongo import author_schema as mongo_author_schema
+from entity.nosql.schemas_mongo import authors_schema as mongo_authors_schema
 
 
 def get_all():
-    authors = Author.query.all()
-    return authors_schema.dump(authors)
+    # Get all authors from mongo database
+    authors_mongo = AuthorMongo.objects
+    return mongo_authors_schema.dump(authors_mongo)
 
 
 def get(id):
-    author = Author.query.filter(Author.id == id).one_or_none()
-    if author is not None:
-        return author_schema.dump(author)
-    else:
-        abort(404, f"Author with id \"{id}\" not found.")
+    # Get one author from mongo database
+    try:
+        author = AuthorMongo.objects.get(id=id)
+    except DoesNotExist:
+        abort(404, f"Author with id {id} not found.")
+
+    return mongo_author_schema.dump(author)
 
 
 def create(author):
