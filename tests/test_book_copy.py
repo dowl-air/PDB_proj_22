@@ -164,10 +164,10 @@ class TestBookCopy:
         resp = client.put('/book-copies/%d' % BOOK_COPY.id, data)
         assert resp.status_code == HTTPStatus.OK
 
-        resp = client.get('/book/%d' % BOOK.id)
+        resp = client.get('/books/%d' % BOOK.id)
         assert resp.status_code == HTTPStatus.OK
         book = loads(resp.data.decode())
-        copies = book['book-copies']
+        copies = book['book_copies']
         copies = list(filter(lambda x: x['id'] == BOOK_COPY.id, copies))
         assert len(copies) == 1
         copy = copies[0]
