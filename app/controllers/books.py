@@ -40,7 +40,7 @@ def update(id, book):
         update_book = book_schema.load(book, session=db.session, instance=existing_book)
         db.session.merge(update_book)
         db.session.commit()
-        return book_schema.dump(existing_book), 201
+        return book_schema.dump(existing_book), 200
     else:
         abort(404, f"Book with id \"{id}\" not found.")
 
