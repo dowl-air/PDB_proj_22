@@ -185,13 +185,16 @@ class TestBookCopy:
         resp = client.get('/book-copies/%d' % TestBookCopy.new_id)
         assert_error_response(resp)
 
-    # cannot delete book copy with borrowals
-    def test_book_copy_delete_invalid(self, client: ClientWrapper):
+    # delete book copy with borrowals ("fake" delete, change state to deleted)
+    def test_book_copy_delete_with_borrowals(self, client: ClientWrapper):
         client.login(user=user_employee_Brno)
 
         BOOK_COPY = bc_1984_London_1
 
         resp = client.delete('/book-copies/%d' % BOOK_COPY.id, {})
+        assert resp.status_code == HTTPStatus.OK
+
+        resp = client.get('/book-copies/%d' % TestBookCopy.new_id)
         assert_error_response(resp)
 
     def test_book_copy_delete_propagation(self, client: ClientWrapper):

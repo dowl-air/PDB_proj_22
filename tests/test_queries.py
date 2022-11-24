@@ -6,6 +6,7 @@ from helpers import ClientWrapper, to_json, assert_error_response
 from data import (
 	BOOKS, BOOK_COPIES, BORROWALS, RESERVATIONS, REVIEWS,
 	BORROWAL_STATE_ACTIVE,
+	BOOK_COPY_STATE_DELETED,
 	book_1984, book_Hobbit, book_Good_Omens, book_Brave_New_World,
 	bc_Hobbit_Brno, bc_Hobbit_London_1, bc_1984_Brno_1, bc_1984_Brno_2, bc_Animal_Farm_Brno,
 	author_Orwell,
@@ -34,7 +35,7 @@ def test_get_book_copies(client: ClientWrapper):
 	BOOK = book_Hobbit
 	resp = client.get('/books/%d/book-copies/' % BOOK.id)
 	assert resp.status_code == HTTPStatus.OK
-	assert loads(resp.data.decode()) == to_json(list(filter(lambda x: x.book_id == BOOK.id, BOOK_COPIES)))
+	assert loads(resp.data.decode()) == to_json(list(filter(lambda x: x.book_id == BOOK.id and x.state != BOOK_COPY_STATE_DELETED, BOOK_COPIES)))
 
 def test_get_book_copy(client: ClientWrapper):
 	BOOK_COPY = bc_Hobbit_London_1
