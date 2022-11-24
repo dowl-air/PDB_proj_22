@@ -101,7 +101,8 @@ class ClientWrapper:
 
 		resp = self.post('/login', data)
 		assert resp.status_code == HTTPStatus.OK
-		self.set_token(resp.data.decode())
+		json_data = loads(resp.data.decode())
+		self.set_token(json_data['token'])
 
 	def logout(self) -> None:
 		resp = self.client.post('/logout', {})
