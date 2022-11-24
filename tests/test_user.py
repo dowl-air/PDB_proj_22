@@ -16,6 +16,7 @@ class TestUser:
 		'email': 'new_email@email.cz',
 		'password': 'password123'
 	}
+	token: str = ''
 
 	def test_register(self, client: ClientWrapper):
 		data = {
@@ -66,6 +67,9 @@ class TestUser:
 
 		resp = client.post('/login', data)
 		assert resp.status_code == HTTPStatus.OK
+		json_data = loads(resp.data.decode())
+		assert 'token' in json_data
+		TestUser.token = json_data['token']
 
 	def test_profile_edit(self, client: ClientWrapper):
 		data = {
@@ -73,7 +77,7 @@ class TestUser:
 			'last_name': 'Edited-last-name'
 		}
 
-		resp = client.put('/profile', data)
+		resp = client.put('/profile', data, token=TestUser.token)
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/profile')
@@ -82,11 +86,7 @@ class TestUser:
 		assert profile['first_name'] == data['first_name']
 		assert profile['last_name'] == data['last_name']
 
-	def test_logout(self, client: ClientWrapper):
-		resp = client.post('/logout', {})
-		assert resp.status_code == HTTPStatus.OK
-
-	def test_login_logout_profile_access(self, client: ClientWrapper):
+	def test_token_profile_access(self, client: ClientWrapper):
 		data = {
 			'email': TestUser.NEW_USER['email'],
 			'password': TestUser.NEW_USER['password']
@@ -94,19 +94,19 @@ class TestUser:
 
 		resp = client.post('/login', data)
 		assert resp.status_code == HTTPStatus.OK
+		json_data = loads(resp.data.decode())
+		token = json_data['token']
 
-		resp = client.get('/profile')
+		resp = client.get('/profile', token=token)
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
 		assert json_data['first_name'] == TestUser.NEW_USER['first_name']
-
-		resp = client.post('/logout', {})
-		assert resp.status_code == HTTPStatus.OK
+		assert json_data['last_name'] == TestUser.NEW_USER['last_name']
 
 		resp = client.get('/profile')
 		assert resp.status_code == HTTPStatus.UNAUTHORIZED
 
-	def test_client_login_logout_profile_access(self, client: ClientWrapper):
+	def test_client_token_profile_access(self, client: ClientWrapper):
 		USER = user_customer_Customer
 		client.login(user=USER)
 
@@ -114,6 +114,7 @@ class TestUser:
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
 		assert json_data['first_name'] == USER['first_name']
+		assert json_data['last_name'] == USER['last_name']
 
 		client.logout()
 

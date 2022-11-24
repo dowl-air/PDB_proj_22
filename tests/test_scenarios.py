@@ -53,7 +53,6 @@ class TestScenario:
 
 		NEW_BORROWAL_ID = json_data['id']
 
-		client.logout()
 		client.login(email=NEW_CUSTOMER['email'], password=NEW_CUSTOMER['password'])
 
 		resp = client.get('/profile/borrowals')
@@ -65,13 +64,11 @@ class TestScenario:
 		assert borrowal['state'] == BORROWAL_STATE_ACTIVE
 
 		# return borrowed book copy
-		client.logout()
 		client.login(user=EMPLOYEE)
 
 		resp = client.patch('/borrowals/%d/return' % NEW_BORROWAL_ID, {})
 		assert resp.status_code == HTTPStatus.OK
 
-		client.logout()
 		client.login(email=NEW_CUSTOMER['email'], password=NEW_CUSTOMER['password'])
 
 		resp = client.get('/profile/borrowals')
@@ -111,7 +108,6 @@ class TestScenario:
 		# cannot reserve book as other customer
 		OTHER_CUSTOMER = user_customer_Smith
 
-		client.logout()
 		client.login(user=OTHER_CUSTOMER)
 
 		data = {
@@ -124,7 +120,6 @@ class TestScenario:
 		# cannot borrow book as other customer
 		EMPLOYEE = user_employee_Brno
 
-		client.logout()
 		client.login(user=EMPLOYEE)
 
 		data = {
@@ -148,7 +143,6 @@ class TestScenario:
 
 		NEW_BORROWAL_ID = json_data['id']
 
-		client.logout()
 		client.login(user=CUSTOMER)
 
 		resp = client.get('/profile/borrowals')

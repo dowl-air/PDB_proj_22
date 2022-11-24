@@ -42,7 +42,6 @@ class TestBorrowal:
 
 		TestBorrowal.new_id = json_data['id']
 
-		client.logout()
 		client.login(user=CUSTOMER)
 
 		resp = client.get('/profile/borrowals')
@@ -53,7 +52,7 @@ class TestBorrowal:
 		assert borrowal['start_date'] == format_date(date.today())
 		assert borrowal['state'] == BORROWAL_STATE_ACTIVE
 
-	def test_borrowal_add_invalid_reserved(self, client: ClientWrapper): # TODO
+	def test_borrowal_add_invalid_reserved(self, client: ClientWrapper):
 		client.login(user=user_employee_Brno)
 
 		BOOK_COPY = bc_Hobbit_London_2 # active reservation by a different customer
@@ -127,7 +126,6 @@ class TestBorrowal:
 
 		TestBorrowal.new_id = json_data['id']
 
-		client.logout()
 		client.login(user=CUSTOMER)
 
 		resp = client.get('/profile/borrowals')
@@ -157,7 +155,6 @@ class TestBorrowal:
 
 		TestBorrowal.new_id = json_data['id']
 
-		client.logout()
 		client.login(user=CUSTOMER)
 
 		resp = client.get('/profile/borrowals')
