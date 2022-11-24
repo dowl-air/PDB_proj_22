@@ -9,6 +9,8 @@ cryptography
 flask_mongoengine
 flask_marshmallow
 marshmallow-sqlalchemy
+Marshmallow-Mongoengine
+
 connexion[swagger-ui]
 
 # testing

@@ -94,6 +94,7 @@ class TestBorrowal:
 		resp = client.post('/borrowals', data)
 		assert_error_response(resp)
 
+	# cannot borrow deleted book copy
 	def test_borrowal_add_invalid_deleted(self, client: ClientWrapper):
 		client.login(user=user_employee_London)
 
