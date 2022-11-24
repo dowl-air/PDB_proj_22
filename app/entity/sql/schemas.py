@@ -101,9 +101,8 @@ class BookSchema(ma.SQLAlchemyAutoSchema):
         include_relationships = True
         include_fk = True
 
-    copies = fields.Nested(BookCopySchema, many=True)
-    reviews = fields.Nested(ReviewSchema, many=True)
-    authors = fields.Nested(AuthorSchema, many=True)
+    copies = fields.Nested(BookCopySchema, many=True, dump_only=True)
+    reviews = fields.Nested(ReviewSchema, many=True, dump_only=True)
 
 
 book_schema = BookSchema()
