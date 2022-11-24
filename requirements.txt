@@ -17,4 +17,3 @@ deepdiff
 
 # JWT
 python-jose[cryptography]
-six

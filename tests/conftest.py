@@ -32,8 +32,4 @@ def fill_db() -> None:
 
 @pytest.fixture
 def client() -> ClientWrapper:
-	client = ClientWrapper(create_app().test_client())
-	yield client
-	# TODO
-	#if client.token is not None:
-	#	client.logout()
+	return ClientWrapper(create_app().test_client())

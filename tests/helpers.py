@@ -101,11 +101,11 @@ class ClientWrapper:
 
 		resp = self.post('/login', data)
 		assert resp.status_code == HTTPStatus.OK
-		self.set_token(resp.data.decode())
+		json_data = loads(resp.data.decode())
+		self.set_token(json_data['token'])
 
+	# simply throws away the token (simulates logout on frontend)
 	def logout(self) -> None:
-		resp = self.client.post('/logout', {})
-		assert resp.status_code == HTTPStatus.OK
 		self.token = None
 
 	def _auth_headers(self, token: Optional[str]) -> Optional[dict]:
