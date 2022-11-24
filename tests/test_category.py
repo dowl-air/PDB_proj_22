@@ -17,7 +17,7 @@ class TestCategory:
 	new_id: int = 0
 
 	def test_category_add(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		data = {
 			'name': 'Novel',
@@ -38,7 +38,7 @@ class TestCategory:
 		assert category['description'] == data['description']
 
 	def test_category_add_invalid(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		data = {
 			'name': None,
@@ -49,7 +49,7 @@ class TestCategory:
 		assert_error_response(resp)
 
 	def test_category_edit(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		data = {
 			'name': 'Edited category name',
@@ -66,7 +66,7 @@ class TestCategory:
 		assert category['description'] == data['description']
 
 	def test_category_edit_invalid(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		data = {
 			'name': None,
@@ -77,7 +77,7 @@ class TestCategory:
 		assert_error_response(resp)
 
 	def test_category_edit_propagation(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		CATEGORY = category_fable
 		BOOK = book_Animal_Farm
@@ -99,7 +99,7 @@ class TestCategory:
 		assert category['description'] == data['description']
 
 	def test_category_delete(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		resp = client.delete('/categories/%d' % self.new_id, {})
 		assert resp.status_code == HTTPStatus.OK
@@ -108,7 +108,7 @@ class TestCategory:
 		assert_error_response(resp)
 
 	def test_category_delete_propagation(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		CATEGORY = category_fable
 		BOOK = book_Animal_Farm

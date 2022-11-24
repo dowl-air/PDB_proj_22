@@ -18,7 +18,7 @@ class TestReview:
 
 	def test_review_add(self, client: ClientWrapper):
 		USER = user_customer_Customer
-		client.login(USER)
+		client.login(user=USER)
 
 		data = {
 			'title': '1984 Review',
@@ -56,7 +56,7 @@ class TestReview:
 		assert review['rating'] == data['rating']
 
 	def test_review_add_invalid(self, client: ClientWrapper):
-		client.login(user_customer_Customer)
+		client.login(user=user_customer_Customer)
 
 		BOOK = book_Brave_New_World
 
@@ -77,7 +77,7 @@ class TestReview:
 		assert_error_response(resp)
 
 	def test_review_edit(self, client: ClientWrapper):
-		client.login(user_customer_Customer)
+		client.login(user=user_customer_Customer)
 
 		data = {
 			'title': 'Edited review title',
@@ -98,7 +98,7 @@ class TestReview:
 		assert review['rating'] == data['rating']
 
 	def test_review_edit_invalid(self, client: ClientWrapper):
-		client.login(user_customer_Customer)
+		client.login(user=user_customer_Customer)
 
 		data = {
 			'title': None,
@@ -110,7 +110,7 @@ class TestReview:
 		assert_error_response(resp)
 
 	def test_review_delete(self, client: ClientWrapper):
-		client.login(user_customer_Customer)
+		client.login(user=user_customer_Customer)
 
 		resp = client.delete('/reviews/%d' % self.new_id, {})
 		assert resp.status_code == HTTPStatus.OK

@@ -106,7 +106,7 @@ def test_get_location_not_exists(client: ClientWrapper):
 
 def test_get_profile(client: ClientWrapper):
 	CUSTOMER = user_customer_Customer
-	client.login(CUSTOMER)
+	client.login(user=CUSTOMER)
 
 	resp = client.get('/profile')
 	assert resp.status_code == HTTPStatus.OK
@@ -114,7 +114,7 @@ def test_get_profile(client: ClientWrapper):
 
 def test_get_customer_borrowals(client: ClientWrapper):
 	CUSTOMER = user_customer_Customer
-	client.login(CUSTOMER)
+	client.login(user=CUSTOMER)
 
 	resp = client.get('/profile/borrowals')
 	assert resp.status_code == HTTPStatus.OK
@@ -122,7 +122,7 @@ def test_get_customer_borrowals(client: ClientWrapper):
 
 def test_get_customer_reservations(client: ClientWrapper):
 	CUSTOMER = user_customer_Customer
-	client.login(CUSTOMER)
+	client.login(user=CUSTOMER)
 
 	resp = client.get('/profile/reservations')
 	assert resp.status_code == HTTPStatus.OK
@@ -130,7 +130,7 @@ def test_get_customer_reservations(client: ClientWrapper):
 
 def test_get_customer_reviews(client: ClientWrapper):
 	CUSTOMER = user_customer_Reviewer
-	client.login(CUSTOMER)
+	client.login(user=CUSTOMER)
 
 	resp = client.get('/profile/reviews')
 	assert resp.status_code == HTTPStatus.OK

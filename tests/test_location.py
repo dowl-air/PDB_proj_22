@@ -16,7 +16,7 @@ class TestLocation:
 	new_id: int = 0
 
 	def test_location_add(self, client: ClientWrapper):
-		client.login(user_admin_Admin)
+		client.login(user=user_admin_Admin)
 
 		data = {
 			'name': 'VUT FIT',
@@ -37,7 +37,7 @@ class TestLocation:
 		assert data['address'] == location['address']
 
 	def test_location_add_invalid(self, client: ClientWrapper):
-		client.login(user_admin_Admin)
+		client.login(user=user_admin_Admin)
 
 		data = {
 			'address': 'Missing location name'
@@ -47,7 +47,7 @@ class TestLocation:
 		assert_error_response(resp)
 
 	def test_location_edit(self, client: ClientWrapper):
-		client.login(user_admin_Admin)
+		client.login(user=user_admin_Admin)
 
 		data = {
 			'name': 'Edited VUT FIT location',
@@ -64,7 +64,7 @@ class TestLocation:
 		assert data['address'] == location['address']
 
 	def test_location_edit_invalid(self, client: ClientWrapper):
-		client.login(user_admin_Admin)
+		client.login(user=user_admin_Admin)
 
 		data = {
 			'name': None,
@@ -75,7 +75,7 @@ class TestLocation:
 		assert_error_response(resp)
 
 	def test_location_edit_propagation(self, client: ClientWrapper):
-		client.login(user_admin_Admin)
+		client.login(user=user_admin_Admin)
 
 		data = {
 			'name': 'Ostrava',
@@ -95,7 +95,7 @@ class TestLocation:
 		assert book_copy['location']['address'] == data['address']
 
 	def test_location_delete(self, client: ClientWrapper):
-		client.login(user_admin_Admin)
+		client.login(user=user_admin_Admin)
 
 		resp = client.delete('/locations/%d' % self.new_id, {})
 		assert resp.status_code == HTTPStatus.OK
@@ -105,7 +105,7 @@ class TestLocation:
 
 	# cannot delete location with assigned book copies
 	def test_location_delete_invalid(self, client: ClientWrapper):
-		client.login(user_admin_Admin)
+		client.login(user=user_admin_Admin)
 
 		LOCATION = location_Brno
 

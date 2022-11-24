@@ -20,7 +20,7 @@ class TestBookCopy:
 	new_id: int = 0
 
 	def test_book_copy_add(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		LOCATION = location_Brno
 		BOOK = book_1984
@@ -53,7 +53,7 @@ class TestBookCopy:
 		assert location['address'] == LOCATION.address
 
 	def test_book_copy_add_invalid(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		BOOK = book_1984
 		LOCATION = location_Brno
@@ -85,7 +85,7 @@ class TestBookCopy:
 		assert_error_response(resp)
 
 	def test_book_copy_edit(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		BOOK = book_Animal_Farm
 		LOCATION = location_Olomouc
@@ -114,7 +114,7 @@ class TestBookCopy:
 		assert location['address'] == LOCATION.address
 
 	def test_book_copy_edit_invalid(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		BOOK = book_1984
 		LOCATION = location_Brno
@@ -146,7 +146,7 @@ class TestBookCopy:
 		assert_error_response(resp)
 
 	def test_book_copy_edit_propagation(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		BOOK_COPY = bc_1984_Brno_1
 		BOOK = book_Animal_Farm
@@ -176,7 +176,7 @@ class TestBookCopy:
 		assert copy['location_id'] == LOCATION.id
 
 	def test_book_copy_delete(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		resp = client.delete('/book-copies/%d' % self.new_id, {})
 		assert resp.status_code == HTTPStatus.OK
@@ -186,7 +186,7 @@ class TestBookCopy:
 
 	# cannot delete book copy with borrowals
 	def test_book_copy_delete_invalid(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		BOOK_COPY = bc_1984_London_1
 
@@ -194,7 +194,7 @@ class TestBookCopy:
 		assert_error_response(resp)
 
 	def test_book_copy_delete_propagation(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		BOOK_COPY = bc_1984_London_2
 		BOOK = book_1984

@@ -21,7 +21,7 @@ class TestBook:
 	new_book_author_id: int = 0
 
 	def test_book_add(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		AUTHOR = author_Orwell
 		CATEGORY1 = category_history
@@ -73,7 +73,7 @@ class TestBook:
 		assert book['description'] == data['description']
 
 	def test_book_add_invalid(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		AUTHOR = author_Tolkien
 		CATEGORY = category_fantasy
@@ -118,7 +118,7 @@ class TestBook:
 		assert_error_response(resp)
 
 	def test_book_edit(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		AUTHOR = author_Huxley
 		CATEGORY = category_fable
@@ -156,7 +156,7 @@ class TestBook:
 		assert category['description'] == CATEGORY.description
 
 	def test_book_edit_invalid(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		AUTHOR = author_Tolkien
 		CATEGORY = category_fantasy
@@ -201,7 +201,7 @@ class TestBook:
 		assert_error_response(resp)
 
 	def test_book_edit_propagation(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		BOOK = book_Animal_Farm
 		ORIGINAL_AUTHOR_ID = book_Animal_Farm.authors[0]['id']
@@ -234,7 +234,7 @@ class TestBook:
 		assert book['description'] == data['description']
 
 	def test_book_delete(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		resp = client.delete('/books/%d' % self.new_id, {})
 		assert resp.status_code == HTTPStatus.OK
@@ -250,7 +250,7 @@ class TestBook:
 
 	# cannot delete book with copies
 	def test_book_delete_invalid(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		BOOK = book_1984
 

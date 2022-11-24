@@ -20,7 +20,7 @@ class TestReservation:
 	new_id: int = 0
 
 	def test_reservation_add(self, client: ClientWrapper):
-		client.login(user_customer_Customer)
+		client.login(user=user_customer_Customer)
 
 		BOOK_COPY = bc_1984_Brno_2
 
@@ -45,7 +45,7 @@ class TestReservation:
 		assert reservation['state'] == RESERVATION_STATE_ACTIVE
 
 	def test_reservation_add_invalid_reserved(self, client: ClientWrapper):
-		client.login(user_customer_Customer)
+		client.login(user=user_customer_Customer)
 
 		BOOK_COPY = bc_Animal_Farm_Brno
 
@@ -57,7 +57,7 @@ class TestReservation:
 		assert_error_response(resp)
 
 	def test_reservation_add_invalid_borrowed(self, client: ClientWrapper):
-		client.login(user_customer_Customer)
+		client.login(user=user_customer_Customer)
 
 		BOOK_COPY = bc_1984_Brno_1
 
@@ -69,7 +69,7 @@ class TestReservation:
 		assert_error_response(resp)
 
 	def test_reservation_cancel(self, client: ClientWrapper):
-		client.login(user_customer_Customer)
+		client.login(user=user_customer_Customer)
 
 		resp = client.patch('/reservations/%d/cancel' % self.new_id, {})
 		assert resp.status_code == HTTPStatus.OK
@@ -82,7 +82,7 @@ class TestReservation:
 		assert reservation['state'] == RESERVATION_STATE_CLOSED
 
 	def test_reservation_cancel_invalid(self, client: ClientWrapper):
-		client.login(user_customer_Customer)
+		client.login(user=user_customer_Customer)
 
 		# reservation is already closed
 		resp = client.patch('/reservations/%d/cancel' % reservation_Brno.id, {})

@@ -20,7 +20,7 @@ class TestBorrowal:
 	new_id: int = 0
 
 	def test_borrowal_add(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		BOOK_COPY = bc_Hobbit_Olomouc
 		CUSTOMER = user_customer_Customer
@@ -38,7 +38,7 @@ class TestBorrowal:
 		self.new_id = json_data['id']
 
 		client.logout()
-		client.login(CUSTOMER)
+		client.login(user=CUSTOMER)
 
 		resp = client.get('/profile/borrowals')
 		assert resp.status_code == HTTPStatus.OK
@@ -49,7 +49,7 @@ class TestBorrowal:
 		assert borrowal['state'] == BORROWAL_STATE_ACTIVE
 
 	def test_borrowal_add_invalid_reserved(self, client: ClientWrapper): # TODO
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		BOOK_COPY = bc_Hobbit_London_2 # active reservation by a different customer
 		CUSTOMER = user_customer_Customer
@@ -63,7 +63,7 @@ class TestBorrowal:
 		assert_error_response(resp)
 
 	def test_borrowal_add_invalid_borrowed(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		BOOK_COPY = bc_1984_Brno_1 # borrowed (by a different customer)
 		CUSTOMER = user_customer_Customer
@@ -77,7 +77,7 @@ class TestBorrowal:
 		assert_error_response(resp)
 
 	def test_borrowal_add_invalid_borrowed_expired(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		BOOK_COPY = bc_Brave_New_World_Brno # expired borrowal (by a different customer)
 		CUSTOMER = user_customer_Customer
@@ -91,7 +91,7 @@ class TestBorrowal:
 		assert_error_response(resp)
 
 	def test_borrowal_add_valid_reservation_expired(self, client: ClientWrapper):
-		client.login(user_employee_London)
+		client.login(user=user_employee_London)
 
 		BOOK_COPY = bc_Animal_Farm_Brno # reserved by customer 'Customer'
 		CUSTOMER = user_customer_Customer
@@ -109,7 +109,7 @@ class TestBorrowal:
 		self.new_id = json_data['id']
 
 		client.logout()
-		client.login(CUSTOMER)
+		client.login(user=CUSTOMER)
 
 		resp = client.get('/profile/borrowals')
 		assert resp.status_code == HTTPStatus.OK
@@ -120,7 +120,7 @@ class TestBorrowal:
 		assert borrowal['state'] == BORROWAL_STATE_ACTIVE
 
 	def test_borrowal_add_valid_reserved(self, client: ClientWrapper):
-		client.login(user_employee_London)
+		client.login(user=user_employee_London)
 
 		BOOK_COPY = bc_Hobbit_London_1
 		CUSTOMER = user_customer_Customer
@@ -138,7 +138,7 @@ class TestBorrowal:
 		self.new_id = json_data['id']
 
 		client.logout()
-		client.login(CUSTOMER)
+		client.login(user=CUSTOMER)
 
 		resp = client.get('/profile/borrowals')
 		assert resp.status_code == HTTPStatus.OK
@@ -149,7 +149,7 @@ class TestBorrowal:
 		assert borrowal['state'] == BORROWAL_STATE_ACTIVE
 
 	def test_borrowal_return(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		resp = client.patch('/borrowals/%d/return' % self.new_id, {})
 		assert resp.status_code == HTTPStatus.OK
@@ -162,7 +162,7 @@ class TestBorrowal:
 		assert borrowal['state'] == BORROWAL_STATE_RETURNED
 
 	def test_borrowal_return_invalid(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		# borrowal already ended
 		resp = client.patch('/borrowals/%d/return' % borrowal_London_3.id, {})

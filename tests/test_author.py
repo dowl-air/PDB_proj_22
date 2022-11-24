@@ -17,7 +17,7 @@ class TestAuthor:
 	new_id: int = 0
 
 	def test_author_add(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		data = {
 			'first_name': 'Karel',
@@ -40,7 +40,7 @@ class TestAuthor:
 		assert data['description'] == author['description']
 
 	def test_author_add_invalid(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		data = {
 			'first_name': 'Name',
@@ -51,7 +51,7 @@ class TestAuthor:
 		assert_error_response(resp)
 
 	def test_author_edit(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		data = {
 			'first_name': 'Edited author first name',
@@ -70,7 +70,7 @@ class TestAuthor:
 		assert data['description'] == author['description']
 
 	def test_author_edit_invalid(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		data = {
 			'first_name': None,
@@ -82,7 +82,7 @@ class TestAuthor:
 		assert_error_response(resp)
 
 	def test_author_edit_propagation(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		AUTHOR = author_Huxley
 		BOOK = book_Brave_New_World
@@ -105,7 +105,7 @@ class TestAuthor:
 		assert author['last_name'] == data['last_name']
 
 	def test_author_delete(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		resp = client.delete('/authors/%d' % self.new_id, {})
 		assert resp.status_code == HTTPStatus.OK
@@ -114,7 +114,7 @@ class TestAuthor:
 		assert_error_response(resp)
 
 	def test_author_delete_propagation(self, client: ClientWrapper):
-		client.login(user_employee_Brno)
+		client.login(user=user_employee_Brno)
 
 		BOOK = book_Brave_New_World
 		AUTHOR = author_Huxley

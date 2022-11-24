@@ -80,7 +80,7 @@ class ClientWrapper:
 	def patch(self, endpoint: str, data: dict, *, token: Optional[str] = None) -> TestResponse:
 		return self.client.patch(endpoint, data=dumps(data), content_type='application/json', headers=self._auth_headers(token))
 
-	def login(self, user: User) -> None:
+	def login(self, *, user: User) -> None:
 		data = {
 			'email': user.email,
 			'password': user.last_name.lower()

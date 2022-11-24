@@ -108,7 +108,7 @@ class TestUser:
 
 	def test_client_login_logout_profile_access(self, client: ClientWrapper):
 		USER = user_customer_Customer
-		client.login(USER)
+		client.login(user=USER)
 
 		resp = client.get('/profile')
 		assert resp.status_code == HTTPStatus.OK
