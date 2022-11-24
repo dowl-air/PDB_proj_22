@@ -12,7 +12,10 @@ from helpers import (
 from data import (
 	BORROWAL_STATE_ACTIVE, BORROWAL_STATE_RETURNED,
 	RESERVATION_STATE_CLOSED,
-	bc_1984_Brno_1, bc_Animal_Farm_Brno, bc_Hobbit_Olomouc, bc_Brave_New_World_Brno, bc_Hobbit_London_1, bc_Hobbit_London_2,
+
+	bc_1984_Brno_1, bc_Animal_Farm_Brno, bc_Hobbit_Olomouc, bc_Brave_New_World_Brno,
+	bc_Hobbit_London_1, bc_Hobbit_London_2, bc_1984_London_3,
+
 	user_employee_Brno, user_customer_Customer, user_employee_London,
 	borrowal_London_3,
 	reservation_London_active_1
@@ -82,6 +85,20 @@ class TestBorrowal:
 		client.login(user=user_employee_Brno)
 
 		BOOK_COPY = bc_Brave_New_World_Brno # expired borrowal (by a different customer)
+		CUSTOMER = user_customer_Customer
+
+		data = {
+			'book_copy_id': BOOK_COPY.id,
+			'customer_id': CUSTOMER.id
+		}
+
+		resp = client.post('/borrowals', data)
+		assert_error_response(resp)
+
+	def test_borrowal_add_invalid_deleted(self, client: ClientWrapper):
+		client.login(user=user_employee_London)
+
+		BOOK_COPY = bc_1984_London_3 # deleted book copy
 		CUSTOMER = user_customer_Customer
 
 		data = {
