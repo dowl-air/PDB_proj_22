@@ -5,7 +5,7 @@ from json import loads
 
 from helpers import (
 	ClientWrapper,
-	assert_error_response,
+	assert_error_response, assert_ok_created,
 	find_by_id,
 	format_date
 )
@@ -29,7 +29,7 @@ class TestReservation:
 		}
 
 		resp = client.post('/reservations', data)
-		assert resp.status_code == HTTPStatus.OK
+		assert_ok_created(resp.status_code)
 		json_data = loads(resp.data.decode())
 		assert 'id' in json_data
 
