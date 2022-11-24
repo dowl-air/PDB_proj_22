@@ -82,10 +82,6 @@ class TestUser:
 		assert profile['first_name'] == data['first_name']
 		assert profile['last_name'] == data['last_name']
 
-	def test_logout(self, client: ClientWrapper):
-		resp = client.post('/logout', {})
-		assert resp.status_code == HTTPStatus.OK
-
 	def test_login_logout_profile_access(self, client: ClientWrapper):
 		data = {
 			'email': TestUser.NEW_USER['email'],
@@ -100,7 +96,7 @@ class TestUser:
 		json_data = loads(resp.data.decode())
 		assert json_data['first_name'] == TestUser.NEW_USER['first_name']
 
-		resp = client.post('/logout', {})
+		resp = client.post('/logout', {}) # TODO
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/profile')
