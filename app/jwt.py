@@ -1,28 +1,28 @@
-import time
 
-import connexion
-import six
+import time
+from http import HTTPStatus
+
 from werkzeug.exceptions import Unauthorized
 from flask.helpers import abort
 from jose import JWTError, jwt
 
 from entity.sql.user import User
 
-JWT_ISSUER = 'com.zalando.connexion'
+JWT_ISSUER = 'pdb_project'
 JWT_SECRET = 'hidden_secret'
 JWT_LIFETIME_SECONDS = 600
 JWT_ALGORITHM = 'HS256'
 
 
-def generate_token(user):
-    email = user.get("email")
-    existing_user = User.query.filter(User.email == email).one_or_none()
+def generate_token(user: dict) -> str:
+    email = user["email"]
+    existing_user: User = User.query.filter(User.email == email).one_or_none()
     if not existing_user:
-        abort(404, f"User with email {email} not found.")
+        abort(HTTPStatus.NOT_FOUND, f"User with email {email} not found.")
 
-    password = user.get("password")
+    password = user["password"]
     if password != existing_user.password:
-        abort(401, f"Wrong password for email {email}.")
+        abort(HTTPStatus.UNAUTHORIZED, f"Wrong password for email {email}.")
 
     timestamp = _current_timestamp()
     payload = {
@@ -32,15 +32,13 @@ def generate_token(user):
         "sub": str(existing_user.id),
     }
 
-    return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+    return jwt.encode(payload, key=JWT_SECRET, algorithm=JWT_ALGORITHM)
 
-
-def decode_token(token):
+def decode_token(token) -> dict:
     try:
-        return jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        return jwt.decode(token, key=JWT_SECRET, algorithms=[JWT_ALGORITHM])
     except JWTError as e:
-        six.raise_from(Unauthorized, e)
-
+        raise Unauthorized() from e
 
 def check_authorized(user, token_info) -> str:
     return '''
@@ -48,7 +46,6 @@ def check_authorized(user, token_info) -> str:
     user_id: {user}
     token: {token_info}
     '''.format(user=user, token_info=token_info)
-
 
 def _current_timestamp() -> int:
     return int(time.time())
