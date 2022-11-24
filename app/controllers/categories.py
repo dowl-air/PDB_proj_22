@@ -33,7 +33,7 @@ def update(id, category):
         update_category = category_schema.load(category, session=db.session, instance=existing_category)
         db.session.merge(update_category)
         db.session.commit()
-        return category_schema.dump(existing_category), 201
+        return category_schema.dump(existing_category), 200
     else:
         abort(404, f"Category with id \"{id}\" not found.")
 
