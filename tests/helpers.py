@@ -14,6 +14,11 @@ from app.entity.nosql import (
 	EmbeddedCategory, EmbeddedBook, EmbeddedLocation, EmbeddedBookCopy, AuthorName, EmbeddedUser
 )
 
+class InvalidTestException(Exception):
+	def __init__(self, message: str) -> None:
+		super().__init__(message)
+
+
 # asserts that the response is an error
 # (other than unauthorized access or default nonexistent endpoint)
 def assert_error_response(resp: TestResponse) -> None:
@@ -92,7 +97,7 @@ class ClientWrapper:
 				'password': password
 			}
 		else:
-			raise Exception('Login: Pass either a user object or an email and password')
+			raise InvalidTestException('Pass either a user object or an email and password')
 
 		resp = self.post('/login', data)
 		assert resp.status_code == HTTPStatus.OK
@@ -237,4 +242,4 @@ def to_json(x) -> dict:
 			'description': x.description
 		}
 	else:
-		raise Exception('to_json: Unexpected type')
+		raise InvalidTestException('Unexpected type')
