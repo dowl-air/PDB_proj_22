@@ -14,6 +14,11 @@ from app.entity.nosql import (
 	EmbeddedCategory, EmbeddedBook, EmbeddedLocation, EmbeddedBookCopy, AuthorName, EmbeddedUser
 )
 
+class InvalidTestException(Exception):
+	def __init__(self, message: str) -> None:
+		super().__init__(message)
+
+
 # asserts that the response is an error
 # (other than unauthorized access or default nonexistent endpoint)
 def assert_error_response(resp: TestResponse) -> None:
@@ -42,7 +47,7 @@ def assert_ok_created(status_code: int) -> None:
 
 def find(fn, arr: list):
 	arr = list(filter(fn, arr))
-	if arr != 1:
+	if len(arr) != 1:
 		return None
 	return arr[0]
 
@@ -80,11 +85,19 @@ class ClientWrapper:
 	def patch(self, endpoint: str, data: dict, *, token: Optional[str] = None) -> TestResponse:
 		return self.client.patch(endpoint, data=dumps(data), content_type='application/json', headers=self._auth_headers(token))
 
-	def login(self, user: User) -> None:
-		data = {
-			'email': user.email,
-			'password': user.last_name.lower()
-		}
+	def login(self, *, user: Optional[User] = None, email: Optional[str] = None, password: Optional[str] = None) -> None:
+		if user is not None:
+			data = {
+				'email': user.email,
+				'password': user.last_name.lower()
+			}
+		elif email is not None and password is not None:
+			data = {
+				'email': email,
+				'password': password
+			}
+		else:
+			raise InvalidTestException('Pass either a user object or an email and password')
 
 		resp = self.post('/login', data)
 		assert resp.status_code == HTTPStatus.OK
@@ -229,4 +242,4 @@ def to_json(x) -> dict:
 			'description': x.description
 		}
 	else:
-		raise Exception('to_json: Unexpected type')
+		raise InvalidTestException('Unexpected type')

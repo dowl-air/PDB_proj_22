@@ -5,7 +5,7 @@ from json import loads
 
 from helpers import (
 	ClientWrapper,
-	assert_error_response,
+	assert_error_response, assert_ok_created,
 	find_by_id,
 	format_date
 )
@@ -20,7 +20,7 @@ class TestReservation:
 	new_id: int = 0
 
 	def test_reservation_add(self, client: ClientWrapper):
-		client.login(user_customer_Customer)
+		client.login(user=user_customer_Customer)
 
 		BOOK_COPY = bc_1984_Brno_2
 
@@ -29,23 +29,23 @@ class TestReservation:
 		}
 
 		resp = client.post('/reservations', data)
-		assert resp.status_code == HTTPStatus.OK
+		assert_ok_created(resp.status_code)
 		json_data = loads(resp.data.decode())
 		assert 'id' in json_data
 
-		self.new_id = json_data['id']
+		TestReservation.new_id = json_data['id']
 
 		resp = client.get('/profile/reservations')
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
-		reservation = find_by_id(self.new_id, json_data)
+		reservation = find_by_id(TestReservation.new_id, json_data)
 		assert reservation is not None
 		assert reservation['book_copy_id'] == BOOK_COPY.id
 		assert reservation['start_date'] == format_date(date.today())
 		assert reservation['state'] == RESERVATION_STATE_ACTIVE
 
 	def test_reservation_add_invalid_reserved(self, client: ClientWrapper):
-		client.login(user_customer_Customer)
+		client.login(user=user_customer_Customer)
 
 		BOOK_COPY = bc_Animal_Farm_Brno
 
@@ -57,7 +57,7 @@ class TestReservation:
 		assert_error_response(resp)
 
 	def test_reservation_add_invalid_borrowed(self, client: ClientWrapper):
-		client.login(user_customer_Customer)
+		client.login(user=user_customer_Customer)
 
 		BOOK_COPY = bc_1984_Brno_1
 
@@ -69,20 +69,20 @@ class TestReservation:
 		assert_error_response(resp)
 
 	def test_reservation_cancel(self, client: ClientWrapper):
-		client.login(user_customer_Customer)
+		client.login(user=user_customer_Customer)
 
-		resp = client.patch('/reservations/%d/cancel' % self.new_id, {})
+		resp = client.patch('/reservations/%d/cancel' % TestReservation.new_id, {})
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/profile/reservations')
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
-		reservation = find_by_id(self.new_id, json_data)
+		reservation = find_by_id(TestReservation.new_id, json_data)
 		assert reservation is not None
 		assert reservation['state'] == RESERVATION_STATE_CLOSED
 
 	def test_reservation_cancel_invalid(self, client: ClientWrapper):
-		client.login(user_customer_Customer)
+		client.login(user=user_customer_Customer)
 
 		# reservation is already closed
 		resp = client.patch('/reservations/%d/cancel' % reservation_Brno.id, {})

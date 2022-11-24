@@ -4,7 +4,7 @@ from json import loads
 
 from helpers import (
 	ClientWrapper,
-	assert_error_response,
+	assert_error_response, assert_ok_created,
 	find_by_id
 )
 from data import (
@@ -18,7 +18,7 @@ class TestReview:
 
 	def test_review_add(self, client: ClientWrapper):
 		USER = user_customer_Customer
-		client.login(USER)
+		client.login(user=USER)
 
 		data = {
 			'title': '1984 Review',
@@ -26,17 +26,17 @@ class TestReview:
 			'rating': 7
 		}
 
-		resp = client.post('/books/%d/reviews' % self.NEW_REVIEW_BOOK_ID, data)
-		assert resp.status_code == HTTPStatus.OK
+		resp = client.post('/books/%d/reviews' % TestReview.NEW_REVIEW_BOOK_ID, data)
+		assert_ok_created(resp.status_code)
 		json_data = loads(resp.data.decode())
 		assert 'id' in json_data
 
-		self.new_id = json_data['id']
+		TestReview.new_id = json_data['id']
 
-		resp = client.get('/books/%d/reviews' % self.NEW_REVIEW_BOOK_ID)
+		resp = client.get('/books/%d/reviews' % TestReview.NEW_REVIEW_BOOK_ID)
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
-		review = find_by_id(self.new_id, json_data)
+		review = find_by_id(TestReview.new_id, json_data)
 		assert review is not None
 		assert review['title'] == data['title']
 		assert review['content'] == data['content']
@@ -49,14 +49,14 @@ class TestReview:
 		resp = client.get('/profile/reviews')
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
-		review = find_by_id(self.new_id, json_data)
+		review = find_by_id(TestReview.new_id, json_data)
 		assert review is not None
 		assert review['title'] == data['title']
 		assert review['content'] == data['content']
 		assert review['rating'] == data['rating']
 
 	def test_review_add_invalid(self, client: ClientWrapper):
-		client.login(user_customer_Customer)
+		client.login(user=user_customer_Customer)
 
 		BOOK = book_Brave_New_World
 
@@ -77,7 +77,7 @@ class TestReview:
 		assert_error_response(resp)
 
 	def test_review_edit(self, client: ClientWrapper):
-		client.login(user_customer_Customer)
+		client.login(user=user_customer_Customer)
 
 		data = {
 			'title': 'Edited review title',
@@ -85,20 +85,20 @@ class TestReview:
 			'rating': 5
 		}
 
-		resp = client.put('/reviews/%d' % self.new_id, data)
+		resp = client.put('/reviews/%d' % TestReview.new_id, data)
 		assert resp.status_code == HTTPStatus.OK
 
-		resp = client.get('/books/%d/reviews' % self.NEW_REVIEW_BOOK_ID)
+		resp = client.get('/books/%d/reviews' % TestReview.NEW_REVIEW_BOOK_ID)
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
-		review = find_by_id(self.new_id, json_data)
+		review = find_by_id(TestReview.new_id, json_data)
 		assert review is not None
 		assert review['title'] == data['title']
 		assert review['content'] == data['content']
 		assert review['rating'] == data['rating']
 
 	def test_review_edit_invalid(self, client: ClientWrapper):
-		client.login(user_customer_Customer)
+		client.login(user=user_customer_Customer)
 
 		data = {
 			'title': None,
@@ -106,24 +106,24 @@ class TestReview:
 			'rating': 5
 		}
 
-		resp = client.put('/reviews/%d' % self.new_id, data)
+		resp = client.put('/reviews/%d' % TestReview.new_id, data)
 		assert_error_response(resp)
 
 	def test_review_delete(self, client: ClientWrapper):
-		client.login(user_customer_Customer)
+		client.login(user=user_customer_Customer)
 
-		resp = client.delete('/reviews/%d' % self.new_id, {})
+		resp = client.delete('/reviews/%d' % TestReview.new_id, {})
 		assert resp.status_code == HTTPStatus.OK
 
 		# delete propagation
-		resp = client.get('/books/%d/reviews' % self.NEW_REVIEW_BOOK_ID)
+		resp = client.get('/books/%d/reviews' % TestReview.NEW_REVIEW_BOOK_ID)
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
-		review = find_by_id(self.new_id, json_data)
+		review = find_by_id(TestReview.new_id, json_data)
 		assert review is None
 
 		resp = client.get('/profile/reviews')
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
-		review = find_by_id(self.new_id, json_data)
+		review = find_by_id(TestReview.new_id, json_data)
 		assert review is None
