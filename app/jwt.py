@@ -13,6 +13,11 @@ JWT_SECRET = 'hidden_secret'
 JWT_LIFETIME_SECONDS = 600
 JWT_ALGORITHM = 'HS256'
 
+def login(user: dict) -> dict:
+    token = generate_token(user)
+    return {
+        'token': token
+    }
 
 def generate_token(user: dict) -> str:
     email = user["email"]
