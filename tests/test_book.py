@@ -1,33 +1,31 @@
 
-from flask.testing import FlaskClient
-
 from datetime import date
 from http import HTTPStatus
 from json import loads
 
 from helpers import (
-	protected_post, protected_put, protected_delete,
-	assert_dict_equal, assert_error_response,
+	ClientWrapper,
+	assert_dict_equal, assert_error_response, assert_ok_created,
 	find_by_id,
 	format_date
 )
-from conftest import (
-	authorOrwell, authorHuxley, authorTolkien,
-	book1984, bookAnimalFarm,
-	categoryFable, categoryHistory, categoryNonFiction, categoryFantasy,
-	userEmployeeBrno
+from data import (
+	author_Orwell, author_Huxley, author_Tolkien,
+	book_1984, book_Animal_Farm,
+	category_fable, category_history, category_non_fiction, category_fantasy,
+	user_employee_Brno
 )
 
 class TestBook:
 	new_id: int = 0
 	new_book_author_id: int = 0
 
-	def test_book_add(self, client: FlaskClient):
-		USER = userEmployeeBrno
+	def test_book_add(self, client: ClientWrapper):
+		client.login(user_employee_Brno)
 
-		AUTHOR = authorOrwell
-		CATEGORY1 = categoryHistory
-		CATEGORY2 = categoryNonFiction
+		AUTHOR = author_Orwell
+		CATEGORY1 = category_history
+		CATEGORY2 = category_non_fiction
 
 		data = {
 			'name': 'Homage to Catalonia',
@@ -38,8 +36,8 @@ class TestBook:
 			'categories': [CATEGORY1.id, CATEGORY2.id]
 		}
 
-		resp = protected_post('/books', data, client, USER)
-		assert resp.status_code == HTTPStatus.OK
+		resp = client.post('/books', data)
+		assert_ok_created(resp.status_code)
 		json_data = loads(resp.data.decode())
 		assert 'id' in json_data
 
@@ -74,11 +72,11 @@ class TestBook:
 		assert book['release_date'] == data['release_date']
 		assert book['description'] == data['description']
 
-	def test_book_add_invalid(self, client: FlaskClient):
-		USER = userEmployeeBrno
+	def test_book_add_invalid(self, client: ClientWrapper):
+		client.login(user_employee_Brno)
 
-		AUTHOR = authorTolkien
-		CATEGORY = categoryFantasy
+		AUTHOR = author_Tolkien
+		CATEGORY = category_fantasy
 
 		template = {
 			'name': 'The Fellowship of the Ring',
@@ -92,38 +90,38 @@ class TestBook:
 		# missing name
 		data = template.copy()
 		data['name'] = None
-		resp = protected_post('/books', data, client, USER)
+		resp = client.post('/books', data)
 		assert_error_response(resp)
 
 		# missing ISBN
 		data = template.copy()
 		data['ISBN'] = None
-		resp = protected_post('/books', data, client, USER)
+		resp = client.post('/books', data)
 		assert_error_response(resp)
 
 		# duplicate ISBN
 		data = template.copy()
-		data['ISBN'] = book1984.ISBN
-		resp = protected_post('/books', data, client, USER)
+		data['ISBN'] = book_1984.ISBN
+		resp = client.post('/books', data)
 		assert_error_response(resp)
 
 		# unknown author
 		data = template.copy()
 		data['authors'] = [300]
-		resp = protected_post('/books', data, client, USER)
+		resp = client.post('/books', data)
 		assert_error_response(resp)
 
 		# unknown category
 		data = template.copy()
 		data['categories'] = [300]
-		resp = protected_post('/books', data, client, USER)
+		resp = client.post('/books', data)
 		assert_error_response(resp)
 
-	def test_book_edit(self, client: FlaskClient):
-		USER = userEmployeeBrno
+	def test_book_edit(self, client: ClientWrapper):
+		client.login(user_employee_Brno)
 
-		AUTHOR = authorHuxley
-		CATEGORY = categoryFable
+		AUTHOR = author_Huxley
+		CATEGORY = category_fable
 
 		data = {
 			'name': 'Edited name',
@@ -134,7 +132,7 @@ class TestBook:
 			'categories': [CATEGORY.id]
 		}
 
-		resp = protected_put('/books/%d' % self.new_id, data, client, USER)
+		resp = client.put('/books/%d' % self.new_id, data)
 		assert resp.status_code == HTTPStatus.OK
 
 		self.new_book_author_id = AUTHOR.id
@@ -157,11 +155,11 @@ class TestBook:
 		assert category['name'] == CATEGORY.name
 		assert category['description'] == CATEGORY.description
 
-	def test_book_edit_invalid(self, client: FlaskClient):
-		USER = userEmployeeBrno
+	def test_book_edit_invalid(self, client: ClientWrapper):
+		client.login(user_employee_Brno)
 
-		AUTHOR = authorTolkien
-		CATEGORY = categoryFantasy
+		AUTHOR = author_Tolkien
+		CATEGORY = category_fantasy
 
 		template = {
 			'name': 'Edited name',
@@ -175,39 +173,39 @@ class TestBook:
 		# missing name
 		data = template.copy()
 		data['name'] = None
-		resp = protected_put('/books/%d' % self.new_id, data, client, USER)
+		resp = client.put('/books/%d' % self.new_id, data)
 		assert_error_response(resp)
 
 		# missing ISBN
 		data = template.copy()
 		data['ISBN'] = None
-		resp = protected_put('/books/%d' % self.new_id, data, client, USER)
+		resp = client.put('/books/%d' % self.new_id, data)
 		assert_error_response(resp)
 
 		# duplicate ISBN
 		data = template.copy()
-		data['ISBN'] = book1984.ISBN
-		resp = protected_put('/books/%d' % self.new_id, data, client, USER)
+		data['ISBN'] = book_1984.ISBN
+		resp = client.put('/books/%d' % self.new_id, data)
 		assert_error_response(resp)
 
 		# unknown author
 		data = template.copy()
 		data['authors'] = [300]
-		resp = protected_put('/books/%d' % self.new_id, data, client, USER)
+		resp = client.put('/books/%d' % self.new_id, data)
 		assert_error_response(resp)
 
 		# unknown category
 		data = template.copy()
 		data['categories'] = [300]
-		resp = protected_put('/books/%d' % self.new_id, data, client, USER)
+		resp = client.put('/books/%d' % self.new_id, data)
 		assert_error_response(resp)
 
-	def test_book_edit_propagation(self, client: FlaskClient):
-		USER = userEmployeeBrno
+	def test_book_edit_propagation(self, client: ClientWrapper):
+		client.login(user_employee_Brno)
 
-		BOOK = bookAnimalFarm
-		ORIGINAL_AUTHOR_ID = bookAnimalFarm.authors[0]['id']
-		NEW_AUTHOR = authorHuxley
+		BOOK = book_Animal_Farm
+		ORIGINAL_AUTHOR_ID = book_Animal_Farm.authors[0]['id']
+		NEW_AUTHOR = author_Huxley
 
 		data = {
 			'name': 'Animal Farm (edited)',
@@ -218,7 +216,7 @@ class TestBook:
 			'categories': []
 		}
 
-		resp = protected_put('/books/%d' % BOOK.id, data, client, USER)
+		resp = client.put('/books/%d' % BOOK.id, data)
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/authors/%d' % ORIGINAL_AUTHOR_ID)
@@ -235,10 +233,10 @@ class TestBook:
 		assert book['release_date'] == data['release_date']
 		assert book['description'] == data['description']
 
-	def test_book_delete(self, client: FlaskClient):
-		USER = userEmployeeBrno
+	def test_book_delete(self, client: ClientWrapper):
+		client.login(user_employee_Brno)
 
-		resp = protected_delete('/books/%d' % self.new_id, client, USER)
+		resp = client.delete('/books/%d' % self.new_id, {})
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/books/%d' % self.new_id)
@@ -251,10 +249,10 @@ class TestBook:
 		assert find_by_id(self.new_id, author['books']) is None
 
 	# cannot delete book with copies
-	def test_book_delete_invalid(self, client: FlaskClient):
-		USER = userEmployeeBrno
+	def test_book_delete_invalid(self, client: ClientWrapper):
+		client.login(user_employee_Brno)
 
-		BOOK = book1984
+		BOOK = book_1984
 
-		resp = protected_delete('/books/%d' % BOOK.id, client, USER)
+		resp = client.delete('/books/%d' % BOOK.id, {})
 		assert_error_response(resp)
