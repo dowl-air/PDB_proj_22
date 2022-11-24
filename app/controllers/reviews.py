@@ -1,22 +1,29 @@
 from flask.helpers import make_response, abort
+from mongoengine.errors import DoesNotExist
 
 from entity.sql.base import db
 from entity.sql.review import Review
-
 from entity.sql.schemas import review_schema, reviews_schema
+
+from entity.nosql.review import Review as MongoReview
+from entity.nosql.schemas_mongo import review_schema as mongo_review_schema
+from entity.nosql.schemas_mongo import reviews_schema as mongo_reviews_schema
 
 
 def get_all():
-    reviews = Review.query.all()
-    return reviews_schema.dump(reviews)
+    # Get all reviews from mongo database
+    reviews = MongoReview.objects
+    return mongo_reviews_schema.dump(reviews)
 
 
 def get(id):
-    review = Review.query.filter(Review.id == id).one_or_none()
-    if review is not None:
-        return review_schema.dump(review)
-    else:
-        abort(404, f"Review with id \"{id}\" not found.")
+    # Get one review from mongo database
+    try:
+        review = MongoReview.objects.get(id=id)
+    except DoesNotExist:
+        abort(404, f"Review with id {id} not found.")
+
+    return mongo_review_schema.dump(review)
 
 
 def create(review):

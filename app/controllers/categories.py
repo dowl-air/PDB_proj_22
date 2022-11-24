@@ -1,22 +1,29 @@
 from flask.helpers import make_response, abort
+from mongoengine.errors import DoesNotExist
 
 from entity.sql.base import db
 from entity.sql.category import Category
-
 from entity.sql.schemas import category_schema, categories_schema
+
+from entity.nosql.category import Category as MongoCategory
+from entity.nosql.schemas_mongo import category_schema as mongo_category_schema
+from entity.nosql.schemas_mongo import categories_schema as mongo_categories_schema
 
 
 def get_all():
-    categories = Category.query.all()
-    return categories_schema.dump(categories)
+    # Get all categories from mongo database
+    categories = MongoCategory.objects
+    return mongo_categories_schema.dump(categories)
 
 
 def get(id):
-    category = Category.query.filter(Category.id == id).one_or_none()
-    if category is not None:
-        return category_schema.dump(category)
-    else:
-        abort(404, f"Category with id \"{id}\" not found.")
+    # Get one category from mongo database
+    try:
+        category = MongoCategory.objects.get(id=id)
+    except DoesNotExist:
+        abort(404, f"Category with id {id} not found.")
+
+    return mongo_category_schema.dump(category)
 
 
 def create(category):

@@ -12,13 +12,13 @@ from entity.nosql.schemas_mongo import books_schema as mongo_books_schema
 
 
 def get_all():
-    # Get all authors from mongo database
+    # Get all books from mongo database
     books = MongoBook.objects
     return mongo_books_schema.dump(books)
 
 
 def get(id):
-    # Get one author from mongo database
+    # Get one book from mongo database
     try:
         book = MongoBook.objects.get(id=id)
     except DoesNotExist:
