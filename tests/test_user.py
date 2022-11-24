@@ -19,10 +19,10 @@ class TestUser:
 
 	def test_register(self, client: ClientWrapper):
 		data = {
-			'first_name': self.NEW_USER['first_name'],
-			'last_name': self.NEW_USER['last_name'],
-			'email': self.NEW_USER['email'],
-			'password': self.NEW_USER['password']
+			'first_name': TestUser.NEW_USER['first_name'],
+			'last_name': TestUser.NEW_USER['last_name'],
+			'email': TestUser.NEW_USER['email'],
+			'password': TestUser.NEW_USER['password']
 		}
 
 		resp = client.post('/register', data)
@@ -30,7 +30,7 @@ class TestUser:
 		json_data = loads(resp.data.decode())
 		assert 'id' in json_data
 
-		self.NEW_USER['id'] = json_data['id']
+		TestUser.NEW_USER['id'] = json_data['id']
 
 	def test_register_invalid(self, client: ClientWrapper):
 		template = {
@@ -48,7 +48,7 @@ class TestUser:
 
 		# duplicate email
 		data = template.copy()
-		data['email'] = self.NEW_USER['email']
+		data['email'] = TestUser.NEW_USER['email']
 		resp = client.post('/register', data)
 		assert_error_response(resp)
 
@@ -60,8 +60,8 @@ class TestUser:
 
 	def test_login(self, client: ClientWrapper):
 		data = {
-			'email': self.NEW_USER['email'],
-			'password': self.NEW_USER['password']
+			'email': TestUser.NEW_USER['email'],
+			'password': TestUser.NEW_USER['password']
 		}
 
 		resp = client.post('/login', data)
@@ -88,8 +88,8 @@ class TestUser:
 
 	def test_login_logout_profile_access(self, client: ClientWrapper):
 		data = {
-			'email': self.NEW_USER['email'],
-			'password': self.NEW_USER['password']
+			'email': TestUser.NEW_USER['email'],
+			'password': TestUser.NEW_USER['password']
 		}
 
 		resp = client.post('/login', data)
@@ -98,7 +98,7 @@ class TestUser:
 		resp = client.get('/profile')
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
-		assert json_data['first_name'] == self.NEW_USER['first_name']
+		assert json_data['first_name'] == TestUser.NEW_USER['first_name']
 
 		resp = client.post('/logout', {})
 		assert resp.status_code == HTTPStatus.OK

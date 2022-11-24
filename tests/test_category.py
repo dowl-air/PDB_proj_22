@@ -29,9 +29,9 @@ class TestCategory:
 		json_data = loads(resp.data.decode())
 		assert 'id' in json_data
 
-		self.new_id = json_data['id']
+		TestCategory.new_id = json_data['id']
 
-		resp = client.get('/categories/%d' % self.new_id)
+		resp = client.get('/categories/%d' % TestCategory.new_id)
 		assert resp.status_code == HTTPStatus.OK
 		category = loads(resp.data.decode())
 		assert category['name'] == data['name']
@@ -56,10 +56,10 @@ class TestCategory:
 			'description': 'Edited category description'
 		}
 
-		resp = client.put('/categories/%d' % self.new_id, data)
+		resp = client.put('/categories/%d' % TestCategory.new_id, data)
 		assert resp.status_code == HTTPStatus.OK
 
-		resp = client.get('/categories/%d' % self.new_id)
+		resp = client.get('/categories/%d' % TestCategory.new_id)
 		assert resp.status_code == HTTPStatus.OK
 		category = loads(resp.data.decode())
 		assert category['name'] == data['name']
@@ -73,7 +73,7 @@ class TestCategory:
 			'description': 'Invalid edit - no name'
 		}
 
-		resp = client.put('/categories/%d' % self.new_id, data)
+		resp = client.put('/categories/%d' % TestCategory.new_id, data)
 		assert_error_response(resp)
 
 	def test_category_edit_propagation(self, client: ClientWrapper):
@@ -101,10 +101,10 @@ class TestCategory:
 	def test_category_delete(self, client: ClientWrapper):
 		client.login(user=user_employee_Brno)
 
-		resp = client.delete('/categories/%d' % self.new_id, {})
+		resp = client.delete('/categories/%d' % TestCategory.new_id, {})
 		assert resp.status_code == HTTPStatus.OK
 
-		resp = client.get('/categories/%d' % self.new_id)
+		resp = client.get('/categories/%d' % TestCategory.new_id)
 		assert_error_response(resp)
 
 	def test_category_delete_propagation(self, client: ClientWrapper):

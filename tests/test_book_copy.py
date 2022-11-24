@@ -38,9 +38,9 @@ class TestBookCopy:
 		json_data = loads(resp.data.decode())
 		assert 'id' in json_data
 
-		self.new_id = json_data['id']
+		TestBookCopy.new_id = json_data['id']
 
-		resp = client.get('/book-copies/%d' % self.new_id)
+		resp = client.get('/book-copies/%d' % TestBookCopy.new_id)
 		assert resp.status_code == HTTPStatus.OK
 		copy = loads(resp.data.decode())
 		assert copy['book_id'] == data['book_id']
@@ -98,10 +98,10 @@ class TestBookCopy:
 			'state': BOOK_COPY_STATE_DAMAGED
 		}
 
-		resp = client.put('/book-copies/%d' % self.new_id, data)
+		resp = client.put('/book-copies/%d' % TestBookCopy.new_id, data)
 		assert resp.status_code == HTTPStatus.OK
 
-		resp = client.get('/book-copies/%d' % self.new_id)
+		resp = client.get('/book-copies/%d' % TestBookCopy.new_id)
 		assert resp.status_code == HTTPStatus.OK
 		copy = loads(resp.data.decode())
 		assert data['book_id'] == copy['book_id']
@@ -130,19 +130,19 @@ class TestBookCopy:
 		# missing book id
 		data = template.copy()
 		data['book_id'] = None
-		resp = client.put('/book-copies/%d' % self.new_id, data)
+		resp = client.put('/book-copies/%d' % TestBookCopy.new_id, data)
 		assert_error_response(resp)
 
 		# missing location id
 		data = template.copy()
 		data['location_id'] = None
-		resp = client.put('/book-copies/%d' % self.new_id, data)
+		resp = client.put('/book-copies/%d' % TestBookCopy.new_id, data)
 		assert_error_response(resp)
 
 		# missing print date
 		data = template.copy()
 		data['print_date'] = None
-		resp = client.put('/book-copies/%d' % self.new_id, data)
+		resp = client.put('/book-copies/%d' % TestBookCopy.new_id, data)
 		assert_error_response(resp)
 
 	def test_book_copy_edit_propagation(self, client: ClientWrapper):
@@ -178,10 +178,10 @@ class TestBookCopy:
 	def test_book_copy_delete(self, client: ClientWrapper):
 		client.login(user=user_employee_Brno)
 
-		resp = client.delete('/book-copies/%d' % self.new_id, {})
+		resp = client.delete('/book-copies/%d' % TestBookCopy.new_id, {})
 		assert resp.status_code == HTTPStatus.OK
 
-		resp = client.get('/book-copies/%d' % self.new_id)
+		resp = client.get('/book-copies/%d' % TestBookCopy.new_id)
 		assert_error_response(resp)
 
 	# cannot delete book copy with borrowals

@@ -33,12 +33,12 @@ class TestReservation:
 		json_data = loads(resp.data.decode())
 		assert 'id' in json_data
 
-		self.new_id = json_data['id']
+		TestReservation.new_id = json_data['id']
 
 		resp = client.get('/profile/reservations')
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
-		reservation = find_by_id(self.new_id, json_data)
+		reservation = find_by_id(TestReservation.new_id, json_data)
 		assert reservation is not None
 		assert reservation['book_copy_id'] == BOOK_COPY.id
 		assert reservation['start_date'] == format_date(date.today())
@@ -71,13 +71,13 @@ class TestReservation:
 	def test_reservation_cancel(self, client: ClientWrapper):
 		client.login(user=user_customer_Customer)
 
-		resp = client.patch('/reservations/%d/cancel' % self.new_id, {})
+		resp = client.patch('/reservations/%d/cancel' % TestReservation.new_id, {})
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/profile/reservations')
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
-		reservation = find_by_id(self.new_id, json_data)
+		reservation = find_by_id(TestReservation.new_id, json_data)
 		assert reservation is not None
 		assert reservation['state'] == RESERVATION_STATE_CLOSED
 

@@ -28,9 +28,9 @@ class TestLocation:
 		json_data = loads(resp.data.decode())
 		assert 'id' in json_data
 
-		self.new_id = json_data['id']
+		TestLocation.new_id = json_data['id']
 
-		resp = client.get('/locations/%d' % self.new_id)
+		resp = client.get('/locations/%d' % TestLocation.new_id)
 		assert resp.status_code == HTTPStatus.OK
 		location = loads(resp.data.decode())
 		assert data['name'] == location['name']
@@ -54,7 +54,7 @@ class TestLocation:
 			'address': 'Edited location address'
 		}
 
-		resp = client.put('/locations/%d' % self.new_id, data)
+		resp = client.put('/locations/%d' % TestLocation.new_id, data)
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/locations/%d' % id)
@@ -71,7 +71,7 @@ class TestLocation:
 			'description': 'Invalid edit - no name'
 		}
 
-		resp = client.put('/locations/%d' % self.new_id, data)
+		resp = client.put('/locations/%d' % TestLocation.new_id, data)
 		assert_error_response(resp)
 
 	def test_location_edit_propagation(self, client: ClientWrapper):
@@ -97,10 +97,10 @@ class TestLocation:
 	def test_location_delete(self, client: ClientWrapper):
 		client.login(user=user_admin_Admin)
 
-		resp = client.delete('/locations/%d' % self.new_id, {})
+		resp = client.delete('/locations/%d' % TestLocation.new_id, {})
 		assert resp.status_code == HTTPStatus.OK
 
-		resp = client.get('/locations/%d' % self.new_id)
+		resp = client.get('/locations/%d' % TestLocation.new_id)
 		assert_error_response(resp)
 
 	# cannot delete location with assigned book copies

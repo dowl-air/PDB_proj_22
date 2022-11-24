@@ -37,7 +37,7 @@ class TestBorrowal:
 		json_data = loads(resp.data.decode())
 		assert 'id' in json_data
 
-		self.new_id = json_data['id']
+		TestBorrowal.new_id = json_data['id']
 
 		client.logout()
 		client.login(user=CUSTOMER)
@@ -45,7 +45,7 @@ class TestBorrowal:
 		resp = client.get('/profile/borrowals')
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
-		borrowal = find_by_id(self.new_id, json_data)
+		borrowal = find_by_id(TestBorrowal.new_id, json_data)
 		assert borrowal['book_copy_id'] == BOOK_COPY.id
 		assert borrowal['start_date'] == format_date(date.today())
 		assert borrowal['state'] == BORROWAL_STATE_ACTIVE
@@ -108,7 +108,7 @@ class TestBorrowal:
 		json_data = loads(resp.data.decode())
 		assert 'id' in json_data
 
-		self.new_id = json_data['id']
+		TestBorrowal.new_id = json_data['id']
 
 		client.logout()
 		client.login(user=CUSTOMER)
@@ -116,7 +116,7 @@ class TestBorrowal:
 		resp = client.get('/profile/borrowals')
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
-		borrowal = find_by_id(self.new_id, json_data)
+		borrowal = find_by_id(TestBorrowal.new_id, json_data)
 		assert borrowal['book_copy_id'] == BOOK_COPY.id
 		assert borrowal['start_date'] == format_date(date.today())
 		assert borrowal['state'] == BORROWAL_STATE_ACTIVE
@@ -138,7 +138,7 @@ class TestBorrowal:
 		json_data = loads(resp.data.decode())
 		assert 'id' in json_data
 
-		self.new_id = json_data['id']
+		TestBorrowal.new_id = json_data['id']
 
 		client.logout()
 		client.login(user=CUSTOMER)
@@ -146,7 +146,7 @@ class TestBorrowal:
 		resp = client.get('/profile/borrowals')
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
-		borrowal = find_by_id(self.new_id, json_data)
+		borrowal = find_by_id(TestBorrowal.new_id, json_data)
 		assert borrowal is not None
 		assert borrowal['book_copy_id'] == BOOK_COPY.id
 		assert borrowal['start_date'] == format_date(date.today())
@@ -164,13 +164,13 @@ class TestBorrowal:
 	def test_borrowal_return(self, client: ClientWrapper):
 		client.login(user=user_employee_Brno)
 
-		resp = client.patch('/borrowals/%d/return' % self.new_id, {})
+		resp = client.patch('/borrowals/%d/return' % TestBorrowal.new_id, {})
 		assert resp.status_code == HTTPStatus.OK
 
 		resp = client.get('/active_borrowals')
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
-		borrowal = find_by_id(self.new_id, json_data)
+		borrowal = find_by_id(TestBorrowal.new_id, json_data)
 		assert borrowal is not None
 		assert borrowal['state'] == BORROWAL_STATE_RETURNED
 
