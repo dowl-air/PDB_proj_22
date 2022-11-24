@@ -148,7 +148,6 @@ components:
       required:
         - book_copy_id
         - customer_id
-        - start_date
       properties:
         book_copy_id:
           type: integer

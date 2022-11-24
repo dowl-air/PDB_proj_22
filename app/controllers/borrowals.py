@@ -5,6 +5,7 @@ from entity.sql.borrowal import Borrowal
 from entity.sql.user import User
 
 from entity.sql.schemas import borrowal_schema, borrowals_schema
+from datetime import date
 
 
 def create(borrowal):
@@ -12,6 +13,8 @@ def create(borrowal):
     existing_user = User.query.filter(User.id == user_id).one_or_none()
 
     if existing_user is not None:
+        if borrowal.get("start_date") is None:
+            borrowal["start_date"] = str(date.today())
         new_borrowal = borrowal_schema.load(borrowal, session=db.session)
         db.session.add(new_borrowal)
         db.session.commit()
