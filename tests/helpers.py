@@ -7,7 +7,7 @@ from datetime import date
 from http import HTTPStatus
 from json import loads, dumps
 
-from typing import Optional
+from typing import Optional, Union
 
 from app.entity.nosql import (
 	Location, Category, Author, Book, BookCopy, User, Borrowal, Reservation, Review,
@@ -116,130 +116,152 @@ class ClientWrapper:
 		return {'Authorization': f'Bearer {token}'}
 
 # converts a mongo entity to a dict (or a list of entities to a list of dicts)
-def to_json(x) -> dict:
-	if x is None:
+def to_json(arg, no_none_values: bool = True) -> dict:
+	res = _to_json(arg)
+	if no_none_values:
+		return delete_none_values(res)
+	return res
+
+def _to_json(arg) -> dict:
+	if arg is None:
 		return None
-	elif isinstance(x, list):
-		return list(map(lambda x: to_json(x), x))
-	elif isinstance(x, Location):
+	elif isinstance(arg, list):
+		return list(map(lambda x: _to_json(x), arg))
+	elif isinstance(arg, Location):
 		return {
-			'id': x.id,
-			'name': x.name,
-			'address': x.address
+			'id': arg.id,
+			'name': arg.name,
+			'address': arg.address
 		}
-	elif isinstance(x, Category):
+	elif isinstance(arg, Category):
 		return {
-			'id': x.id,
-			'name': x.name,
-			'description': x.description
+			'id': arg.id,
+			'name': arg.name,
+			'description': arg.description
 		}
-	elif isinstance(x, Author):
+	elif isinstance(arg, Author):
 		return {
-			'id': x.id,
-			'first_name': x.first_name,
-			'last_name': x.last_name,
-			'description': x.description,
-			'books': to_json(x.books)
+			'id': arg.id,
+			'first_name': arg.first_name,
+			'last_name': arg.last_name,
+			'description': arg.description,
+			'books': _to_json(arg.books)
 		}
-	elif isinstance(x, Book):
+	elif isinstance(arg, Book):
 		return {
-			'id': x.id,
-			'authors': to_json(x.authors),
-			'name': x.name,
-			'ISBN': x.ISBN,
-			'release_date': format_date(x.release_date),
-			'description': x.description,
-			'book_copies': to_json(x.book_copies),
-			'categories': to_json(x.categories)
+			'id': arg.id,
+			'authors': _to_json(arg.authors),
+			'name': arg.name,
+			'ISBN': arg.ISBN,
+			'release_date': format_date(arg.release_date),
+			'description': arg.description,
+			'book_copies': _to_json(arg.book_copies),
+			'categories': _to_json(arg.categories)
 		}
-	elif isinstance(x, BookCopy):
+	elif isinstance(arg, BookCopy):
 		return {
-			'id': x.id,
-			'book_id': x.book_id,
-			'print_date': format_date(x.print_date),
-			'note': x.note,
-			'state': x.state,
-			'location': to_json(x.location)
+			'id': arg.id,
+			'book_id': arg.book_id,
+			'print_date': format_date(arg.print_date),
+			'note': arg.note,
+			'state': arg.state,
+			'location': _to_json(arg.location)
 		}
-	elif isinstance(x, User):
+	elif isinstance(arg, User):
 		return {
-			'id': x.id,
-			'first_name': x.first_name,
-			'last_name': x.last_name,
-			'role': x.role,
-			'email': x.email
+			'id': arg.id,
+			'first_name': arg.first_name,
+			'last_name': arg.last_name,
+			'role': arg.role,
+			'email': arg.email
 		}
-	elif isinstance(x, Borrowal):
+	elif isinstance(arg, Borrowal):
 		return {
-			'id': x.id,
-			'start_date': format_date(x.start_date),
-			'end_date': format_date(x.end_date),
-			'returned_date': format_date(x.returned_date),
-			'state': x.state,
-			'book_copy': to_json(x.book_copy),
-			'customer': to_json(x.customer),
-			'employee': to_json(x.employee),
+			'id': arg.id,
+			'start_date': format_date(arg.start_date),
+			'end_date': format_date(arg.end_date),
+			'returned_date': format_date(arg.returned_date),
+			'state': arg.state,
+			'book_copy': _to_json(arg.book_copy),
+			'customer': _to_json(arg.customer),
+			'employee': _to_json(arg.employee),
 		}
-	elif isinstance(x, Reservation):
+	elif isinstance(arg, Reservation):
 		return {
-			'id': x.id,
-			'start_date': format_date(x.start_date),
-			'end_date': format_date(x.end_date),
-			'state': x.state,
-			'book_copy': to_json(x.book_copy),
-			'customer': to_json(x.customer)
+			'id': arg.id,
+			'start_date': format_date(arg.start_date),
+			'end_date': format_date(arg.end_date),
+			'state': arg.state,
+			'book_copy': _to_json(arg.book_copy),
+			'customer': _to_json(arg.customer)
 		}
-	elif isinstance(x, Review):
+	elif isinstance(arg, Review):
 		return {
-			'id': x.id,
-			'book_id': x.book_id,
-			'title': x.title,
-			'content': x.content,
-			'rating': x.rating,
-			'customer': to_json(x.customer)
+			'id': arg.id,
+			'book_id': arg.book_id,
+			'title': arg.title,
+			'content': arg.content,
+			'rating': arg.rating,
+			'customer': _to_json(arg.customer)
 		}
-	elif isinstance(x, AuthorName):
+	elif isinstance(arg, AuthorName):
 		return {
-			'id': x.id,
-			'first_name': x.first_name,
-			'last_name': x.last_name
-		},
-	elif isinstance(x, EmbeddedLocation):
-		return {
-			'id': x.id,
-			'name': x.name,
-			'address': x.address
+			'id': arg.id,
+			'first_name': arg.first_name,
+			'last_name': arg.last_name
 		}
-	elif isinstance(x, EmbeddedCategory):
+	elif isinstance(arg, EmbeddedLocation):
 		return {
-			'id': x.id,
-			'name': x.name,
-			'description': x.description
+			'id': arg.id,
+			'name': arg.name,
+			'address': arg.address
 		}
-	elif isinstance(x, EmbeddedBookCopy):
+	elif isinstance(arg, EmbeddedCategory):
 		return {
-			'id': x.id,
-			'book_id': x.book_id,
-			'print_date': format_date(x.print_date),
-			'note': x.note,
-			'state': x.state,
-			'location_id': x.location_id
+			'id': arg.id,
+			'name': arg.name,
+			'description': arg.description
 		}
-	elif isinstance(x, EmbeddedUser):
+	elif isinstance(arg, EmbeddedBookCopy):
 		return {
-			'id': x.id,
-			'first_name': x.first_name,
-			'last_name': x.last_name,
-			'role': x.role,
-			'email': x.email
+			'id': arg.id,
+			'book_id': arg.book_id,
+			'print_date': format_date(arg.print_date),
+			'note': arg.note,
+			'state': arg.state,
+			'location_id': arg.location_id
 		}
-	elif isinstance(x, EmbeddedBook):
+	elif isinstance(arg, EmbeddedUser):
 		return {
-			'id': x.id,
-			'name': x.name,
-			'ISBN': x.ISBN,
-			'release_date': format_date(x.release_date),
-			'description': x.description
+			'id': arg.id,
+			'first_name': arg.first_name,
+			'last_name': arg.last_name,
+			'role': arg.role,
+			'email': arg.email
+		}
+	elif isinstance(arg, EmbeddedBook):
+		return {
+			'id': arg.id,
+			'name': arg.name,
+			'ISBN': arg.ISBN,
+			'release_date': format_date(arg.release_date),
+			'description': arg.description
 		}
 	else:
 		raise InvalidTestException('Unexpected type')
+
+def delete_none_values(arg: Union[list, dict]) -> Union[list, dict]:
+	if isinstance(arg, list):
+		return list(map(lambda x: delete_none_values(x), arg))
+
+	for key, val in list(arg.items()):
+		if isinstance(val, dict):
+			delete_none_values(val)
+		elif isinstance(val, list):
+			for it in val:
+				if isinstance(it, dict) or isinstance(it, list):
+					delete_none_values(it)
+		elif val is None:
+			del arg[key]
+
+	return arg
