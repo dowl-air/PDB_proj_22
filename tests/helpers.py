@@ -42,7 +42,7 @@ def assert_ok_created(status_code: int) -> None:
 
 def find(fn, arr: list):
 	arr = list(filter(fn, arr))
-	if arr != 1:
+	if len(arr) != 1:
 		return None
 	return arr[0]
 
