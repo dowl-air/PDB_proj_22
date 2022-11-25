@@ -304,3 +304,7 @@ def fill_db() -> None:
 			for it in arr:
 				db.session.add(it)
 			db.session.commit()
+
+if __name__ == '__main__':
+	clear_db()
+	fill_db()
