@@ -9,10 +9,21 @@ from entity.nosql.author import Author as AuthorMongo
 from entity.nosql.schemas_mongo import author_schema as mongo_author_schema
 from entity.nosql.schemas_mongo import authors_schema as mongo_authors_schema
 
+from controllers import producer
+from apache_kafka.enums import KafkaKey, KafkaTopic
+
 
 def get_all():
     # Get all authors from mongo database
     authors_mongo = AuthorMongo.objects
+
+    # TEST kafka broker
+    # todo remove
+    obj = {
+        "test": "test"
+    }
+    producer.send("global", key=KafkaKey.CREATE, value=obj)
+
     return mongo_authors_schema.dump(authors_mongo)
 
 
@@ -22,6 +33,10 @@ def get(id):
         author = AuthorMongo.objects.get(id=id)
     except DoesNotExist:
         abort(404, f"Author with id {id} not found.")
+
+    # TEST kafka broker
+    # todo remove
+    producer.send(KafkaTopic.AUTHOR, key=KafkaKey.CREATE, value={"test": "test_string"})
 
     return mongo_author_schema.dump(author)
 

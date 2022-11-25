@@ -16,6 +16,8 @@ services:
     depends_on:
       - mysql
       - mongodb
+      - kafka
+      - zookeeper
 
   mysql:
     image: mysql
@@ -74,6 +76,34 @@ services:
       ME_CONFIG_MONGODB_ENABLE_ADMIN: true
     links:
       - mongodb
+
+  zookeeper:
+    image: wurstmeister/zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+  
+  kafka:
+    image: wurstmeister/kafka
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_CREATE_TOPICS: "test:1:1"
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  
+  consumer:
+    build: .
+    container_name: consumer
+    depends_on:
+      - kafka
+      - zookeeper
+    command: python3 app/apache_kafka/consumer.py
 
 
 volumes:
