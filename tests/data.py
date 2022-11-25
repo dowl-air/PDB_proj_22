@@ -1,6 +1,8 @@
 
+import os
 from datetime import date, timedelta
 
+from app.create_app import create_app, db, mongo
 from app.entity.nosql import (
 	Location, Category, Author, Book, BookCopy, User, Borrowal, Reservation, Review
 )
@@ -281,3 +283,24 @@ SQL_USERS = convert_user_list_to_sql(USERS)
 SQL_BORROWALS = convert_borrowal_list_to_sql(BORROWALS)
 SQL_RESERVATIONS = convert_reservation_list_to_sql(RESERVATIONS)
 SQL_REVIEWS = convert_review_list_to_sql(REVIEWS)
+
+# removes all data from both databases
+def clear_db() -> None:
+	MONGO_DB_NAME = os.getenv('MONGODB_DATABASE', 'pdb')
+
+	with create_app().app_context():
+		db.drop_all()
+		mongo.connection['default'].drop_database(MONGO_DB_NAME)
+
+# fills both databases with test data
+def fill_db() -> None:
+	with create_app().app_context():
+		for arr in [LOCATIONS, CATEGORIES, AUTHORS, BOOKS, BOOK_COPIES, USERS, BORROWALS, RESERVATIONS, REVIEWS]:
+			for it in arr:
+				it.save()
+
+		db.create_all()
+		for arr in [SQL_LOCATIONS, SQL_CATEGORIES, SQL_AUTHORS, SQL_BOOKS, SQL_BOOK_COPIES, SQL_USERS, SQL_BORROWALS, SQL_RESERVATIONS, SQL_REVIEWS]:
+			for it in arr:
+				db.session.add(it)
+			db.session.commit()
