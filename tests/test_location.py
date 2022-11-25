@@ -57,7 +57,7 @@ class TestLocation:
 		resp = client.put('/locations/%d' % TestLocation.new_id, data)
 		assert resp.status_code == HTTPStatus.OK
 
-		resp = client.get('/locations/%d' % id)
+		resp = client.get('/locations/%d' % TestLocation.new_id)
 		assert resp.status_code == HTTPStatus.OK
 		location = loads(resp.data.decode())
 		assert data['name'] == location['name']
