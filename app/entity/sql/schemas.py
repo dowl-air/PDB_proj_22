@@ -58,7 +58,8 @@ class AuthorSchema(ma.SQLAlchemyAutoSchema):
         model = Author
         load_instance = True
         sqla_session = db.session
-        include_fk = True
+        include_relationships = True
+    books = fields.Nested("entity.sql.schemas.BookSchema", many=True, only=("id", "ISBN", "release_date", "name",))
 
 
 author_schema = AuthorSchema()

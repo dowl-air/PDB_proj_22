@@ -1,47 +1,127 @@
 from kafka import KafkaConsumer
 from kafka.consumer.fetcher import ConsumerRecord
 from json import loads
+import mongoengine as me
 
-from enums import KafkaKey, KafkaTopic
+from apache_kafka.enums import KafkaKey, KafkaTopic
 
-""" TOPIC_NAME = 'test_topic'
-
-KEY_DEFAULT = 'DEFAULT'
-KEY_OTHER = 'OTHER' """
-
-
-""" def decode(x: bytes) -> str:
-    return x.decode(encoding='utf8') """
+from entity.nosql.author import Author
+from entity.nosql.book import Book
+from entity.nosql.schemas_mongo import author_schema, books_schema, categories_schema
 
 
-def manage_author(value, key):
-    if (key == KafkaKey.CREATE):
-        pass
+def manage_author(key, value):
+    if (key == KafkaKey.CREATE.value):
+        # create new author object
+        author = author_schema.load(value)
+        author.save()
+
+    if (key == KafkaKey.UPDATE.value):
+        # update author object itself
+        author = Author.objects(id=int(value["id"])).first()
+        author.update(**value)
+
+        # we dont want to add books and description
+        if "books" in value:
+            del value["books"]
+        if "description" in value:
+            del value["description"]
+
+        # update each book that holds this author
+        books = Book.objects(authors__id=int(value["id"]))
+        for book in books:
+            # for each book update author by author id
+            author_object = next((a for a in book.authors if a.id == int(value["id"])), None)
+            if author_object:
+                book.authors.remove(author_object)
+                book.authors.append(value)
+            book.update(authors=book.authors)
+
+    if (key == KafkaKey.DELETE.value):
+        # delete author object itself
+        author = Author.objects(id=int(value["id"])).first().delete()
+
+        # delete author object from books
+        books = Book.objects(authors__id=int(value["id"]))
+        for book in books:
+            # for each book delete author by author id
+            author_object = next((x for x in book.authors if x.id == int(value["id"])), None)
+            if author_object:
+                book.authors.remove(author_object)
+            book.update(authors=book.authors)
+
+
+def manage_category(key, value):
+    if (key == KafkaKey.CREATE.value):
+        # create new author object
+        author = author_schema.load(value)
+        author.save()
+
+    if (key == KafkaKey.UPDATE.value):
+        # update author object itself
+        author = Author.objects(id=int(value["id"])).first()
+        author.update(**value)
+
+        # we dont want to add books and description
+        if "books" in value:
+            del value["books"]
+        if "description" in value:
+            del value["description"]
+
+        # update each book that holds this author
+        books = Book.objects(authors__id=int(value["id"]))
+        for book in books:
+            # for each book update author by author id
+            author_object = next((a for a in book.authors if a.id == int(value["id"])), None)
+            if author_object:
+                book.authors.remove(author_object)
+                book.authors.append(value)
+            book.update(authors=book.authors)
+
+    if (key == KafkaKey.DELETE.value):
+        # delete author object itself
+        author = Author.objects(id=int(value["id"])).first().delete()
+
+        # delete author object from books
+        books = Book.objects(authors__id=int(value["id"]))
+        for book in books:
+            # for each book delete author by author id
+            author_object = next((x for x in book.authors if x.id == int(value["id"])), None)
+            if author_object:
+                book.authors.remove(author_object)
+            book.update(authors=book.authors)
 
 
 func_dict = {
-    KafkaTopic.AUTHOR: manage_author
+    KafkaTopic.AUTHOR.value: manage_author,
+    KafkaTopic.CATEGORY.value: manage_category
 }
 
 
 def run_consumer() -> None:
+    print("Connecting to mongo database...")
+    me.connect(host="mongodb://mongodb:27017/pdb", username="pdb", password="pdb", authentication_source="admin")
+
+    print("Running Kafka consumer...")
     consumer = KafkaConsumer(
-        "global",
-        bootstrap_servers=['kafka:9092'],
+        "pdb",
+        bootstrap_servers=['kafka:29092'],
         key_deserializer=lambda x: x.decode(),
-        value_deserializer=lambda x: loads(x.decode("utf-8"))
+        value_deserializer=lambda x: loads(x.decode("utf-8")),
+        api_version=(0, 10, 2)
     )
+    print("Subscribing to topics...")
     consumer.subscribe([t.value for t in KafkaTopic])
 
+    print("Listening for messages...")
     for msg in consumer:
-        msg: ConsumerRecord
-        print(msg)
-        func_dict[topic](value=msg.v, key=msg.key)
-
         topic = msg.topic
         key = msg.key
         value = msg.value
         print(f'{topic=}\t{key=}\t{value=}')
+
+        # call function specified by topic name
+        func_dict[msg.topic](key, value)
 
 
 if __name__ == '__main__':

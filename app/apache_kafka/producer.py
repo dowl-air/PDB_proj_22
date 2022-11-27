@@ -14,9 +14,10 @@ from json import dumps
 
 def create_producer() -> KafkaProducer:
     producer = KafkaProducer(
-        bootstrap_servers=['kafka:9092'],
+        bootstrap_servers=['kafka:29092'],
         key_serializer=lambda x: bytes(x, encoding='utf8'),
-        value_serializer=lambda x: dumps(x).encode('utf-8')
+        value_serializer=lambda x: dumps(x).encode('utf-8'),
+        api_version=(0, 10, 2)
     )
     return producer
 
