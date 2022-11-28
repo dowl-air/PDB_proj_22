@@ -33,7 +33,6 @@ class LocationSchema(ma.SQLAlchemyAutoSchema):
         model = Location
         load_instance = True
         sqla_session = db.session
-        include_fk = True
 
 
 location_schema = LocationSchema()
@@ -71,7 +70,6 @@ class CategorySchema(ma.SQLAlchemyAutoSchema):
         model = Category
         load_instance = True
         sqla_session = db.session
-        include_fk = True
     # books
 
 
