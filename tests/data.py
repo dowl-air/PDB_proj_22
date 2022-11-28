@@ -1,7 +1,7 @@
 
-import os
 from datetime import date, timedelta
 
+from app.appconfig import MONGODB_DATABASE
 from app.create_app import create_app, db, mongo
 from app.entity.nosql import (
 	Location, Category, Author, Book, BookCopy, User, Borrowal, Reservation, Review
@@ -286,11 +286,9 @@ SQL_REVIEWS = convert_review_list_to_sql(REVIEWS)
 
 # removes all data from both databases
 def clear_db() -> None:
-	MONGO_DB_NAME = os.getenv('MONGODB_DATABASE', 'pdb')
-
 	with create_app().app_context():
 		db.drop_all()
-		mongo.connection['default'].drop_database(MONGO_DB_NAME)
+		mongo.connection['default'].drop_database(MONGODB_DATABASE)
 
 # fills both databases with test data
 def fill_db() -> None:

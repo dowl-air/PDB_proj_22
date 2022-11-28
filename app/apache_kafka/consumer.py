@@ -2,8 +2,13 @@
 from kafka import KafkaConsumer
 import mongoengine as me
 
-import os
 from json import loads
+
+from appconfig import (
+    MONGODB_USERNAME, MONGODB_PASSWORD, MONGODB_HOSTNAME, MONGODB_PORT, MONGODB_DATABASE,
+    KAFKA_HOST, KAFKA_PORT
+)
+
 
 from apache_kafka.enums import KafkaKey, KafkaTopic
 
@@ -126,19 +131,11 @@ func_dict = {
 
 
 def run_consumer() -> None:
-    MONGO_DEFAULT_PORT = 27017
-
-    MONGO_USER = os.getenv('MONGODB_USERNAME', 'pdb')
-    MONGO_PASSWOD = os.getenv('MONGODB_PASSWORD', 'pdb')
-    MONGO_HOST = os.getenv('MONGODB_HOSTNAME', 'mongodb')
-    MONGO_PORT = os.getenv('MONGODB_PORT', MONGO_DEFAULT_PORT)
-    MONGO_DATABASE = os.getenv('MONGODB_DATABASE', 'pdb')
-
     print("Connecting to mongo database...")
-    me.connect(host=f"mongodb://{MONGO_HOST}:{MONGO_PORT}/{MONGO_DATABASE}", username=MONGO_USER, password=MONGO_PASSWOD, authentication_source="admin")
-
-    KAFKA_HOST = os.getenv('KAFKA_HOST', 'kafka')
-    KAFKA_PORT = os.getenv('KAFKA_PORT', 29092)
+    me.connect(
+        host=f"mongodb://{MONGODB_HOSTNAME}:{MONGODB_PORT}/{MONGODB_DATABASE}",
+        username=MONGODB_USERNAME, password=MONGODB_PASSWORD, authentication_source="admin"
+    )
 
     print("Running Kafka consumer...")
     consumer = KafkaConsumer(

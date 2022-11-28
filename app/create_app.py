@@ -1,14 +1,15 @@
 
 from flask import Flask
-import os
 import connexion
+
+from appconfig import (
+    DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME,
+    MONGODB_USERNAME, MONGODB_PASSWORD, MONGODB_HOSTNAME, MONGODB_PORT, MONGODB_DATABASE
+)
 
 from entity.sql import db
 from entity.sql.base import ma
 from entity.nosql import mongo
-
-MYSQL_DEFAULT_PORT = 3306
-MONGO_DEFAULT_PORT = 27017
 
 
 def create_app() -> Flask:
@@ -18,21 +19,21 @@ def create_app() -> Flask:
     app: Flask = conn_app.app
 
     app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://{}:{}@{}:{}/{}'.format(
-        os.getenv('DB_USER', 'pdb'),
-        os.getenv('DB_PASSWORD', 'pdb'),
-        os.getenv('DB_HOST', 'mysql'),
-        os.getenv('DB_PORT', MYSQL_DEFAULT_PORT),
-        os.getenv('DB_NAME', 'pdb')
+        DB_USER,
+        DB_PASSWORD,
+        DB_HOST,
+        DB_PORT,
+        DB_NAME
     )
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     app.config['MONGODB_SETTINGS'] = [
         {
-            'username': os.getenv('MONGODB_USERNAME', 'pdb'),
-            'password': os.getenv('MONGODB_PASSWORD', 'pdb'),
-            'host': os.getenv('MONGODB_HOSTNAME', 'mongodb'),
-            'port': os.getenv('MONGODB_PORT', MONGO_DEFAULT_PORT),
-            'db': os.getenv('MONGODB_DATABASE', 'pdb')
+            'username': MONGODB_USERNAME,
+            'password': MONGODB_PASSWORD,
+            'host': MONGODB_HOSTNAME,
+            'port': MONGODB_PORT,
+            'db': MONGODB_DATABASE
         }
     ]
 
