@@ -6,3 +6,5 @@ from .config import (
 	MONGODB_USERNAME, MONGODB_PASSWORD, MONGODB_HOSTNAME, MONGODB_PORT, MONGODB_DATABASE,
 	KAFKA_HOST, KAFKA_PORT
 )
+
+from .settings import get_env_file_config
