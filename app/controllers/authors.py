@@ -54,7 +54,7 @@ def update(id, author):
     # send updated author to Mongo database
     producer.send(KafkaTopic.AUTHOR.value, key=KafkaKey.UPDATE.value, value=author_schema.dump(update_author))
 
-    return author_schema.dump(existing_author), 200
+    return author_schema.dump(update_author), 200
 
 
 def delete(id):
