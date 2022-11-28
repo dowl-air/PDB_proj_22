@@ -9,7 +9,6 @@ class BorrowalSchema(ma.SQLAlchemyAutoSchema):
         model = Borrowal
         load_instance = True
         sqla_session = db.session
-        include_fk = True
 
 
 borrowal_schema = BorrowalSchema()
@@ -82,10 +81,7 @@ class BookCopySchema(ma.SQLAlchemyAutoSchema):
         model = BookCopy
         load_instance = True
         sqla_session = db.session
-        include_relationships = True
         include_fk = True
-
-    borrowals = fields.Nested(BorrowalSchema, many=True)
 
 
 book_copy_schema = BookCopySchema()
