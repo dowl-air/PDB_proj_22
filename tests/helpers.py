@@ -63,6 +63,12 @@ def format_date(d: Optional[date]) -> Optional[str]:
 
 # wrapper around a flask test client
 class ClientWrapper:
+	TYPE_GET = 'GET'
+	TYPE_POST = 'POST'
+	TYPE_DELETE = 'DELETE'
+	TYPE_PUT = 'PUT'
+	TYPE_PATCH = 'PATCH'
+
 	def __init__(self, client: FlaskClient) -> None:
 		self.client = client
 		self.token: Optional[str] = None
@@ -70,20 +76,39 @@ class ClientWrapper:
 	def set_token(self, token: Optional[str]) -> None:
 		self.token = token
 
+	def _send_request(self, reqtype: str, endpoint: str, data: Optional[dict] = None, token: Optional[str] = None) -> TestResponse:
+		headers = self._auth_headers(token)
+		CONTENT_TYPE = 'application/json'
+
+		if reqtype == ClientWrapper.TYPE_GET:
+			resp = self.client.get(endpoint, headers=headers)
+		elif reqtype == ClientWrapper.TYPE_POST:
+			resp = self.client.post(endpoint, data=dumps(data), content_type=CONTENT_TYPE, headers=headers)
+		elif reqtype == ClientWrapper.TYPE_DELETE:
+			resp = self.client.delete(endpoint, data=dumps(data), content_type=CONTENT_TYPE, headers=headers)
+		elif reqtype == ClientWrapper.TYPE_PUT:
+			resp = self.client.put(endpoint, data=dumps(data), content_type=CONTENT_TYPE, headers=headers)
+		elif reqtype == ClientWrapper.TYPE_PATCH:
+			resp = self.client.patch(endpoint, data=dumps(data), content_type=CONTENT_TYPE, headers=headers)
+		else:
+			raise InvalidTestException(f"Unsupported request type '{type}'")
+
+		return resp
+
 	def get(self, endpoint: str, *, token: Optional[str] = None) -> TestResponse:
-		return self.client.get(endpoint, headers=self._auth_headers(token))
+		return self._send_request(ClientWrapper.TYPE_GET, endpoint, token=token)
 
 	def post(self, endpoint: str, data: dict, *, token: Optional[str] = None) -> TestResponse:
-		return self.client.post(endpoint, data=dumps(data), content_type='application/json', headers=self._auth_headers(token))
+		return self._send_request(ClientWrapper.TYPE_POST, endpoint, data, token)
 
 	def delete(self, endpoint: str, data: dict, *, token: Optional[str] = None) -> TestResponse:
-		return self.client.delete(endpoint, data=dumps(data), content_type='application/json', headers=self._auth_headers(token))
+		return self._send_request(ClientWrapper.TYPE_DELETE, endpoint, data, token)
 
 	def put(self, endpoint: str, data: dict, *, token: Optional[str] = None) -> TestResponse:
-		return self.client.put(endpoint, data=dumps(data), content_type='application/json', headers=self._auth_headers(token))
+		return self._send_request(ClientWrapper.TYPE_PUT, endpoint, data, token)
 
 	def patch(self, endpoint: str, data: dict, *, token: Optional[str] = None) -> TestResponse:
-		return self.client.patch(endpoint, data=dumps(data), content_type='application/json', headers=self._auth_headers(token))
+		return self._send_request(ClientWrapper.TYPE_PATCH, endpoint, data, token)
 
 	def login(self, *, user: Optional[User] = None, email: Optional[str] = None, password: Optional[str] = None) -> None:
 		if user is not None:
