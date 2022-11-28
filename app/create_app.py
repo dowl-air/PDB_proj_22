@@ -41,10 +41,6 @@ def create_app() -> Flask:
     mongo.init_app(app)
     ma.init_app(app)
 
-    @app.route("/")
-    def hello_world(): # TODO
-        return "Hello, World!"
-
     @app.before_first_request
     def create_tables():
         db.create_all()
