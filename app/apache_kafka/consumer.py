@@ -1,7 +1,9 @@
+
 from kafka import KafkaConsumer
-from kafka.consumer.fetcher import ConsumerRecord
-from json import loads
 import mongoengine as me
+
+import os
+from json import loads
 
 from apache_kafka.enums import KafkaKey, KafkaTopic
 
@@ -124,13 +126,24 @@ func_dict = {
 
 
 def run_consumer() -> None:
+    MONGO_DEFAULT_PORT = 27017
+
+    MONGO_USER = os.getenv('MONGODB_USERNAME', 'pdb')
+    MONGO_PASSWOD = os.getenv('MONGODB_PASSWORD', 'pdb')
+    MONGO_HOST = os.getenv('MONGODB_HOSTNAME', 'mongodb')
+    MONGO_PORT = os.getenv('MONGODB_PORT', MONGO_DEFAULT_PORT)
+    MONGO_DATABASE = os.getenv('MONGODB_DATABASE', 'pdb')
+
     print("Connecting to mongo database...")
-    me.connect(host="mongodb://mongodb:27017/pdb", username="pdb", password="pdb", authentication_source="admin")
+    me.connect(host=f"mongodb://{MONGO_HOST}:{MONGO_PORT}/{MONGO_DATABASE}", username=MONGO_USER, password=MONGO_PASSWOD, authentication_source="admin")
+
+    KAFKA_HOST = os.getenv('KAFKA_HOST', 'kafka')
+    KAFKA_PORT = os.getenv('KAFKA_PORT', 29092)
 
     print("Running Kafka consumer...")
     consumer = KafkaConsumer(
         "pdb",
-        bootstrap_servers=['kafka:29092'],
+        bootstrap_servers=[f'{KAFKA_HOST}:{KAFKA_PORT}'],
         key_deserializer=lambda x: x.decode(),
         value_deserializer=lambda x: loads(x.decode("utf-8")),
         api_version=(0, 10, 2)
