@@ -137,6 +137,4 @@ class TestAuthor:
         resp = client.get('/books/%d' % BOOK.id)
         assert resp.status_code == HTTPStatus.OK
         book = loads(resp.data.decode())
-        assert "authors" not in book
-        # assert find_by_id(AUTHOR.id, book['authors']) is None
-        # (caused KeyError because authors property doesn not exist with 0 authors)
+        assert 'authors' not in book or find_by_id(AUTHOR.id, book.get('authors', [])) is None
