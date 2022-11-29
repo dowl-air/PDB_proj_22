@@ -1,7 +1,6 @@
 
 from http import HTTPStatus
 from json import loads
-from time import sleep
 
 from helpers import (
     ClientWrapper,
@@ -32,7 +31,6 @@ class TestCategory:
         assert 'id' in json_data
 
         TestCategory.new_id = json_data['id']
-        sleep(2)
 
         resp = client.get('/categories/%d' % TestCategory.new_id)
         assert resp.status_code == HTTPStatus.OK
@@ -61,7 +59,6 @@ class TestCategory:
 
         resp = client.put('/categories/%d' % TestCategory.new_id, data)
         assert resp.status_code == HTTPStatus.OK
-        sleep(2)
 
         resp = client.get('/categories/%d' % TestCategory.new_id)
         assert resp.status_code == HTTPStatus.OK
@@ -93,7 +90,6 @@ class TestCategory:
 
         resp = client.put('/categories/%d' % CATEGORY.id, data)
         assert resp.status_code == HTTPStatus.OK
-        sleep(2)
 
         resp = client.get('/books/%d' % BOOK.id)
         assert resp.status_code == HTTPStatus.OK
@@ -109,7 +105,6 @@ class TestCategory:
 
         resp = client.delete('/categories/%d' % TestCategory.new_id, {})
         assert resp.status_code == HTTPStatus.OK
-        sleep(2)
 
         resp = client.get('/categories/%d' % TestCategory.new_id)
         assert_error_response(resp)
@@ -128,7 +123,6 @@ class TestCategory:
 
         resp = client.delete('/categories/%d' % CATEGORY.id, {})
         assert resp.status_code == HTTPStatus.OK
-        sleep(2)
 
         resp = client.get('/books/%d' % BOOK.id)
         assert resp.status_code == HTTPStatus.OK

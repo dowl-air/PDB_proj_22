@@ -1,7 +1,6 @@
 
 from http import HTTPStatus
 from json import loads
-from time import sleep
 
 from helpers import (
     ClientWrapper,
@@ -33,7 +32,6 @@ class TestAuthor:
         assert 'id' in json_data
 
         TestAuthor.new_id = json_data['id']
-        sleep(2)
 
         resp = client.get('/authors/%d' % TestAuthor.new_id)
         assert resp.status_code == HTTPStatus.OK
@@ -64,7 +62,6 @@ class TestAuthor:
 
         resp = client.put('/authors/%d' % TestAuthor.new_id, data)
         assert resp.status_code == HTTPStatus.OK
-        sleep(2)
 
         resp = client.get('/authors/%d' % TestAuthor.new_id)
         assert resp.status_code == HTTPStatus.OK
@@ -99,7 +96,6 @@ class TestAuthor:
 
         resp = client.put('/authors/%d' % AUTHOR.id, data)
         assert resp.status_code == HTTPStatus.OK
-        sleep(2)
 
         resp = client.get('/books/%d' % BOOK.id)
         assert resp.status_code == HTTPStatus.OK
@@ -114,7 +110,6 @@ class TestAuthor:
 
         resp = client.delete('/authors/%d' % TestAuthor.new_id, {})
         assert resp.status_code == HTTPStatus.OK
-        sleep(2)
 
         resp = client.get('/authors/%d' % TestAuthor.new_id)
         assert_error_response(resp)
@@ -132,11 +127,8 @@ class TestAuthor:
 
         resp = client.delete('/authors/%d' % AUTHOR.id, {})
         assert resp.status_code == HTTPStatus.OK
-        sleep(2)
 
         resp = client.get('/books/%d' % BOOK.id)
         assert resp.status_code == HTTPStatus.OK
         book = loads(resp.data.decode())
-        assert "authors" not in book
-        # assert find_by_id(AUTHOR.id, book['authors']) is None
-        # (caused KeyError because authors property doesn not exist with 0 authors)
+        assert 'authors' not in book or find_by_id(AUTHOR.id, book.get('authors', [])) is None

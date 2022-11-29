@@ -8,7 +8,7 @@ class UserRole(str, Enum):
 
 
 class BookCopyState(Enum):
-    AVAILABLE = 1
-    RESERVED = 2
-    BORROWED = 3
-    DELETED = 4
+    DELETED = 0
+    NEW = 1
+    GOOD = 2
+    DAMAGED = 3

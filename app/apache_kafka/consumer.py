@@ -1,8 +1,15 @@
+
 from kafka import KafkaConsumer
-from kafka.consumer.fetcher import ConsumerRecord
-from json import loads
 import mongoengine as me
 from time import sleep
+
+from json import loads
+
+from appconfig import (
+    MONGODB_USERNAME, MONGODB_PASSWORD, MONGODB_HOSTNAME, MONGODB_PORT, MONGODB_DATABASE,
+    KAFKA_HOST, KAFKA_PORT
+)
+
 
 from apache_kafka.enums import KafkaKey, KafkaTopic
 
@@ -172,12 +179,15 @@ func_dict = {
 
 def run_consumer() -> None:
     print("Connecting to mongo database...")
-    me.connect(host="mongodb://mongodb:27017/pdb", username="pdb", password="pdb", authentication_source="admin")
+    me.connect(
+        host=f"mongodb://{MONGODB_HOSTNAME}:{MONGODB_PORT}/{MONGODB_DATABASE}",
+        username=MONGODB_USERNAME, password=MONGODB_PASSWORD, authentication_source="admin"
+    )
 
     print("Running Kafka consumer...")
     consumer = KafkaConsumer(
         "pdb",
-        bootstrap_servers=['kafka:29092'],
+        bootstrap_servers=[f'{KAFKA_HOST}:{KAFKA_PORT}'],
         key_deserializer=lambda x: x.decode(),
         value_deserializer=lambda x: loads(x.decode("utf-8")),
         api_version=(0, 10, 2)
@@ -185,9 +195,11 @@ def run_consumer() -> None:
 
     # wait for connection
     topics = consumer.topics()
+    wait_time = 0
     while not topics:
-        print("Connection not established.")
         sleep(1)
+        wait_time += 1
+        print(f"Connection not established {wait_time}s.")
         topics = consumer.topics()
 
     print("Subscribing to topics...")
