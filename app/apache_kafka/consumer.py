@@ -1,15 +1,16 @@
 
 from kafka import KafkaConsumer
 import mongoengine as me
-from time import sleep
 
+import signal
+import sys
 from json import loads
+from time import sleep
 
 from appconfig import (
     MONGODB_USERNAME, MONGODB_PASSWORD, MONGODB_HOSTNAME, MONGODB_PORT, MONGODB_DATABASE,
     KAFKA_HOST, KAFKA_PORT
 )
-
 
 from apache_kafka.enums import KafkaKey, KafkaTopic
 
@@ -176,6 +177,9 @@ func_dict = {
 
 }
 
+def _signal_handler(signum: int, frame) -> None:
+    print('Received interrupt, exiting...')
+    sys.exit(0)
 
 def run_consumer() -> None:
     print("Connecting to mongo database...")
@@ -192,6 +196,8 @@ def run_consumer() -> None:
         value_deserializer=lambda x: loads(x.decode("utf-8")),
         api_version=(0, 10, 2)
     )
+
+    signal.signal(signal.SIGINT, _signal_handler)
 
     # Wait for Kafka to initialize
     # we just poll for the topics and wait for them to be non-empty
