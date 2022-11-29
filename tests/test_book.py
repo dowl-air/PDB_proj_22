@@ -59,7 +59,7 @@ class TestBook:
         assert author['last_name'] == AUTHOR.last_name
         assert len(book['categories']) == 2
         assert_dict_equal(book['categories'], [
-            {'id': CATEGORY1.id, 'name': CATEGORY1.name},  # description deleted because its not present in mongoDB and caused error
+            {'id': CATEGORY1.id, 'name': CATEGORY1.name, 'description': CATEGORY1.description},
             {'id': CATEGORY2.id, 'name': CATEGORY2.name}
         ])
 
@@ -71,7 +71,7 @@ class TestBook:
         assert book['name'] == data['name']
         assert book['ISBN'] == data['ISBN']
         assert book['release_date'] == data['release_date']
-        # assert book['description'] == data['description'] # description not in database object -> KeyError
+        assert book['description'] == data['description']
 
     def test_book_add_invalid(self, client: ClientWrapper):
         client.login(user=user_employee_Brno)
@@ -154,7 +154,10 @@ class TestBook:
         category = book['categories'][0]
         assert category['id'] == CATEGORY.id
         assert category['name'] == CATEGORY.name
-        # assert category['description'] == CATEGORY.description
+        assert (
+            'description' not in category and CATEGORY.description is None
+            or category['description'] == CATEGORY.description
+        )
 
     def test_book_edit_invalid(self, client: ClientWrapper):
         client.login(user=user_employee_Brno)
@@ -232,7 +235,7 @@ class TestBook:
         assert book['name'] == data['name']
         assert book['ISBN'] == data['ISBN']
         assert book['release_date'] == data['release_date']
-        # assert book['description'] == data['description']
+        assert book['description'] == data['description']
 
     def test_book_delete(self, client: ClientWrapper):
         client.login(user=user_employee_Brno)
