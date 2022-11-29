@@ -25,11 +25,16 @@ def create_producer() -> KafkaProducer:
     return producer
 
 # waits for the bootstrap broker to start and creates all topics
-def init_producer(producer: KafkaProducer) -> KafkaProducer:
-    _wait_for_bootstrap_connection(producer)
-    _create_topics()
+def init_producer(producer: KafkaProducer, log: bool = True) -> KafkaProducer:
+    _wait_for_bootstrap_connection(producer, log)
+    _create_topics(log)
 
-def _wait_for_bootstrap_connection(producer: KafkaProducer) -> None:
+# little helper for optional non-error string print
+def _log(msg: str, log: bool = True) -> None:
+    if log:
+        print(msg)
+
+def _wait_for_bootstrap_connection(producer: KafkaProducer, log: bool = True) -> None:
     RETRY_DELAY = 3
     wait_time = 0
     while True:
@@ -44,18 +49,18 @@ def _wait_for_bootstrap_connection(producer: KafkaProducer) -> None:
         if version is not None:
             break
         else:
-            print(f'Producer: Waiting for Kafka bootstrap server connection {wait_time}s.')
+            _log(f'Producer: Waiting for Kafka bootstrap server connection {wait_time}s.', log)
             wait_time += RETRY_DELAY
             try:
                 sleep(RETRY_DELAY)
             except KeyboardInterrupt:
-                print('Producer: Producer initialization interrupted, exiting...')
+                print('Producer: Initialization interrupted, exiting...')
                 sys.exit(0)
 
-    print(f'Producer: Successfully connected to Kafka bootstrap server at {BOOTSTRAP_SERVER}.')
+    _log(f'Producer: Successfully connected to Kafka bootstrap server at {BOOTSTRAP_SERVER}.', log)
 
-def _create_topics() -> None:
-    print('Producer: Creating Kafka topics...')
+def _create_topics(log: bool = True) -> None:
+    _log('Producer: Creating Kafka topics...', log)
     admin = KafkaAdminClient(
         bootstrap_servers=[BOOTSTRAP_SERVER],
         api_version=API_VERSION
@@ -68,4 +73,4 @@ def _create_topics() -> None:
     # not a problem, since we only want to ensure that the topics exist
     except TopicAlreadyExistsError:
         pass
-    print('Producer: Kafka topics were created or had already existed...')
+    _log('Producer: Kafka topics were created or had already existed...', log)
