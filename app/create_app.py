@@ -11,6 +11,9 @@ from entity.sql import db
 from entity.sql.base import ma
 from entity.nosql import mongo
 
+from controllers import producer
+from apache_kafka import init_producer
+
 
 def create_app() -> Flask:
     conn_app = connexion.App(__name__, specification_dir="./")
@@ -40,6 +43,8 @@ def create_app() -> Flask:
     db.init_app(app)
     mongo.init_app(app)
     ma.init_app(app)
+
+    init_producer(producer)
 
     @app.before_first_request
     def create_tables():
