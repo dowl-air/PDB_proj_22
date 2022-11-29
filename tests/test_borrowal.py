@@ -3,6 +3,8 @@ from datetime import date
 from http import HTTPStatus
 from json import loads
 
+from app.entity import ReservationState
+
 from helpers import (
 	ClientWrapper,
 	assert_error_response, assert_ok_created,
@@ -11,7 +13,6 @@ from helpers import (
 )
 from data import (
 	BORROWAL_STATE_ACTIVE, BORROWAL_STATE_RETURNED,
-	RESERVATION_STATE_CLOSED,
 
 	bc_1984_Brno_1, bc_Animal_Farm_Brno, bc_Hobbit_Olomouc, bc_Brave_New_World_Brno,
 	bc_Hobbit_London_1, bc_Hobbit_London_2, bc_1984_London_3,
@@ -174,7 +175,7 @@ class TestBorrowal:
 		reservation = find_by_id(RESERVATION.id, json_data)
 		assert reservation is not None
 		assert reservation['book_copy_id'] == BOOK_COPY.id
-		assert reservation['state'] == RESERVATION_STATE_CLOSED
+		assert reservation['state'] == ReservationState.CLOSED
 
 	def test_borrowal_return(self, client: ClientWrapper):
 		client.login(user=user_employee_Brno)
