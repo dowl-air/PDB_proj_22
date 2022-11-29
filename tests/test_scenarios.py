@@ -18,7 +18,7 @@ from data import (
 )
 
 
-class TestScenario:
+class TestScenarios:
 	def test_register_borrow(self, client: ClientWrapper):
 		# register new customer
 		NEW_CUSTOMER = {
