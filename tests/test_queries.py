@@ -4,7 +4,10 @@ from json import loads
 
 from app.entity import BookCopyState
 
-from helpers import ClientWrapper, to_json, assert_error_response
+from helpers import (
+	ClientWrapper, to_json,
+	assert_error_response
+)
 from data import (
 	BOOKS, BOOK_COPIES, BORROWALS, RESERVATIONS, REVIEWS,
 	BORROWAL_STATE_ACTIVE,
@@ -15,6 +18,7 @@ from data import (
 	location_London,
 	user_customer_Customer, user_customer_Reviewer
 )
+
 
 def test_get_books(client: ClientWrapper):
 	resp = client.get('/books')

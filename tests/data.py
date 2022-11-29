@@ -17,6 +17,7 @@ from data_helpers import (
 	convert_borrowal_list_to_sql, convert_reservation_list_to_sql, convert_review_list_to_sql
 )
 
+
 # TODO
 BORROWAL_STATE_ACTIVE = 1
 BORROWAL_STATE_RETURNED = 0
@@ -261,7 +262,7 @@ review_Good_Omens_2 = Review(
 	rating=9, customer=embed_user(user_customer_Customer)
 )
 
-# lists of Mongo entities 
+# lists of Mongo entities
 LOCATIONS = [location_Brno, location_London, location_Olomouc]
 CATEGORIES = [
 	category_sci_fi, category_dystopia, category_fable, category_fantasy,

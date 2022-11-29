@@ -8,8 +8,7 @@ from app.entity import ReservationState
 from helpers import (
 	ClientWrapper,
 	assert_error_response, assert_ok_created,
-	find_by_id,
-	format_date
+	find_by_id, format_date
 )
 from data import (
 	BORROWAL_STATE_ACTIVE, BORROWAL_STATE_RETURNED,
@@ -21,6 +20,7 @@ from data import (
 	borrowal_London_3,
 	reservation_London_active_1
 )
+
 
 class TestBorrowal:
 	new_id: int = 0

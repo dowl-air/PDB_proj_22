@@ -15,10 +15,10 @@ from app.entity.nosql import (
 	EmbeddedCategory, EmbeddedBook, EmbeddedLocation, EmbeddedBookCopy, AuthorName, EmbeddedUser
 )
 
+
 class InvalidTestException(Exception):
 	def __init__(self, message: str) -> None:
 		super().__init__(message)
-
 
 # asserts that the response is an error
 # (other than unauthorized access or default nonexistent endpoint)

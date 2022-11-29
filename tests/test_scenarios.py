@@ -8,8 +8,7 @@ from app.entity import BookCopyState, ReservationState
 from helpers import (
 	ClientWrapper,
 	assert_ok_created, assert_error_response,
-	find_by_id,
-	format_date
+	find_by_id, format_date
 )
 from data import (
 	BORROWAL_STATE_ACTIVE, BORROWAL_STATE_RETURNED,
@@ -17,6 +16,7 @@ from data import (
 	user_employee_London, user_customer_Customer, user_customer_Smith, user_employee_Brno,
 	location_Brno
 )
+
 
 class TestScenario:
 	def test_register_borrow(self, client: ClientWrapper):
