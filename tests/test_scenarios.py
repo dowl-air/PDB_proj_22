@@ -3,6 +3,8 @@ from datetime import date
 from http import HTTPStatus
 from json import loads
 
+from app.entity import BookCopyState
+
 from helpers import (
 	ClientWrapper,
 	assert_ok_created, assert_error_response,
@@ -12,7 +14,6 @@ from helpers import (
 from data import (
 	BORROWAL_STATE_ACTIVE, BORROWAL_STATE_RETURNED,
 	RESERVATION_STATE_ACTIVE, RESERVATION_STATE_CLOSED,
-	BOOK_COPY_STATE_GOOD,
 	bc_Animal_Farm_London, bc_Good_Omens_Brno,
 	user_employee_London, user_customer_Customer, user_customer_Smith, user_employee_Brno,
 	location_Brno
@@ -217,7 +218,7 @@ class TestScenario:
 			'location_id': LOCATION.id,
 			'print_date': format_date(date(2020, 5, 12)),
 			'note': 'Book copy note',
-			'state': BOOK_COPY_STATE_GOOD
+			'state': BookCopyState.GOOD.value
 		}
 
 		resp = client.post('/book-copies', NEW_BOOK_COPY)
