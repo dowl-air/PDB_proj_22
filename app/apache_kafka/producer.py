@@ -31,7 +31,7 @@ def init_producer(producer: KafkaProducer) -> KafkaProducer:
 
 def _wait_for_bootstrap_connection(producer: KafkaProducer) -> None:
     RETRY_DELAY = 3
-    waittime = 0
+    wait_time = 0
     while True:
         try:
             version = producer._sender._client.check_version()
@@ -44,8 +44,8 @@ def _wait_for_bootstrap_connection(producer: KafkaProducer) -> None:
         if version is not None:
             break
         else:
-            print(f'Producer: Waiting for Kafka bootstrap server connection {waittime}s.')
-            waittime += RETRY_DELAY
+            print(f'Producer: Waiting for Kafka bootstrap server connection {wait_time}s.')
+            wait_time += RETRY_DELAY
             try:
                 sleep(RETRY_DELAY)
             except KeyboardInterrupt:
