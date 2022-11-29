@@ -1,15 +1,16 @@
 
 from kafka import KafkaConsumer
 import mongoengine as me
-from time import sleep
 
+import signal
+import sys
 from json import loads
+from time import sleep
 
 from appconfig import (
     MONGODB_USERNAME, MONGODB_PASSWORD, MONGODB_HOSTNAME, MONGODB_PORT, MONGODB_DATABASE,
     KAFKA_HOST, KAFKA_PORT
 )
-
 
 from apache_kafka.enums import KafkaKey, KafkaTopic
 
@@ -259,6 +260,9 @@ func_dict = {
     KafkaTopic.REVIEW.value: manage_review
 }
 
+def _signal_handler(signum: int, frame) -> None:
+    print('Received interrupt, exiting...')
+    sys.exit(0)
 
 def run_consumer() -> None:
     print("Connecting to mongo database...")
@@ -276,14 +280,17 @@ def run_consumer() -> None:
         api_version=(0, 10, 2)
     )
 
-    # wait for connection
-    topics = consumer.topics()
+    signal.signal(signal.SIGINT, _signal_handler)
+
+    # Wait for Kafka to initialize
+    # we just poll for the topics and wait for them to be non-empty
+    # we can do this, since we know the topics are created during producer initialization
+    RETRY_DELAY = 3
     wait_time = 0
-    while not topics:
-        sleep(1)
-        wait_time += 1
-        print(f"Connection not established {wait_time}s.")
-        topics = consumer.topics()
+    while not consumer.topics():
+        print(f"Waiting for Kafka to initialize {wait_time}s.")
+        wait_time += RETRY_DELAY
+        sleep(RETRY_DELAY)
 
     print("Subscribing to topics...")
     consumer.subscribe([t.value for t in KafkaTopic])
