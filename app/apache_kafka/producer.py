@@ -11,10 +11,10 @@ from appconfig import KAFKA_HOST, KAFKA_PORT
 
 from apache_kafka.enums import KafkaTopic
 
-def create_producer() -> KafkaProducer:
-    BOOTSTRAP_SERVER = f'{KAFKA_HOST}:{KAFKA_PORT}'
-    API_VERSION = (0, 10, 2)
+BOOTSTRAP_SERVER = f'{KAFKA_HOST}:{KAFKA_PORT}'
+API_VERSION = (0, 10, 2)
 
+def create_producer() -> KafkaProducer:
     producer = KafkaProducer(
         bootstrap_servers=[BOOTSTRAP_SERVER],
         key_serializer=lambda x: bytes(x, encoding='utf8'),
@@ -22,6 +22,14 @@ def create_producer() -> KafkaProducer:
         api_version=API_VERSION
     )
 
+    return producer
+
+# waits for the bootstrap broker to start and creates all topics
+def init_producer(producer: KafkaProducer) -> KafkaProducer:
+    _wait_for_bootstrap_connection(producer)
+    _create_topics()
+
+def _wait_for_bootstrap_connection(producer: KafkaProducer) -> None:
     RETRY_DELAY = 3
     waittime = 0
     while True:
@@ -46,6 +54,7 @@ def create_producer() -> KafkaProducer:
 
     print(f'Producer: Successfully connected to Kafka bootstrap server at {BOOTSTRAP_SERVER}.')
 
+def _create_topics() -> None:
     print('Producer: Creating Kafka topics...')
     admin = KafkaAdminClient(
         bootstrap_servers=[BOOTSTRAP_SERVER],
@@ -60,5 +69,3 @@ def create_producer() -> KafkaProducer:
     except TopicAlreadyExistsError:
         pass
     print('Producer: Kafka topics were created or had already existed...')
-
-    return producer
