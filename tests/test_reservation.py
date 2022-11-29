@@ -41,7 +41,7 @@ class TestReservation:
         json_data = loads(resp.data.decode())
         reservation = find_by_id(TestReservation.new_id, json_data)
         assert reservation is not None
-        assert reservation['book_copy']["id"] == BOOK_COPY.id
+        assert 'book_copy' in reservation and reservation['book_copy']['id'] == BOOK_COPY.id
         assert reservation['start_date'] == format_date(date.today())
         assert reservation['state'] == ReservationState.ACTIVE.value
 
