@@ -6,7 +6,7 @@ from app.create_app import create_app, db, mongo
 from app.entity.nosql import (
 	Location, Category, Author, Book, BookCopy, User, Borrowal, Reservation, Review
 )
-from app.entity import UserRole
+from app.entity import UserRole, BookCopyState
 
 from data_helpers import (
 	embed_book_list, embed_author_list, embed_book_copy_list, embed_category_list,
@@ -18,11 +18,6 @@ from data_helpers import (
 )
 
 # TODO
-BOOK_COPY_STATE_DELETED = 0
-BOOK_COPY_STATE_GOOD = 1
-BOOK_COPY_STATE_DAMAGED = 2
-BOOK_COPY_STATE_NEW = 3
-
 BORROWAL_STATE_ACTIVE = 1
 BORROWAL_STATE_RETURNED = 0
 BORROWAL_STATE_LOST = 2
@@ -78,63 +73,63 @@ book_Good_Omens.authors = embed_author_list([author_Gaiman, author_Pratchet])
 # BOOK COPIES
 bc_1984_Brno_1 = BookCopy(
 	id=1, book_id=book_1984.id, print_date=date(2014, 10, 11), note='Slightly used',
-	state=BOOK_COPY_STATE_GOOD, location=embed_location(location_Brno)
+	state=BookCopyState.GOOD.value, location=embed_location(location_Brno)
 )
 bc_1984_Brno_2 = BookCopy(
 	id=2, book_id=book_1984.id, print_date=date(2022, 1, 16),
-	state=BOOK_COPY_STATE_NEW, location=embed_location(location_Brno)
+	state=BookCopyState.NEW.value, location=embed_location(location_Brno)
 )
 bc_1984_London_1 = BookCopy(
 	id=3, book_id=book_1984.id, print_date=date(2021, 1, 16),
-	state=BOOK_COPY_STATE_GOOD, location=embed_location(location_London)
+	state=BookCopyState.GOOD.value, location=embed_location(location_London)
 )
 bc_1984_London_2 = BookCopy(
 	id=4, book_id=book_1984.id, print_date=date(1990, 5, 21),
-	state=BOOK_COPY_STATE_DAMAGED, location=embed_location(location_London)
+	state=BookCopyState.DAMAGED.value, location=embed_location(location_London)
 )
 bc_1984_London_3 = BookCopy(
 	id=5, book_id=book_1984.id, print_date=date(2005, 2, 22), note='Lost',
-	state=BOOK_COPY_STATE_DELETED, location=embed_location(location_London)
+	state=BookCopyState.DELETED.value, location=embed_location(location_London)
 )
 bc_Animal_Farm_Brno = BookCopy(
 	id=6, book_id=book_Animal_Farm.id, print_date=date(2021, 5, 8),
-	state=BOOK_COPY_STATE_GOOD, location=embed_location(location_Brno)
+	state=BookCopyState.GOOD.value, location=embed_location(location_Brno)
 )
 bc_Animal_Farm_London = BookCopy(
 	id=8, book_id=book_Animal_Farm.id, print_date=date(2022, 6, 13),
-	state=BOOK_COPY_STATE_NEW, location=embed_location(location_Olomouc)
+	state=BookCopyState.NEW.value, location=embed_location(location_Olomouc)
 )
 bc_Animal_Farm_Olomouc = BookCopy(
 	id=9, book_id=book_Animal_Farm.id, print_date=date(2017, 6, 13),
-	state=BOOK_COPY_STATE_GOOD, location=embed_location(location_Olomouc)
+	state=BookCopyState.GOOD.value, location=embed_location(location_Olomouc)
 )
 bc_Brave_New_World_Brno = BookCopy(
 	id=10, book_id=book_Brave_New_World.id, print_date=date(2019, 8, 18),
-	state=BOOK_COPY_STATE_GOOD, location=embed_location(location_Brno)
+	state=BookCopyState.GOOD.value, location=embed_location(location_Brno)
 )
 bc_Brave_New_World_London = BookCopy(
 	id=11, book_id=book_Brave_New_World.id, print_date=date(2021, 6, 1),
-	state=BOOK_COPY_STATE_GOOD, location=embed_location(location_London)
+	state=BookCopyState.GOOD.value, location=embed_location(location_London)
 )
 bc_Hobbit_Brno = BookCopy(
 	id=12, book_id=book_Hobbit.id, print_date=date(2020, 4, 8),
-	state=BOOK_COPY_STATE_GOOD, location=embed_location(location_Brno)
+	state=BookCopyState.GOOD.value, location=embed_location(location_Brno)
 )
 bc_Hobbit_London_1 = BookCopy(
 	id=13, book_id=book_Hobbit.id, print_date=date(2018, 11, 4),
-	state=BOOK_COPY_STATE_DAMAGED, location=embed_location(location_London)
+	state=BookCopyState.DAMAGED.value, location=embed_location(location_London)
 )
 bc_Hobbit_London_2 = BookCopy(
 	id=14, book_id=book_Hobbit.id, print_date=date(2021, 3, 11),
-	state=BOOK_COPY_STATE_GOOD, location=embed_location(location_London)
+	state=BookCopyState.GOOD.value, location=embed_location(location_London)
 )
 bc_Hobbit_Olomouc = BookCopy(
 	id=15, book_id=book_Hobbit.id, print_date=date(2017, 10, 5),
-	state=BOOK_COPY_STATE_GOOD, location=embed_location(location_Olomouc)
+	state=BookCopyState.GOOD.value, location=embed_location(location_Olomouc)
 )
 bc_Good_Omens_Brno = BookCopy(
 	id=16, book_id=book_Good_Omens.id, print_date=date(2019, 11, 11),
-	state=BOOK_COPY_STATE_GOOD, location=embed_location(location_Brno)
+	state=BookCopyState.GOOD.value, location=embed_location(location_Brno)
 )
 
 book_1984.book_copies = embed_book_copy_list([bc_1984_Brno_1, bc_1984_Brno_2, bc_1984_London_1, bc_1984_London_2, bc_1984_London_3])
