@@ -15,7 +15,7 @@ from controllers import producer
 from apache_kafka import init_producer
 
 
-def create_app() -> Flask:
+def create_app(config: dict = {}) -> Flask:
     conn_app = connexion.App(__name__, specification_dir="./")
     conn_app.add_api("swagger.yml")
 
@@ -44,7 +44,8 @@ def create_app() -> Flask:
     mongo.init_app(app)
     ma.init_app(app)
 
-    init_producer(producer)
+    producer_log = ('producer_log' in config and config['producer_log'])
+    init_producer(producer, log=producer_log)
 
     @app.before_first_request
     def create_tables():
