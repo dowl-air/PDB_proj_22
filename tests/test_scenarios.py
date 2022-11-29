@@ -18,7 +18,7 @@ from data import (
 )
 
 
-class TestScenario:
+class TestScenarios:
 	def test_register_borrow(self, client: ClientWrapper):
 		# register new customer
 		NEW_CUSTOMER = {
@@ -59,7 +59,8 @@ class TestScenario:
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
 		borrowal = find_by_id(NEW_BORROWAL_ID, json_data)
-		assert borrowal['book_copy_id'] == BOOK_COPY.id
+		assert borrowal is not None
+		assert 'book_copy' in borrowal and borrowal['book_copy']['id'] == BOOK_COPY.id
 		assert borrowal['start_date'] == format_date(date.today())
 		assert borrowal['state'] == BORROWAL_STATE_ACTIVE
 
@@ -101,7 +102,7 @@ class TestScenario:
 		json_data = loads(resp.data.decode())
 		reservation = find_by_id(NEW_RESERVATION_ID, json_data)
 		assert reservation is not None
-		assert reservation['book_copy_id'] == BOOK_COPY.id
+		assert 'book_copy' in reservation and reservation['book_copy']['id'] == BOOK_COPY.id
 		assert reservation['start_date'] == format_date(date.today())
 		assert reservation['state'] == ReservationState.ACTIVE.value
 
@@ -150,7 +151,7 @@ class TestScenario:
 		json_data = loads(resp.data.decode())
 		borrowal = find_by_id(NEW_BORROWAL_ID, json_data)
 		borrowal is not None
-		assert borrowal['book_copy_id'] == BOOK_COPY.id
+		assert 'book_copy' in borrowal and borrowal['book_copy']['id'] == BOOK_COPY.id
 		assert borrowal['start_date'] == format_date(date.today())
 		assert borrowal['state'] == BORROWAL_STATE_ACTIVE
 
