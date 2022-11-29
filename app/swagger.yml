@@ -138,22 +138,8 @@ components:
       type: object
       required:
         - book_copy_id
-        - customer_id
-        - start_date
-        - end_date
-        - state
       properties:
         book_copy_id:
-          type: integer
-        customer_id:
-          type: integer
-        start_date:
-          type: string
-          format: date
-        end_date:
-          type: string
-          format: date
-        state:
           type: integer
     Borrowal:
       type: object
@@ -741,19 +727,19 @@ paths:
       responses:
         200:
           description: Successfully created reservation.
-  /reservations/{id}:
-    delete:
+  /reservations/{id}/cancel:
+    patch:
       operationId: controllers.reservations.delete
       tags:
         - Reservations
-      summary: Delete reservation
+      summary: Cancel reservation
       parameters:
         - $ref: "#/components/parameters/reservation_id"
       security:
       - jwt: []
       responses:
-        204:
-          description: Successfully deleted reservation.
+        200:
+          description: Successfully canceled reservation.
 
 
 
@@ -869,3 +855,15 @@ paths:
       responses:
         200:
           description: Successfully got current user's reviews.
+  /profile/reservations:
+    get:
+      operationId: controllers.users.get_reservations
+      tags:
+        - Users
+        - Reservations
+      summary: Get reservations of currently signed in user
+      security:
+      - jwt: []
+      responses:
+        200:
+          description: Successfully got current user's reservations.

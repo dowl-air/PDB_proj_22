@@ -4,9 +4,10 @@ from entity.sql.base import db
 from entity.sql.user import User
 
 from entity.nosql.review import Review
+from entity.nosql.reservation import Reservation
 
 from entity.sql.schemas import user_schema, users_schema
-from entity.nosql.schemas_mongo import reviews_schema
+from entity.nosql.schemas_mongo import reviews_schema, reservations_schema
 
 
 def get(user):
@@ -19,10 +20,17 @@ def get(user):
 
 
 def get_reviews(user):
-    # get reviews on one specific user, who is signed in
+    # get reviews of one specific user, who is signed in
     user_id = int(user)
     reviews = Review.objects(customer__id=user_id)
     return reviews_schema.dump(reviews), 200
+
+
+def get_reservations(user):
+    # get reservations of one specific user, who is signed in
+    user_id = int(user)
+    reservations = Reservation.objects(customer__id=user_id)
+    return reservations_schema.dump(reservations), 200
 
 
 def create(user):

@@ -14,6 +14,8 @@ from appconfig import (
 
 from apache_kafka.enums import KafkaKey, KafkaTopic
 
+from entity import ReservationState
+
 from entity.nosql.author import Author
 from entity.nosql.book import Book
 from entity.nosql.book_copy import BookCopy
@@ -21,7 +23,9 @@ from entity.nosql.category import Category
 from entity.nosql.location import Location
 from entity.nosql.review import Review
 from entity.nosql.user import User
-from entity.nosql.schemas_mongo import author_schema, books_schema, category_schema, book_copy_schema, location_schema, book_copy_schema, book_schema, review_schema, user_schema
+from entity.nosql.reservation import Reservation
+from entity.nosql.borrowal import Borrowal
+from entity.nosql.schemas_mongo import author_schema, books_schema, category_schema, book_copy_schema, location_schema, book_copy_schema, book_schema, review_schema, user_schema, reservation_schema, borrowal_schema
 
 
 def manage_author(key, value):
@@ -251,13 +255,38 @@ def manage_review(key, value):
         review.update(**value)
 
 
+def manage_reservation(key, value):
+    if (KafkaKey.DELETE.value == key):
+        reservation = Reservation.objects(id=int(value["id"]))
+        reservation.update(state=ReservationState.CLOSED.value)
+
+    if (KafkaKey.CREATE.value == key):
+        # create customer property
+        customer = User.objects(id=int(value["customer_id"])).first()
+        if customer:
+            value["customer"] = user_schema.dump(customer)
+        del value["customer_id"]
+
+        # create book_copy property
+        book_copy = BookCopy.objects(id=int(value["book_copy_id"])).first()
+        if book_copy:
+            value["book_copy"] = book_copy_schema.dump(book_copy)
+            value["book_copy"]["location_id"] = value["book_copy"]["location"]["id"]
+            del value["book_copy"]["location"]
+        del value["book_copy_id"]
+
+        reservation = reservation_schema.load(value)
+        reservation.save()
+
+
 func_dict = {
     KafkaTopic.AUTHOR.value: manage_author,
     KafkaTopic.CATEGORY.value: manage_category,
     KafkaTopic.LOCATION.value: manage_location,
     KafkaTopic.BOOKCOPY.value: manage_book_copy,
     KafkaTopic.BOOK.value: manage_book,
-    KafkaTopic.REVIEW.value: manage_review
+    KafkaTopic.REVIEW.value: manage_review,
+    KafkaTopic.RESERVATION.value: manage_reservation
 }
 
 def _signal_handler(signum: int, frame) -> None:
