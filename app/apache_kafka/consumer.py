@@ -18,7 +18,9 @@ from entity.nosql.book import Book
 from entity.nosql.book_copy import BookCopy
 from entity.nosql.category import Category
 from entity.nosql.location import Location
-from entity.nosql.schemas_mongo import author_schema, books_schema, category_schema, book_copy_schema, location_schema, book_copy_schema, book_schema
+from entity.nosql.review import Review
+from entity.nosql.user import User
+from entity.nosql.schemas_mongo import author_schema, books_schema, category_schema, book_copy_schema, location_schema, book_copy_schema, book_schema, review_schema, user_schema
 
 
 def manage_author(key, value):
@@ -205,7 +207,8 @@ def manage_book(key, value):
             if author:
                 # update book object
                 value["authors"][idx] = author_schema.dump(author)
-                del value["authors"][idx]["books"]
+                if "books" in value["authors"][idx]:
+                    del value["authors"][idx]["books"]
 
                 # update author object (propagate)
                 author_books_list = author.books if author.books else []
@@ -228,12 +231,32 @@ def manage_book(key, value):
         l.update(**value)
 
 
+def manage_review(key, value):
+    if (KafkaKey.DELETE.value == key):
+        return Review.objects(id=int(value["id"])).first().delete()
+
+    # create customer property
+    customer = User.objects(id=int(value["user_id"])).first()
+    if customer:
+        value["customer"] = user_schema.dump(customer)
+    del value["user_id"]
+
+    if (KafkaKey.CREATE.value == key):
+        l = review_schema.load(value)
+        l.save()
+
+    if (KafkaKey.UPDATE.value == key):
+        review = Review.objects(id=int(value["id"])).first()
+        review.update(**value)
+
+
 func_dict = {
     KafkaTopic.AUTHOR.value: manage_author,
     KafkaTopic.CATEGORY.value: manage_category,
     KafkaTopic.LOCATION.value: manage_location,
     KafkaTopic.BOOKCOPY.value: manage_book_copy,
-    KafkaTopic.BOOK.value: manage_book
+    KafkaTopic.BOOK.value: manage_book,
+    KafkaTopic.REVIEW.value: manage_review
 }
 
 
