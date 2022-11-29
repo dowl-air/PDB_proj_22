@@ -3,6 +3,7 @@ from kafka import KafkaProducer, KafkaAdminClient
 from kafka.errors import NoBrokersAvailable, TopicAlreadyExistsError
 from kafka.admin import NewTopic
 
+import sys
 from json import dumps
 from time import sleep
 
@@ -37,7 +38,11 @@ def create_producer() -> KafkaProducer:
         else:
             print(f'Producer: Waiting for Kafka bootstrap server connection {waittime}s.')
             waittime += RETRY_DELAY
-            sleep(RETRY_DELAY)
+            try:
+                sleep(RETRY_DELAY)
+            except KeyboardInterrupt:
+                print('Producer: Producer initialization interrupted, exiting...')
+                sys.exit(0)
 
     print(f'Producer: Successfully connected to Kafka bootstrap server at {BOOTSTRAP_SERVER}.')
 
