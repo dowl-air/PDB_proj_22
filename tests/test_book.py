@@ -10,7 +10,7 @@ from helpers import (
     format_date
 )
 from data import (
-    author_Orwell, author_Huxley, author_Tolkien,
+    author_Orwell, author_Gaiman, author_Tolkien,
     book_1984, book_Animal_Farm,
     category_fable, category_history, category_non_fiction, category_fantasy,
     user_employee_Brno
@@ -121,7 +121,7 @@ class TestBook:
     def test_book_edit(self, client: ClientWrapper):
         client.login(user=user_employee_Brno)
 
-        AUTHOR = author_Huxley
+        AUTHOR = author_Gaiman
         CATEGORY = category_fable
 
         data = {
@@ -209,7 +209,7 @@ class TestBook:
 
         BOOK = book_Animal_Farm
         ORIGINAL_AUTHOR_ID = book_Animal_Farm.authors[0]['id']
-        NEW_AUTHOR = author_Huxley
+        NEW_AUTHOR = author_Gaiman
 
         data = {
             'name': 'Animal Farm (edited)',
