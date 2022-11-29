@@ -3,7 +3,10 @@ from flask.helpers import make_response, abort
 from entity.sql.base import db
 from entity.sql.user import User
 
+from entity.nosql.review import Review
+
 from entity.sql.schemas import user_schema, users_schema
+from entity.nosql.schemas_mongo import reviews_schema
 
 
 def get(user):
@@ -13,6 +16,13 @@ def get(user):
     if not existing_user:
         abort(404, f"User with id {user_id} not found.")
     return user_schema.dump(existing_user), 200
+
+
+def get_reviews(user):
+    # get reviews on one specific user, who is signed in
+    user_id = int(user)
+    reviews = Review.objects(customer__id=user_id)
+    return reviews_schema.dump(reviews), 200
 
 
 def create(user):
