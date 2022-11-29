@@ -6,6 +6,7 @@ from deepdiff.diff import DeepDiff
 from datetime import date
 from http import HTTPStatus
 from json import loads, dumps
+from time import sleep
 
 from typing import Optional, Union
 
@@ -69,9 +70,24 @@ class ClientWrapper:
 	TYPE_PUT = 'PUT'
 	TYPE_PATCH = 'PATCH'
 
+	OPERATION_REQUEST_TYPES = [TYPE_POST, TYPE_DELETE, TYPE_PUT, TYPE_PATCH]
+
+	DEFAULT_OPERATION_DELAY: float = 2.0
+
 	def __init__(self, client: FlaskClient) -> None:
 		self.client = client
 		self.token: Optional[str] = None
+
+		self.delay: Optional[float] = ClientWrapper.DEFAULT_OPERATION_DELAY
+		self.used_operation = False
+
+	# how many seconds to wait after every request that is an operation
+	# used to wait for operation to finish modifiying data in MongoDB
+	def set_operation_delay(self, delay: Optional[float]) -> None:
+		if delay > 0:
+			self.delay = delay
+		else:
+			raise InvalidTestException('Delay must be a positive amount of seconds, set to None to disable')
 
 	def set_token(self, token: Optional[str]) -> None:
 		self.token = token
@@ -79,6 +95,15 @@ class ClientWrapper:
 	def _send_request(self, reqtype: str, endpoint: str, data: Optional[dict] = None, token: Optional[str] = None) -> TestResponse:
 		headers = self._auth_headers(token)
 		CONTENT_TYPE = 'application/json'
+
+		if reqtype in ClientWrapper.OPERATION_REQUEST_TYPES:
+			self.used_operation = True
+		else:
+			# waits before every query that follows an operation
+			if self.delay is not None and self.used_operation:
+				sleep(self.delay)
+
+			self.used_operation = False
 
 		if reqtype == ClientWrapper.TYPE_GET:
 			resp = self.client.get(endpoint, headers=headers)

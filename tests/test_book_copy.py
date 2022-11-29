@@ -2,7 +2,6 @@
 from datetime import date
 from http import HTTPStatus
 from json import loads
-from time import sleep
 
 from helpers import (
     ClientWrapper,
@@ -39,7 +38,6 @@ class TestBookCopy:
         assert_ok_created(resp.status_code)
         json_data = loads(resp.data.decode())
         assert 'id' in json_data
-        sleep(2)
 
         TestBookCopy.new_id = json_data['id']
 
@@ -103,7 +101,6 @@ class TestBookCopy:
 
         resp = client.put('/book-copies/%d' % TestBookCopy.new_id, data)
         assert resp.status_code == HTTPStatus.OK
-        sleep(2)
 
         resp = client.get('/book-copies/%d' % TestBookCopy.new_id)
         assert resp.status_code == HTTPStatus.OK
@@ -166,7 +163,6 @@ class TestBookCopy:
 
         resp = client.put('/book-copies/%d' % BOOK_COPY.id, data)
         assert resp.status_code == HTTPStatus.OK
-        sleep(2)
 
         resp = client.get('/books/%d' % BOOK.id)
         assert resp.status_code == HTTPStatus.OK
@@ -185,7 +181,6 @@ class TestBookCopy:
 
         resp = client.delete('/book-copies/%d' % TestBookCopy.new_id, {})
         assert resp.status_code == HTTPStatus.OK
-        sleep(2)
 
         resp = client.get('/book-copies/%d' % TestBookCopy.new_id)
         assert_error_response(resp)
@@ -198,7 +193,6 @@ class TestBookCopy:
 
         resp = client.delete('/book-copies/%d' % BOOK_COPY.id, {})
         assert resp.status_code == HTTPStatus.OK
-        sleep(2)
 
         resp = client.get('/book-copies/%d' % TestBookCopy.new_id)
         assert_error_response(resp)
@@ -211,7 +205,6 @@ class TestBookCopy:
 
         resp = client.delete('/book-copies/%d' % BOOK_COPY.id, {})
         assert resp.status_code == HTTPStatus.OK
-        sleep(2)
 
         resp = client.get('/books/%d' % BOOK.id)
         assert resp.status_code == HTTPStatus.OK
