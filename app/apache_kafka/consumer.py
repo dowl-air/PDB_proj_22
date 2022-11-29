@@ -195,9 +195,11 @@ def run_consumer() -> None:
 
     # wait for connection
     topics = consumer.topics()
+    wait_time = 0
     while not topics:
-        print("Connection not established.")
         sleep(1)
+        wait_time += 1
+        print(f"Connection not established {wait_time}s.")
         topics = consumer.topics()
 
     print("Subscribing to topics...")
