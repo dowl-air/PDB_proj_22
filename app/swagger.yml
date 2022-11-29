@@ -857,3 +857,15 @@ paths:
       responses:
         200:
           description: Successfully got user object.
+  /profile/reviews:
+    get:
+      operationId: controllers.users.get_reviews
+      tags:
+        - Users
+        - Reviews
+      summary: Get reviews of currently signed in user
+      security:
+      - jwt: []
+      responses:
+        200:
+          description: Successfully got current user's reviews.
