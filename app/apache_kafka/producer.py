@@ -54,6 +54,6 @@ def create_producer() -> KafkaProducer:
     # not a problem, since we only want to ensure that the topics exist
     except TopicAlreadyExistsError:
         pass
-    print('Kafka topics were created or had already existed...')
+    print('Producer: Kafka topics were created or had already existed...')
 
     return producer
