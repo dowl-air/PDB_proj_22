@@ -6,7 +6,7 @@ from app.create_app import create_app, db, mongo
 from app.entity.nosql import (
 	Location, Category, Author, Book, BookCopy, User, Borrowal, Reservation, Review
 )
-from app.entity import UserRole, BookCopyState
+from app.entity import UserRole, BookCopyState, ReservationState, RESERVATION_DAYS_LENGTH
 
 from data_helpers import (
 	embed_book_list, embed_author_list, embed_book_copy_list, embed_category_list,
@@ -21,13 +21,10 @@ from data_helpers import (
 BORROWAL_STATE_ACTIVE = 1
 BORROWAL_STATE_RETURNED = 0
 BORROWAL_STATE_LOST = 2
-
-RESERVATION_STATE_ACTIVE = 1
-RESERVATION_STATE_CLOSED = 0
 ##
 
 BORROWAL_LENGTH = timedelta(days=30)
-RESERVATION_LENGTH = timedelta(days=7)
+RESERVATION_LENGTH = timedelta(days=RESERVATION_DAYS_LENGTH)
 
 # LOCATIONS
 location_Brno = Location(id=1, name='Brno', address='Kobližná 4, 602 00 Brno-střed')
@@ -218,27 +215,27 @@ borrowal_Olomouc_active = Borrowal(
 # RESERVATIONS
 start_date = date(2022, 11, 20)
 reservation_Brno = Reservation(
-	id=1, start_date=start_date, end_date=start_date + RESERVATION_LENGTH, state=RESERVATION_STATE_CLOSED,
+	id=1, start_date=start_date, end_date=start_date + RESERVATION_LENGTH, state=ReservationState.CLOSED.value,
 	book_copy=embed_book_copy(bc_1984_Brno_2), customer=embed_user(user_customer_Customer)
 )
 start_date = date(2020, 6, 6)
 reservation_Olomouc = Reservation(
-	id=2, start_date=start_date, end_date=start_date + RESERVATION_LENGTH, state=RESERVATION_STATE_CLOSED,
+	id=2, start_date=start_date, end_date=start_date + RESERVATION_LENGTH, state=ReservationState.CLOSED.value,
 	book_copy=embed_book_copy(bc_Animal_Farm_Olomouc), customer=embed_user(user_customer_Smith)
 )
 start_date = date.today()
 reservation_Brno_active = Reservation(
-	id=3, start_date=start_date, end_date=start_date + RESERVATION_LENGTH, state=RESERVATION_STATE_ACTIVE,
+	id=3, start_date=start_date, end_date=start_date + RESERVATION_LENGTH, state=ReservationState.ACTIVE.value,
 	book_copy=embed_book_copy(bc_Animal_Farm_Brno), customer=embed_user(user_customer_Customer)
 )
 start_date = date(2021, 4, 6)
 reservation_London_active_1 = Reservation(
-	id=4, start_date=start_date, end_date=start_date + RESERVATION_LENGTH, state=RESERVATION_STATE_ACTIVE, # expired
+	id=4, start_date=start_date, end_date=start_date + RESERVATION_LENGTH, state=ReservationState.ACTIVE.value, # expired
 	book_copy=embed_book_copy(bc_Hobbit_London_1), customer=embed_user(user_customer_Smith)
 )
 start_date = date.today()
 reservation_London_active_2 = Reservation(
-	id=5, start_date=start_date, end_date=start_date + RESERVATION_LENGTH, state=RESERVATION_STATE_ACTIVE,
+	id=5, start_date=start_date, end_date=start_date + RESERVATION_LENGTH, state=ReservationState.ACTIVE.value,
 	book_copy=embed_book_copy(bc_Hobbit_London_2), customer=embed_user(user_customer_Smith)
 )
 
