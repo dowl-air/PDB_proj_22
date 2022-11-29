@@ -3,21 +3,20 @@ from datetime import date
 from http import HTTPStatus
 from json import loads
 
-from app.entity import BookCopyState
+from app.entity import BookCopyState, ReservationState
 
 from helpers import (
 	ClientWrapper,
 	assert_ok_created, assert_error_response,
-	find_by_id,
-	format_date
+	find_by_id, format_date
 )
 from data import (
 	BORROWAL_STATE_ACTIVE, BORROWAL_STATE_RETURNED,
-	RESERVATION_STATE_ACTIVE, RESERVATION_STATE_CLOSED,
 	bc_Animal_Farm_London, bc_Good_Omens_Brno,
 	user_employee_London, user_customer_Customer, user_customer_Smith, user_employee_Brno,
 	location_Brno
 )
+
 
 class TestScenario:
 	def test_register_borrow(self, client: ClientWrapper):
@@ -104,7 +103,7 @@ class TestScenario:
 		assert reservation is not None
 		assert reservation['book_copy_id'] == BOOK_COPY.id
 		assert reservation['start_date'] == format_date(date.today())
-		assert reservation['state'] == RESERVATION_STATE_ACTIVE
+		assert reservation['state'] == ReservationState.ACTIVE.value
 
 		# cannot reserve book as other customer
 		OTHER_CUSTOMER = user_customer_Smith
@@ -160,7 +159,7 @@ class TestScenario:
 		json_data = loads(resp.data.decode())
 		reservation = find_by_id(NEW_RESERVATION_ID, json_data)
 		assert reservation is not None
-		assert reservation['state'] == RESERVATION_STATE_CLOSED
+		assert reservation['state'] == ReservationState.CLOSED.value
 
 	# add new book with new associated entities (author, category...)
 	def test_add_new_book(self, client: ClientWrapper):

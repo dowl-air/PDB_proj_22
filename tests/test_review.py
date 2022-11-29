@@ -12,6 +12,7 @@ from data import (
 	user_customer_Customer
 )
 
+
 class TestReview:
 	new_id: int = 0
 	NEW_REVIEW_BOOK_ID = book_1984.id
