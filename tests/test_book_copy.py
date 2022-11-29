@@ -3,13 +3,14 @@ from datetime import date
 from http import HTTPStatus
 from json import loads
 
+from app.entity import BookCopyState
+
 from helpers import (
     ClientWrapper,
     assert_error_response, assert_ok_created,
     format_date
 )
 from data import (
-    BOOK_COPY_STATE_GOOD, BOOK_COPY_STATE_DAMAGED,
     book_1984, book_Animal_Farm,
     location_Brno, location_Olomouc,
     bc_1984_Brno_1, bc_1984_London_1, bc_1984_London_2,
@@ -31,7 +32,7 @@ class TestBookCopy:
             'location_id': LOCATION.id,
             'print_date': format_date(date(2019, 10, 5)),
             'note': 'Note',
-            'state': BOOK_COPY_STATE_GOOD
+            'state': BookCopyState.GOOD.value
         }
 
         resp = client.post('/book-copies', data)
@@ -64,7 +65,7 @@ class TestBookCopy:
             'location_id': LOCATION.id,
             'print_date': format_date(date(2019, 10, 5)),
             'note': 'Note',
-            'state': BOOK_COPY_STATE_GOOD
+            'state': BookCopyState.GOOD.value
         }
 
         # missing book id
@@ -96,7 +97,7 @@ class TestBookCopy:
             'location_id': LOCATION.id,
             'print_date': format_date(date(2018, 7, 20)),
             'note': 'Edited note',
-            'state': BOOK_COPY_STATE_DAMAGED
+            'state': BookCopyState.DAMAGED.value
         }
 
         resp = client.put('/book-copies/%d' % TestBookCopy.new_id, data)
@@ -125,7 +126,7 @@ class TestBookCopy:
             'location_id': LOCATION.id,
             'print_date': format_date(date(2019, 10, 5)),
             'note': 'Note',
-            'state': BOOK_COPY_STATE_GOOD
+            'state': BookCopyState.GOOD.value
         }
 
         # missing book id
@@ -158,7 +159,7 @@ class TestBookCopy:
             'location_id': LOCATION.id,
             'print_date': format_date(date(2017, 4, 16)),
             'note': 'Edited note',
-            'state': BOOK_COPY_STATE_DAMAGED
+            'state': BookCopyState.DAMAGED.value
         }
 
         resp = client.put('/book-copies/%d' % BOOK_COPY.id, data)
