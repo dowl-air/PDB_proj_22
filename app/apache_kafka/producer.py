@@ -1,11 +1,14 @@
 
-from kafka import KafkaProducer
-from kafka.errors import NoBrokersAvailable
+from kafka import KafkaProducer, KafkaAdminClient
+from kafka.errors import NoBrokersAvailable, TopicAlreadyExistsError
+from kafka.admin import NewTopic
 
 from json import dumps
 from time import sleep
 
 from appconfig import KAFKA_HOST, KAFKA_PORT
+
+from apache_kafka.enums import KafkaTopic
 
 def create_producer() -> KafkaProducer:
     BOOTSTRAP_SERVER = f'{KAFKA_HOST}:{KAFKA_PORT}'
@@ -37,5 +40,20 @@ def create_producer() -> KafkaProducer:
             sleep(RETRY_DELAY)
 
     print(f'Producer: Successfully connected to Kafka bootstrap server at {BOOTSTRAP_SERVER}.')
+
+    print('Producer: Creating Kafka topics...')
+    admin = KafkaAdminClient(
+        bootstrap_servers=[BOOTSTRAP_SERVER],
+        api_version=API_VERSION
+    )
+
+    # assumes that the connection is established
+    try:
+        # create all required Kafka topics
+        admin.create_topics([NewTopic(topic.value, 1, 1) for topic in KafkaTopic])
+    # not a problem, since we only want to ensure that the topics exist
+    except TopicAlreadyExistsError:
+        pass
+    print('Kafka topics were created or had already existed...')
 
     return producer
