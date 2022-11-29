@@ -45,12 +45,5 @@ def decode_token(token) -> dict:
     except JWTError as e:
         raise Unauthorized() from e
 
-def check_authorized(user: str, token_info: dict) -> str:
-    return {
-        'message': 'You are authorized.',
-        'user_id': int(user),
-        'token_info': token_info
-    }
-
 def _current_timestamp() -> int:
     return int(time.time())

@@ -1,5 +1,7 @@
 from create_app import create_app
-from settings import config
+from appconfig import get_env_file_config
+
+config = get_env_file_config()
 
 application = create_app()
 

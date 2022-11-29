@@ -9,7 +9,6 @@ class BorrowalSchema(ma.SQLAlchemyAutoSchema):
         model = Borrowal
         load_instance = True
         sqla_session = db.session
-        include_fk = True
 
 
 borrowal_schema = BorrowalSchema()
@@ -33,7 +32,6 @@ class LocationSchema(ma.SQLAlchemyAutoSchema):
         model = Location
         load_instance = True
         sqla_session = db.session
-        include_fk = True
 
 
 location_schema = LocationSchema()
@@ -58,7 +56,8 @@ class AuthorSchema(ma.SQLAlchemyAutoSchema):
         model = Author
         load_instance = True
         sqla_session = db.session
-        include_fk = True
+        include_relationships = True
+    books = fields.Nested("entity.sql.schemas.BookSchema", many=True, only=("id", "ISBN", "release_date", "name",))
 
 
 author_schema = AuthorSchema()
@@ -70,7 +69,6 @@ class CategorySchema(ma.SQLAlchemyAutoSchema):
         model = Category
         load_instance = True
         sqla_session = db.session
-        include_fk = True
     # books
 
 
@@ -83,10 +81,7 @@ class BookCopySchema(ma.SQLAlchemyAutoSchema):
         model = BookCopy
         load_instance = True
         sqla_session = db.session
-        include_relationships = True
         include_fk = True
-
-    borrowals = fields.Nested(BorrowalSchema, many=True)
 
 
 book_copy_schema = BookCopySchema()
