@@ -1,15 +1,41 @@
 
 from kafka import KafkaProducer
+from kafka.errors import NoBrokersAvailable
 
 from json import dumps
+from time import sleep
 
 from appconfig import KAFKA_HOST, KAFKA_PORT
 
 def create_producer() -> KafkaProducer:
+    BOOTSTRAP_SERVER = f'{KAFKA_HOST}:{KAFKA_PORT}'
+    API_VERSION = (0, 10, 2)
+
     producer = KafkaProducer(
-        bootstrap_servers=[f'{KAFKA_HOST}:{KAFKA_PORT}'],
+        bootstrap_servers=[BOOTSTRAP_SERVER],
         key_serializer=lambda x: bytes(x, encoding='utf8'),
         value_serializer=lambda x: dumps(x).encode('utf-8'),
-        api_version=(0, 10, 2)
+        api_version=API_VERSION
     )
+
+    RETRY_DELAY = 3
+    waittime = 0
+    while True:
+        try:
+            version = producer._sender._client.check_version()
+        # not a problem, wait for the broker to start
+        except NoBrokersAvailable:
+            version = None
+        except Exception as exc:
+            print('Producer: Initialization error: ', exc)
+
+        if version is not None:
+            break
+        else:
+            print(f'Producer: Waiting for Kafka bootstrap server connection {waittime}s.')
+            waittime += RETRY_DELAY
+            sleep(RETRY_DELAY)
+
+    print(f'Producer: Successfully connected to Kafka bootstrap server at {BOOTSTRAP_SERVER}.')
+
     return producer
