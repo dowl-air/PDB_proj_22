@@ -36,26 +36,47 @@ location_Olomouc = Location(id=3, name='Olomouc', address='nám. Republiky 856/1
 
 # CATEGORIES
 category_sci_fi = Category(id=1, name='Science-fiction')
-category_dystopia = Category(id=2, name='Dystopia')
+category_dystopia = Category(
+	id=2, name='Dystopia',
+	description='Dystopia is a form of literature that explores social and political structures.'
+)
 category_fable = Category(id=3, name='Fable')
 category_fantasy = Category(id=4, name='Fantasy')
 category_satire = Category(id=5, name='Satire')
 category_comedy = Category(id=6, name='Comedy')
-category_history = Category(id=7, name='History')
+category_history = Category(
+	id=7, name='History',
+	description='History is the discovery, collection, organization, and presentation of information...'
+)
 category_non_fiction = Category(id=8, name='Non-fiction')
 
 # AUTHORS
-author_Orwell = Author(id=1, first_name='George', last_name='Orwell')
+author_Orwell = Author(
+	id=1, first_name='George', last_name='Orwell',
+	description='Eric Arthur Blair, better known by his pen name George Orwell, was an English novelist...'
+)
 author_Huxley = Author(id=2, first_name='Aldous', last_name='Huxley')
-author_Tolkien = Author(id=3, first_name='John', last_name='Tolkien')
+author_Tolkien = Author(
+	id=3, first_name='John', last_name='Tolkien',
+	description='John Ronald Reuel Tolkien CBE FRSL was an English writer and philologist...'
+)
 author_Gaiman = Author(id=4, first_name='Neil', last_name='Gaiman')
 author_Pratchet = Author(id=5, first_name='Terry', last_name='Pratchet')
 
 # BOOKS
-book_1984 = Book(id=1, name='1984', ISBN='978-80-7309-808-7', release_date=date(1949, 6, 9))
-book_Animal_Farm = Book(id=2, name='Animal Farm', ISBN='9780451526342', release_date=date(1945, 8, 17))
+book_1984 = Book(
+	id=1, name='1984', ISBN='978-80-7309-808-7', release_date=date(1949, 6, 9),
+	description='Nineteen Eighty-Four (also stylised as 1984) is a dystopian social science fiction novel and cautionary tale...'
+)
+book_Animal_Farm = Book(
+	id=2, name='Animal Farm', ISBN='9780451526342', release_date=date(1945, 8, 17),
+	description='Animal Farm is a beast fable, in the form of satirical allegorical novella, by George Orwell, first...'
+)
 book_Brave_New_World = Book(id=3, name='Brave New World', ISBN='9780099518471', release_date=date(1932, 1, 1))
-book_Hobbit = Book(id=4, name='The Hobbit', ISBN='978-80-257-0741-8', release_date=date(1937, 9, 21))
+book_Hobbit = Book(
+	id=4, name='The Hobbit', ISBN='978-80-257-0741-8', release_date=date(1937, 9, 21),
+	description="The Hobbit, or There and Back Again is a children's fantasy novel by English author J.R.R. Tolkien."
+)
 book_Good_Omens = Book(id=5, name='Good Omens', ISBN='978-0-552-13703-4', release_date=date(1990, 5, 10))
 
 author_Orwell.books = embed_book_list([book_1984, book_Animal_Farm])
