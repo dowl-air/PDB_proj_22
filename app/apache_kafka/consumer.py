@@ -18,7 +18,7 @@ from entity.nosql.book import Book
 from entity.nosql.book_copy import BookCopy
 from entity.nosql.category import Category
 from entity.nosql.location import Location
-from entity.nosql.schemas_mongo import author_schema, books_schema, category_schema, book_copy_schema, location_schema, book_copy_schema
+from entity.nosql.schemas_mongo import author_schema, books_schema, category_schema, book_copy_schema, location_schema, book_copy_schema, book_schema
 
 
 def manage_author(key, value):
@@ -168,12 +168,72 @@ def manage_book_copy(key, value):
         l = BookCopy.objects(id=int(value["id"])).first().delete()
 
 
+def manage_book(key, value):
+    # delete reviews
+    if "reviews" in value:
+        del value["reviews"]
+
+    # rename copies -> book_copies
+    if "copies" in value:
+        value["book_copies"] = value["copies"]
+        del value["copies"]
+
+    if (KafkaKey.UPDATE.value == key or KafkaKey.DELETE.value == key):
+        # remove this book object from all authors first
+        authors = Author.objects(books__id=int(value["id"]))
+        for author in authors:
+            book = next((a for a in author.books if a.id == int(value["id"])), None)
+            if book:
+                author.books.remove(book)
+                author.update(books=author.books)
+
+    if (KafkaKey.DELETE.value == key):
+        # delete book itself
+        return Book.objects(id=int(value["id"])).first().delete()
+
+    value_for_author = {
+        "ISBN": value["ISBN"],
+        "release_date": value["release_date"],
+        "id": value["id"],
+        "name": value["name"]
+    }
+
+    # reformat authors field
+    if "authors" in value:
+        for idx, author_id in enumerate(value["authors"]):
+            author = Author.objects(id=int(author_id)).first()
+            if author:
+                # update book object
+                value["authors"][idx] = author_schema.dump(author)
+                del value["authors"][idx]["books"]
+
+                # update author object (propagate)
+                author_books_list = author.books if author.books else []
+                author_books_list.append(value_for_author)
+                author.update(books=author_books_list)
+
+    # reformat categories field
+        if "categories" in value:
+            for idx, category_id in enumerate(value["categories"]):
+                cat = Category.objects(id=int(category_id)).first()
+                if cat:
+                    value["categories"][idx] = category_schema.dump(cat)
+
+    if (KafkaKey.CREATE.value == key):
+        l = book_schema.load(value)
+        l.save()
+
+    if (KafkaKey.UPDATE.value == key):
+        l = Book.objects(id=int(value["id"])).first()
+        l.update(**value)
+
+
 func_dict = {
     KafkaTopic.AUTHOR.value: manage_author,
     KafkaTopic.CATEGORY.value: manage_category,
     KafkaTopic.LOCATION.value: manage_location,
     KafkaTopic.BOOKCOPY.value: manage_book_copy,
-
+    KafkaTopic.BOOK.value: manage_book
 }
 
 
