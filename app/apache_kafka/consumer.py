@@ -193,14 +193,15 @@ def run_consumer() -> None:
         api_version=(0, 10, 2)
     )
 
-    # wait for connection
-    topics = consumer.topics()
+    # Wait for Kafka to initialize
+    # we just poll for the topics and wait for them to be non-empty
+    # we can do this, since we know the topics are created during producer initialization
+    RETRY_DELAY = 3
     wait_time = 0
-    while not topics:
-        sleep(1)
-        wait_time += 1
-        print(f"Connection not established {wait_time}s.")
-        topics = consumer.topics()
+    while not consumer.topics():
+        print(f"Waiting for Kafka to initialize {wait_time}s.")
+        wait_time += RETRY_DELAY
+        sleep(RETRY_DELAY)
 
     print("Subscribing to topics...")
     consumer.subscribe([t.value for t in KafkaTopic])
