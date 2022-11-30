@@ -294,13 +294,13 @@ SQL_REVIEWS = convert_review_list_to_sql(REVIEWS)
 
 # removes all data from both databases
 def clear_db() -> None:
-    with create_app({'producer_log': False}).app_context():
+    with create_app({'producer_init': False}).app_context():
         db.drop_all()
         mongo.connection['default'].drop_database(MONGODB_DATABASE)
 
 # fills both databases with test data
 def fill_db() -> None:
-    with create_app({'producer_log': False}).app_context():
+    with create_app({'producer_init': False}).app_context():
         for arr in [LOCATIONS, CATEGORIES, AUTHORS, BOOKS, BOOK_COPIES, USERS, BORROWALS, RESERVATIONS, REVIEWS]:
             for it in arr:
                 it.save()
