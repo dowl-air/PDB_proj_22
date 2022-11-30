@@ -44,9 +44,6 @@ def assert_dict_equal(actual, expected, ignore_list=['dictionary_item_removed', 
 
     assert actual == expected
 
-def assert_ok_created(status_code: int) -> None:
-    assert status_code == HTTPStatus.OK or status_code == HTTPStatus.CREATED
-
 def find(fn, arr: list):
     arr = list(filter(fn, arr))
     if len(arr) != 1:

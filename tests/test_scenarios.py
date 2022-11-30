@@ -7,7 +7,7 @@ from app.entity import BookCopyState, ReservationState, BorrowalState
 
 from helpers import (
     ClientWrapper,
-    assert_ok_created, assert_error_response,
+    assert_error_response,
     find_by_id, format_date
 )
 from data import (
@@ -28,7 +28,7 @@ class TestScenarios:
         }
 
         resp = client.post('/register', NEW_CUSTOMER)
-        assert_ok_created(resp.status_code)
+        assert resp.status_code == HTTPStatus.CREATED
         json_data = loads(resp.data.decode())
         assert 'id' in json_data
 
@@ -175,7 +175,7 @@ class TestScenarios:
         }
 
         resp = client.post('/authors', NEW_AUTHOR)
-        assert_ok_created(resp.status_code)
+        assert resp.status_code == HTTPStatus.CREATED
         json_data = loads(resp.data.decode())
         assert 'id' in json_data
 
@@ -188,7 +188,7 @@ class TestScenarios:
         }
 
         resp = client.post('/categories', NEW_CATEGORY)
-        assert_ok_created(resp.status_code)
+        assert resp.status_code == HTTPStatus.CREATED
         json_data = loads(resp.data.decode())
         assert 'id' in json_data
 
@@ -205,7 +205,7 @@ class TestScenarios:
         }
 
         resp = client.post('/books', NEW_BOOK)
-        assert_ok_created(resp.status_code)
+        assert resp.status_code == HTTPStatus.CREATED
         json_data = loads(resp.data.decode())
         assert 'id' in json_data
 
