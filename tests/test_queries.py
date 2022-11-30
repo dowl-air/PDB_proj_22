@@ -4,7 +4,7 @@ import pytest
 from http import HTTPStatus
 from json import loads
 
-from app.entity import BookCopyState
+from app.entity import BookCopyState, BorrowalState
 
 from helpers import (
     ClientWrapper, to_json,
@@ -12,7 +12,6 @@ from helpers import (
 )
 from data import (
     BOOKS, BOOK_COPIES, BORROWALS, RESERVATIONS, REVIEWS,
-    BORROWAL_STATE_ACTIVE,
     book_1984, book_Hobbit, book_Good_Omens, book_Brave_New_World,
     bc_Hobbit_Brno, bc_Hobbit_London_1, bc_1984_Brno_1, bc_1984_Brno_2, bc_Animal_Farm_Brno,
     author_Orwell,
@@ -165,4 +164,4 @@ class TestQueries:
 
         resp = client.get('/active-borrowals')
         assert resp.status_code == HTTPStatus.OK
-        assert loads(resp.data.decode()) == to_json(list(filter(lambda x: x.state == BORROWAL_STATE_ACTIVE, BORROWALS)))
+        assert loads(resp.data.decode()) == to_json(list(filter(lambda x: x.state == BorrowalState.ACTIVE.value, BORROWALS)))

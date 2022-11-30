@@ -6,7 +6,7 @@ from app.create_app import create_app, db, mongo
 from app.entity.nosql import (
     Location, Category, Author, Book, BookCopy, User, Borrowal, Reservation, Review
 )
-from app.entity import UserRole, BookCopyState, ReservationState, RESERVATION_DAYS_LENGTH
+from app.entity import UserRole, BookCopyState, ReservationState, RESERVATION_DAYS_LENGTH, BorrowalState, BORROWAL_DAYS_LENGTH
 
 from data_helpers import (
     embed_book_list, embed_author_list, embed_book_copy_list, embed_category_list,
@@ -18,13 +18,7 @@ from data_helpers import (
 )
 
 
-# TODO
-BORROWAL_STATE_ACTIVE = 1
-BORROWAL_STATE_RETURNED = 0
-BORROWAL_STATE_LOST = 2
-##
-
-BORROWAL_LENGTH = timedelta(days=30)
+BORROWAL_LENGTH = timedelta(days=BORROWAL_DAYS_LENGTH)
 RESERVATION_LENGTH = timedelta(days=RESERVATION_DAYS_LENGTH)
 
 # LOCATIONS
@@ -175,41 +169,41 @@ user_admin_Admin = User(id=7, first_name='Admin', last_name='Admin', role=UserRo
 # BORROWALS
 start_date = date(2019, 10, 4)
 borrowal_London_1 = Borrowal(
-    id=1, start_date=start_date, end_date=start_date + BORROWAL_LENGTH, returned_date=date(2019, 10, 24), state=BORROWAL_STATE_RETURNED,
+    id=1, start_date=start_date, end_date=start_date + BORROWAL_LENGTH, returned_date=date(2019, 10, 24), state=BorrowalState.RETURNED.value,
     book_copy=embed_book_copy(bc_1984_London_1), customer=embed_user(user_customer_Customer), employee=embed_user(user_employee_London)
 )
 start_date = date(2018, 8, 7)
 borrowal_London_2 = Borrowal(
-    id=2, start_date=start_date, end_date=start_date + BORROWAL_LENGTH, state=BORROWAL_STATE_LOST,
+    id=2, start_date=start_date, end_date=start_date + BORROWAL_LENGTH, state=BorrowalState.LOST.value,
     book_copy=embed_book_copy(bc_1984_London_3), customer=embed_user(user_customer_Smith), employee=embed_user(user_employee_London)
 )
 start_date = date(2019, 11, 25)
 borrowal_London_3 = Borrowal(
-    id=3, start_date=start_date, end_date=start_date + BORROWAL_LENGTH, returned_date=date(2019, 12, 10), state=BORROWAL_STATE_RETURNED,
+    id=3, start_date=start_date, end_date=start_date + BORROWAL_LENGTH, returned_date=date(2019, 12, 10), state=BorrowalState.RETURNED.value,
     book_copy=embed_book_copy(bc_Animal_Farm_London), customer=embed_user(user_customer_Customer), employee=embed_user(user_employee_London)
 )
 start_date = date(2019, 5, 6)
 borrowal_Brno_1 = Borrowal(
-    id=4, start_date=start_date, end_date=start_date + BORROWAL_LENGTH, returned_date=date(2019, 5, 15), state=BORROWAL_STATE_RETURNED,
+    id=4, start_date=start_date, end_date=start_date + BORROWAL_LENGTH, returned_date=date(2019, 5, 15), state=BorrowalState.RETURNED.value,
     book_copy=embed_book_copy(bc_Good_Omens_Brno), customer=embed_user(user_customer_Customer), employee=embed_user(user_employee_Brno)
 )
 borrowal_Brno_2 = Borrowal(
-    id=5, start_date=start_date, end_date=start_date + BORROWAL_LENGTH, returned_date=date(2019, 5, 18), state=BORROWAL_STATE_RETURNED,
+    id=5, start_date=start_date, end_date=start_date + BORROWAL_LENGTH, returned_date=date(2019, 5, 18), state=BorrowalState.RETURNED.value,
     book_copy=embed_book_copy(bc_Hobbit_Brno), customer=embed_user(user_customer_Customer), employee=embed_user(user_employee_Brno)
 )
 start_date = date(2020, 6, 10)
 borrowal_Olomouc = Borrowal(
-    id=6, start_date=start_date, end_date=start_date + BORROWAL_LENGTH, returned_date=date(2020, 6, 10), state=BORROWAL_STATE_RETURNED,
+    id=6, start_date=start_date, end_date=start_date + BORROWAL_LENGTH, returned_date=date(2020, 6, 10), state=BorrowalState.RETURNED.value,
     book_copy=embed_book_copy(bc_Animal_Farm_Olomouc), customer=embed_user(user_customer_Smith), employee=embed_user(user_employee_Olomouc)
 )
 start_date = date.today()
 borrowal_Brno_active = Borrowal(
-    id=7, start_date=start_date, end_date=start_date + BORROWAL_LENGTH, state=BORROWAL_STATE_ACTIVE,
+    id=7, start_date=start_date, end_date=start_date + BORROWAL_LENGTH, state=BorrowalState.ACTIVE.value,
     book_copy=embed_book_copy(bc_1984_Brno_1), customer=embed_user(user_customer_Smith), employee=embed_user(user_employee_Olomouc)
 )
 start_date = date(2020, 11, 6)
 borrowal_Olomouc_active = Borrowal(
-    id=8, start_date=start_date, end_date=start_date + BORROWAL_LENGTH, state=BORROWAL_STATE_ACTIVE, # expired
+    id=8, start_date=start_date, end_date=start_date + BORROWAL_LENGTH, state=BorrowalState.ACTIVE.value, # expired
     book_copy=embed_book_copy(bc_Brave_New_World_Brno), customer=embed_user(user_customer_Smith), employee=embed_user(user_employee_Brno)
 )
 
