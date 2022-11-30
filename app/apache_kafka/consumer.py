@@ -80,12 +80,6 @@ def manage_category(key, value):
         c = Category.objects(id=int(value["id"])).first()
         c.update(**value)
 
-        """         # we dont want to add books and description
-        if "books" in value:
-            del value["books"]"""
-        if "description" in value:
-            del value["description"]
-
         # update each book that holds this category
         books = Book.objects(categories__id=int(value["id"]))
         for book in books:

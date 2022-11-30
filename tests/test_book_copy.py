@@ -5,11 +5,7 @@ from json import loads
 
 from app.entity import BookCopyState
 
-from helpers import (
-    ClientWrapper,
-    assert_error_response, assert_ok_created,
-    format_date
-)
+from helpers import ClientWrapper, assert_error_response, format_date, find_by_id
 from data import (
     book_1984, book_Animal_Farm,
     location_Brno, location_Olomouc,
@@ -36,7 +32,7 @@ class TestBookCopy:
         }
 
         resp = client.post('/book-copies', data)
-        assert_ok_created(resp.status_code)
+        assert resp.status_code == HTTPStatus.CREATED
         json_data = loads(resp.data.decode())
         assert 'id' in json_data
 
@@ -168,10 +164,8 @@ class TestBookCopy:
         resp = client.get('/books/%d' % BOOK.id)
         assert resp.status_code == HTTPStatus.OK
         book = loads(resp.data.decode())
-        copies = book['book_copies']
-        copies = list(filter(lambda x: x['id'] == BOOK_COPY.id, copies))
-        assert len(copies) == 1
-        copy = copies[0]
+        copy = find_by_id(BOOK_COPY.id, book['book_copies'])
+        assert copy is not None
         assert copy['print_date'] == data['print_date']
         assert copy['note'] == data['note']
         assert copy['state'] == data['state']
@@ -210,6 +204,4 @@ class TestBookCopy:
         resp = client.get('/books/%d' % BOOK.id)
         assert resp.status_code == HTTPStatus.OK
         book = loads(resp.data.decode())
-        assert "copies" not in book
-        # copies = list(filter(lambda x: x['id'] == BOOK_COPY.id, book['copies']))
-        # assert len(copies) == 0
+        assert 'copies' not in book or find_by_id(BOOK_COPY.id, book['copies']) is None

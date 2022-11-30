@@ -3,11 +3,7 @@ from datetime import date
 from http import HTTPStatus
 from json import loads
 
-from helpers import (
-    ClientWrapper,
-    assert_dict_equal, assert_error_response, assert_ok_created,
-    find_by_id, format_date
-)
+from helpers import ClientWrapper, assert_error_response, find_by_id, format_date
 from data import (
     author_Orwell, author_Gaiman, author_Tolkien,
     book_1984, book_Animal_Farm,
@@ -37,7 +33,7 @@ class TestBook:
         }
 
         resp = client.post('/books', data)
-        assert_ok_created(resp.status_code)
+        assert resp.status_code == HTTPStatus.CREATED
         json_data = loads(resp.data.decode())
         assert 'id' in json_data
 
@@ -57,10 +53,11 @@ class TestBook:
         assert author['first_name'] == AUTHOR.first_name
         assert author['last_name'] == AUTHOR.last_name
         assert len(book['categories']) == 2
-        assert_dict_equal(book['categories'], [
-            {'id': CATEGORY1.id, 'name': CATEGORY1.name, 'description': CATEGORY1.description},
-            {'id': CATEGORY2.id, 'name': CATEGORY2.name}
-        ])
+        category1 = find_by_id(CATEGORY1.id, book['categories'])
+        assert category1['name'] == CATEGORY1.name
+        assert category1['description'] == CATEGORY1.description
+        category2 = find_by_id(CATEGORY2.id, book['categories'])
+        assert category2['name'] == CATEGORY2.name
 
         resp = client.get('/authors/%d' % AUTHOR.id)
         assert resp.status_code == HTTPStatus.OK
@@ -216,7 +213,7 @@ class TestBook:
             'release_date': format_date(date(1947, 7, 7)),
             'description': 'Animal Farm description (edited)',
             'authors': [NEW_AUTHOR.id],
-            'categories': []
+            'categories': [cat.id for cat in BOOK.categories] # keep the same categories
         }
 
         resp = client.put('/books/%d' % BOOK.id, data)

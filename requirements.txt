@@ -15,7 +15,7 @@ connexion[swagger-ui]
 
 # testing
 pytest
-deepdiff
+pytest-order
 
 # JWT
 python-jose[cryptography]

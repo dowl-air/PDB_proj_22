@@ -3,23 +3,13 @@ from datetime import date
 from http import HTTPStatus
 from json import loads
 
-from app.entity import ReservationState
+from app.entity import ReservationState, BorrowalState
 
-from helpers import (
-    ClientWrapper,
-    assert_error_response, assert_ok_created,
-    find_by_id,
-    format_date
-)
+from helpers import ClientWrapper, assert_error_response, find_by_id, format_date
 from data import (
-    BORROWAL_STATE_ACTIVE, BORROWAL_STATE_RETURNED,
-
-    bc_1984_Brno_1, bc_Animal_Farm_Brno, bc_Hobbit_Olomouc, bc_Brave_New_World_Brno,
-    bc_Hobbit_London_1, bc_Hobbit_London_2, bc_1984_London_3, bc_Animal_Farm_Olomouc,
-
+    bc_1984_Brno_1, bc_Hobbit_Olomouc, bc_Brave_New_World_Brno, bc_Hobbit_London_1, bc_Hobbit_London_2, bc_1984_London_3,
     user_employee_Brno, user_customer_Customer, user_employee_London, user_customer_Smith,
     borrowal_London_3,
-    reservation_London_active_1,
     reservation_London_active_2
 )
 
@@ -39,7 +29,7 @@ class TestBorrowal:
         }
 
         resp = client.post('/borrowals', data)
-        assert_ok_created(resp.status_code)
+        assert resp.status_code == HTTPStatus.CREATED
         json_data = loads(resp.data.decode())
         assert 'id' in json_data
 
@@ -54,12 +44,12 @@ class TestBorrowal:
         assert borrowal is not None
         assert 'book_copy' in borrowal and borrowal['book_copy']['id'] == BOOK_COPY.id
         assert borrowal['start_date'] == format_date(date.today())
-        assert borrowal['state'] == BORROWAL_STATE_ACTIVE
+        assert borrowal['state'] == BorrowalState.ACTIVE.value
 
     def test_borrowal_add_invalid_reserved(self, client: ClientWrapper):
         client.login(user=user_employee_Brno)
 
-        BOOK_COPY = bc_Hobbit_London_2  # active reservation by a different customer
+        BOOK_COPY = bc_Hobbit_London_2 # active reservation by a different customer
         CUSTOMER = user_customer_Customer
 
         data = {
@@ -73,7 +63,7 @@ class TestBorrowal:
     def test_borrowal_add_invalid_borrowed(self, client: ClientWrapper):
         client.login(user=user_employee_Brno)
 
-        BOOK_COPY = bc_1984_Brno_1  # borrowed (by a different customer)
+        BOOK_COPY = bc_1984_Brno_1 # borrowed (by a different customer)
         CUSTOMER = user_customer_Customer
 
         data = {
@@ -87,7 +77,7 @@ class TestBorrowal:
     def test_borrowal_add_invalid_borrowed_expired(self, client: ClientWrapper):
         client.login(user=user_employee_Brno)
 
-        BOOK_COPY = bc_Brave_New_World_Brno  # expired borrowal (by a different customer)
+        BOOK_COPY = bc_Brave_New_World_Brno # expired borrowal (by a different customer)
         CUSTOMER = user_customer_Customer
 
         data = {
@@ -102,7 +92,7 @@ class TestBorrowal:
     def test_borrowal_add_invalid_deleted(self, client: ClientWrapper):
         client.login(user=user_employee_London)
 
-        BOOK_COPY = bc_1984_London_3  # deleted book copy
+        BOOK_COPY = bc_1984_London_3 # deleted book copy
         CUSTOMER = user_customer_Customer
 
         data = {
@@ -116,7 +106,7 @@ class TestBorrowal:
     def test_borrowal_add_valid_reservation_expired(self, client: ClientWrapper):
         client.login(user=user_employee_London)
 
-        BOOK_COPY = bc_Hobbit_London_1  # reserved by customer 'Smith'
+        BOOK_COPY = bc_Hobbit_London_1 # reserved by customer 'Smith'
         CUSTOMER = user_customer_Customer
 
         data = {
@@ -125,7 +115,7 @@ class TestBorrowal:
         }
 
         resp = client.post('/borrowals', data)
-        assert_ok_created(resp.status_code)
+        assert resp.status_code == HTTPStatus.CREATED
         json_data = loads(resp.data.decode())
         assert 'id' in json_data
 
@@ -140,7 +130,7 @@ class TestBorrowal:
         assert borrowal is not None
         assert 'book_copy' in borrowal and borrowal['book_copy']['id'] == BOOK_COPY.id
         assert borrowal['start_date'] == format_date(date.today())
-        assert borrowal['state'] == BORROWAL_STATE_ACTIVE
+        assert borrowal['state'] == BorrowalState.ACTIVE.value
 
     def test_borrowal_add_valid_reserved(self, client: ClientWrapper):
         client.login(user=user_employee_London)
@@ -155,7 +145,7 @@ class TestBorrowal:
         }
 
         resp = client.post('/borrowals', data)
-        assert_ok_created(resp.status_code)
+        assert resp.status_code == HTTPStatus.CREATED
         json_data = loads(resp.data.decode())
         assert 'id' in json_data
 
@@ -170,7 +160,7 @@ class TestBorrowal:
         assert borrowal is not None
         assert 'book_copy' in borrowal and borrowal['book_copy']['id'] == BOOK_COPY.id
         assert borrowal['start_date'] == format_date(date.today())
-        assert borrowal['state'] == BORROWAL_STATE_ACTIVE
+        assert borrowal['state'] == BorrowalState.ACTIVE.value
 
         # reservation has been closed
         resp = client.get('/profile/reservations')
@@ -190,9 +180,7 @@ class TestBorrowal:
         resp = client.get('/active-borrowals')
         assert resp.status_code == HTTPStatus.OK
         json_data = loads(resp.data.decode())
-        borrowal = find_by_id(TestBorrowal.new_id, json_data)
-        assert borrowal is None  # active-borrowals only return active ones
-        #assert borrowal['state'] == BORROWAL_STATE_RETURNED
+        assert find_by_id(TestBorrowal.new_id, json_data) is None # active-borrowals only returns active ones
 
     def test_borrowal_return_invalid(self, client: ClientWrapper):
         client.login(user=user_employee_Brno)

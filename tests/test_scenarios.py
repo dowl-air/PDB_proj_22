@@ -3,15 +3,10 @@ from datetime import date
 from http import HTTPStatus
 from json import loads
 
-from app.entity import BookCopyState, ReservationState
+from app.entity import BookCopyState, ReservationState, BorrowalState
 
-from helpers import (
-    ClientWrapper,
-    assert_ok_created, assert_error_response,
-    find_by_id, format_date
-)
+from helpers import ClientWrapper, assert_error_response, find_by_id, format_date
 from data import (
-    BORROWAL_STATE_ACTIVE, BORROWAL_STATE_RETURNED,
     bc_Animal_Farm_London, bc_Good_Omens_Brno,
     user_employee_London, user_customer_Customer, user_customer_Smith, user_employee_Brno,
     location_Brno
@@ -29,7 +24,7 @@ class TestScenarios:
         }
 
         resp = client.post('/register', NEW_CUSTOMER)
-        assert_ok_created(resp.status_code)
+        assert resp.status_code == HTTPStatus.CREATED
         json_data = loads(resp.data.decode())
         assert 'id' in json_data
 
@@ -62,7 +57,7 @@ class TestScenarios:
         assert borrowal is not None
         assert 'book_copy' in borrowal and borrowal['book_copy']['id'] == BOOK_COPY.id
         assert borrowal['start_date'] == format_date(date.today())
-        assert borrowal['state'] == BORROWAL_STATE_ACTIVE
+        assert borrowal['state'] == BorrowalState.ACTIVE.value
 
         # return borrowed book copy
         client.login(user=EMPLOYEE)
@@ -77,7 +72,7 @@ class TestScenarios:
         json_data = loads(resp.data.decode())
         borrowal = find_by_id(NEW_BORROWAL_ID, json_data)
         assert borrowal is not None
-        assert borrowal['state'] == BORROWAL_STATE_RETURNED
+        assert borrowal['state'] == BorrowalState.RETURNED.value
 
     def test_reserve_borrow(self, client: ClientWrapper):
         # reserve book copy as customer
@@ -153,7 +148,7 @@ class TestScenarios:
         borrowal is not None
         assert 'book_copy' in borrowal and borrowal['book_copy']['id'] == BOOK_COPY.id
         assert borrowal['start_date'] == format_date(date.today())
-        assert borrowal['state'] == BORROWAL_STATE_ACTIVE
+        assert borrowal['state'] == BorrowalState.ACTIVE.value
 
         resp = client.get('/profile/reservations')
         assert resp.status_code == HTTPStatus.OK
@@ -176,7 +171,7 @@ class TestScenarios:
         }
 
         resp = client.post('/authors', NEW_AUTHOR)
-        assert_ok_created(resp.status_code)
+        assert resp.status_code == HTTPStatus.CREATED
         json_data = loads(resp.data.decode())
         assert 'id' in json_data
 
@@ -189,7 +184,7 @@ class TestScenarios:
         }
 
         resp = client.post('/categories', NEW_CATEGORY)
-        assert_ok_created(resp.status_code)
+        assert resp.status_code == HTTPStatus.CREATED
         json_data = loads(resp.data.decode())
         assert 'id' in json_data
 
@@ -206,7 +201,7 @@ class TestScenarios:
         }
 
         resp = client.post('/books', NEW_BOOK)
-        assert_ok_created(resp.status_code)
+        assert resp.status_code == HTTPStatus.CREATED
         json_data = loads(resp.data.decode())
         assert 'id' in json_data
 

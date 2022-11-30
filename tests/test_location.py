@@ -2,13 +2,10 @@
 from http import HTTPStatus
 from json import loads
 
-from helpers import (
-    ClientWrapper,
-    assert_error_response, assert_ok_created
-)
+from helpers import ClientWrapper, assert_error_response
 from data import (
     location_Brno,
-    bc_1984_Brno_1,
+    bc_1984_Brno_2,
     user_admin_Admin
 )
 
@@ -25,7 +22,7 @@ class TestLocation:
         }
 
         resp = client.post('/locations', data)
-        assert_ok_created(resp.status_code)
+        assert resp.status_code == HTTPStatus.CREATED
         json_data = loads(resp.data.decode())
         assert 'id' in json_data
 
@@ -84,7 +81,7 @@ class TestLocation:
         }
 
         LOCATION = location_Brno
-        BOOK_COPY = bc_1984_Brno_1
+        BOOK_COPY = bc_1984_Brno_2
 
         resp = client.put('/locations/%d' % LOCATION.id, data)
         assert resp.status_code == HTTPStatus.OK

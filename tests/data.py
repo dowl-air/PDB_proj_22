@@ -6,7 +6,7 @@ from app.create_app import create_app, db, mongo
 from app.entity.nosql import (
     Location, Category, Author, Book, BookCopy, User, Borrowal, Reservation, Review
 )
-from app.entity import UserRole, BookCopyState, ReservationState, RESERVATION_DAYS_LENGTH
+from app.entity import UserRole, BookCopyState, ReservationState, RESERVATION_DAYS_LENGTH, BorrowalState, BORROWAL_DAYS_LENGTH
 
 from data_helpers import (
     embed_book_list, embed_author_list, embed_book_copy_list, embed_category_list,
@@ -18,13 +18,7 @@ from data_helpers import (
 )
 
 
-# TODO
-BORROWAL_STATE_ACTIVE = 1
-BORROWAL_STATE_RETURNED = 0
-BORROWAL_STATE_LOST = 2
-##
-
-BORROWAL_LENGTH = timedelta(days=30)
+BORROWAL_LENGTH = timedelta(days=BORROWAL_DAYS_LENGTH)
 RESERVATION_LENGTH = timedelta(days=RESERVATION_DAYS_LENGTH)
 
 # LOCATIONS
@@ -88,6 +82,12 @@ book_Animal_Farm.authors = embed_author_list([author_Orwell])
 book_Brave_New_World.authors = embed_author_list([author_Huxley])
 book_Hobbit.authors = embed_author_list([author_Tolkien])
 book_Good_Omens.authors = embed_author_list([author_Gaiman, author_Pratchet])
+
+book_1984.categories = embed_category_list([category_sci_fi, category_dystopia])
+book_Animal_Farm.categories = embed_category_list([category_fable, category_satire])
+book_Brave_New_World.categories = embed_category_list([category_dystopia])
+book_Hobbit.categories = embed_category_list([category_fantasy])
+book_Good_Omens.categories = embed_category_list([category_fantasy, category_comedy])
 
 # BOOK COPIES
 bc_1984_Brno_1 = BookCopy(
@@ -157,59 +157,53 @@ book_Brave_New_World.book_copies = embed_book_copy_list([bc_Brave_New_World_Brno
 book_Hobbit.book_copies = embed_book_copy_list([bc_Hobbit_Brno, bc_Hobbit_London_1, bc_Hobbit_London_2, bc_Hobbit_Olomouc])
 book_Good_Omens.book_copies = embed_book_copy_list([bc_Good_Omens_Brno])
 
-book_1984.categories = embed_category_list([category_sci_fi, category_dystopia])
-book_Animal_Farm.categories = embed_category_list([category_fable, category_satire])
-book_Brave_New_World.categories = embed_category_list([category_dystopia])
-book_Hobbit.categories = embed_category_list([category_fantasy])
-book_Good_Omens.categories = embed_category_list([category_fantasy, category_comedy])
-
 # USERS
-user_customer_Customer = User(id=1, first_name='Customer', last_name='Customer', role=UserRole.CUSTOMER, email='customer@customer.com')
-user_customer_Smith = User(id=2, first_name='John', last_name='Smith', role=UserRole.CUSTOMER, email='smith@customer.com')
-user_customer_Reviewer = User(id=3, first_name='Joe', last_name='Reviewer', role=UserRole.CUSTOMER, email='reviewer@customer.com')
-user_employee_Brno = User(id=4, first_name='Employee', last_name='Brno', role=UserRole.EMPLOYEE, email='brno@employee.com')
-user_employee_London = User(id=5, first_name='Employee', last_name='London', role=UserRole.EMPLOYEE, email='london@employee.com')
-user_employee_Olomouc = User(id=6, first_name='Employee', last_name='Olomouc', role=UserRole.EMPLOYEE, email='olomouc@employee.com')
-user_admin_Admin = User(id=7, first_name='Admin', last_name='Admin', role=UserRole.ADMIN, email='admin@admin.com')
+user_customer_Customer = User(id=1, first_name='Customer', last_name='Customer', role=UserRole.CUSTOMER.value, email='customer@customer.com')
+user_customer_Smith = User(id=2, first_name='John', last_name='Smith', role=UserRole.CUSTOMER.value, email='smith@customer.com')
+user_customer_Reviewer = User(id=3, first_name='Joe', last_name='Reviewer', role=UserRole.CUSTOMER.value, email='reviewer@customer.com')
+user_employee_Brno = User(id=4, first_name='Employee', last_name='Brno', role=UserRole.EMPLOYEE.value, email='brno@employee.com')
+user_employee_London = User(id=5, first_name='Employee', last_name='London', role=UserRole.EMPLOYEE.value, email='london@employee.com')
+user_employee_Olomouc = User(id=6, first_name='Employee', last_name='Olomouc', role=UserRole.EMPLOYEE.value, email='olomouc@employee.com')
+user_admin_Admin = User(id=7, first_name='Admin', last_name='Admin', role=UserRole.ADMIN.value, email='admin@admin.com')
 
 # BORROWALS
 start_date = date(2019, 10, 4)
 borrowal_London_1 = Borrowal(
-    id=1, start_date=start_date, end_date=start_date + BORROWAL_LENGTH, returned_date=date(2019, 10, 24), state=BORROWAL_STATE_RETURNED,
+    id=1, start_date=start_date, end_date=start_date + BORROWAL_LENGTH, returned_date=date(2019, 10, 24), state=BorrowalState.RETURNED.value,
     book_copy=embed_book_copy(bc_1984_London_1), customer=embed_user(user_customer_Customer), employee=embed_user(user_employee_London)
 )
 start_date = date(2018, 8, 7)
 borrowal_London_2 = Borrowal(
-    id=2, start_date=start_date, end_date=start_date + BORROWAL_LENGTH, state=BORROWAL_STATE_LOST,
+    id=2, start_date=start_date, end_date=start_date + BORROWAL_LENGTH, state=BorrowalState.LOST.value,
     book_copy=embed_book_copy(bc_1984_London_3), customer=embed_user(user_customer_Smith), employee=embed_user(user_employee_London)
 )
 start_date = date(2019, 11, 25)
 borrowal_London_3 = Borrowal(
-    id=3, start_date=start_date, end_date=start_date + BORROWAL_LENGTH, returned_date=date(2019, 12, 10), state=BORROWAL_STATE_RETURNED,
+    id=3, start_date=start_date, end_date=start_date + BORROWAL_LENGTH, returned_date=date(2019, 12, 10), state=BorrowalState.RETURNED.value,
     book_copy=embed_book_copy(bc_Animal_Farm_London), customer=embed_user(user_customer_Customer), employee=embed_user(user_employee_London)
 )
 start_date = date(2019, 5, 6)
 borrowal_Brno_1 = Borrowal(
-    id=4, start_date=start_date, end_date=start_date + BORROWAL_LENGTH, returned_date=date(2019, 5, 15), state=BORROWAL_STATE_RETURNED,
+    id=4, start_date=start_date, end_date=start_date + BORROWAL_LENGTH, returned_date=date(2019, 5, 15), state=BorrowalState.RETURNED.value,
     book_copy=embed_book_copy(bc_Good_Omens_Brno), customer=embed_user(user_customer_Customer), employee=embed_user(user_employee_Brno)
 )
 borrowal_Brno_2 = Borrowal(
-    id=5, start_date=start_date, end_date=start_date + BORROWAL_LENGTH, returned_date=date(2019, 5, 18), state=BORROWAL_STATE_RETURNED,
+    id=5, start_date=start_date, end_date=start_date + BORROWAL_LENGTH, returned_date=date(2019, 5, 18), state=BorrowalState.RETURNED.value,
     book_copy=embed_book_copy(bc_Hobbit_Brno), customer=embed_user(user_customer_Customer), employee=embed_user(user_employee_Brno)
 )
 start_date = date(2020, 6, 10)
 borrowal_Olomouc = Borrowal(
-    id=6, start_date=start_date, end_date=start_date + BORROWAL_LENGTH, returned_date=date(2020, 6, 10), state=BORROWAL_STATE_RETURNED,
+    id=6, start_date=start_date, end_date=start_date + BORROWAL_LENGTH, returned_date=date(2020, 6, 10), state=BorrowalState.RETURNED.value,
     book_copy=embed_book_copy(bc_Animal_Farm_Olomouc), customer=embed_user(user_customer_Smith), employee=embed_user(user_employee_Olomouc)
 )
 start_date = date.today()
 borrowal_Brno_active = Borrowal(
-    id=7, start_date=start_date, end_date=start_date + BORROWAL_LENGTH, state=BORROWAL_STATE_ACTIVE,
+    id=7, start_date=start_date, end_date=start_date + BORROWAL_LENGTH, state=BorrowalState.ACTIVE.value,
     book_copy=embed_book_copy(bc_1984_Brno_1), customer=embed_user(user_customer_Smith), employee=embed_user(user_employee_Olomouc)
 )
 start_date = date(2020, 11, 6)
 borrowal_Olomouc_active = Borrowal(
-    id=8, start_date=start_date, end_date=start_date + BORROWAL_LENGTH, state=BORROWAL_STATE_ACTIVE,  # expired
+    id=8, start_date=start_date, end_date=start_date + BORROWAL_LENGTH, state=BorrowalState.ACTIVE.value, # expired
     book_copy=embed_book_copy(bc_Brave_New_World_Brno), customer=embed_user(user_customer_Smith), employee=embed_user(user_employee_Brno)
 )
 
@@ -231,7 +225,7 @@ reservation_Brno_active = Reservation(
 )
 start_date = date(2021, 4, 6)
 reservation_London_active_1 = Reservation(
-    id=4, start_date=start_date, end_date=start_date + RESERVATION_LENGTH, state=ReservationState.ACTIVE.value,  # expired
+    id=4, start_date=start_date, end_date=start_date + RESERVATION_LENGTH, state=ReservationState.ACTIVE.value, # expired
     book_copy=embed_book_copy(bc_Hobbit_London_1), customer=embed_user(user_customer_Smith)
 )
 start_date = date.today()
@@ -299,16 +293,12 @@ SQL_RESERVATIONS = convert_reservation_list_to_sql(RESERVATIONS)
 SQL_REVIEWS = convert_review_list_to_sql(REVIEWS)
 
 # removes all data from both databases
-
-
 def clear_db() -> None:
     with create_app({'producer_log': False}).app_context():
         db.drop_all()
         mongo.connection['default'].drop_database(MONGODB_DATABASE)
 
 # fills both databases with test data
-
-
 def fill_db() -> None:
     with create_app({'producer_log': False}).app_context():
         for arr in [LOCATIONS, CATEGORIES, AUTHORS, BOOKS, BOOK_COPIES, USERS, BORROWALS, RESERVATIONS, REVIEWS]:
