@@ -202,7 +202,8 @@ def manage_book(key, value):
         "ISBN": value["ISBN"],
         "release_date": value["release_date"],
         "id": value["id"],
-        "name": value["name"]
+        "name": value["name"],
+        "description": value["description"] if "description" in value else ""
     }
 
     # reformat authors field
