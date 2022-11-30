@@ -6,8 +6,7 @@ from json import loads
 from helpers import (
     ClientWrapper,
     assert_dict_equal, assert_error_response, assert_ok_created,
-    find_by_id,
-    format_date
+    find_by_id, format_date
 )
 from data import (
     author_Orwell, author_Gaiman, author_Tolkien,

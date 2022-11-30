@@ -3,23 +3,22 @@ from datetime import date
 from http import HTTPStatus
 from json import loads
 
-from app.entity import BookCopyState
+from app.entity import BookCopyState, ReservationState
 
 from helpers import (
 	ClientWrapper,
 	assert_ok_created, assert_error_response,
-	find_by_id,
-	format_date
+	find_by_id, format_date
 )
 from data import (
 	BORROWAL_STATE_ACTIVE, BORROWAL_STATE_RETURNED,
-	RESERVATION_STATE_ACTIVE, RESERVATION_STATE_CLOSED,
 	bc_Animal_Farm_London, bc_Good_Omens_Brno,
 	user_employee_London, user_customer_Customer, user_customer_Smith, user_employee_Brno,
 	location_Brno
 )
 
-class TestScenario:
+
+class TestScenarios:
 	def test_register_borrow(self, client: ClientWrapper):
 		# register new customer
 		NEW_CUSTOMER = {
@@ -60,7 +59,8 @@ class TestScenario:
 		assert resp.status_code == HTTPStatus.OK
 		json_data = loads(resp.data.decode())
 		borrowal = find_by_id(NEW_BORROWAL_ID, json_data)
-		assert borrowal['book_copy_id'] == BOOK_COPY.id
+		assert borrowal is not None
+		assert 'book_copy' in borrowal and borrowal['book_copy']['id'] == BOOK_COPY.id
 		assert borrowal['start_date'] == format_date(date.today())
 		assert borrowal['state'] == BORROWAL_STATE_ACTIVE
 
@@ -102,9 +102,9 @@ class TestScenario:
 		json_data = loads(resp.data.decode())
 		reservation = find_by_id(NEW_RESERVATION_ID, json_data)
 		assert reservation is not None
-		assert reservation['book_copy_id'] == BOOK_COPY.id
+		assert 'book_copy' in reservation and reservation['book_copy']['id'] == BOOK_COPY.id
 		assert reservation['start_date'] == format_date(date.today())
-		assert reservation['state'] == RESERVATION_STATE_ACTIVE
+		assert reservation['state'] == ReservationState.ACTIVE.value
 
 		# cannot reserve book as other customer
 		OTHER_CUSTOMER = user_customer_Smith
@@ -151,7 +151,7 @@ class TestScenario:
 		json_data = loads(resp.data.decode())
 		borrowal = find_by_id(NEW_BORROWAL_ID, json_data)
 		borrowal is not None
-		assert borrowal['book_copy_id'] == BOOK_COPY.id
+		assert 'book_copy' in borrowal and borrowal['book_copy']['id'] == BOOK_COPY.id
 		assert borrowal['start_date'] == format_date(date.today())
 		assert borrowal['state'] == BORROWAL_STATE_ACTIVE
 
@@ -160,7 +160,7 @@ class TestScenario:
 		json_data = loads(resp.data.decode())
 		reservation = find_by_id(NEW_RESERVATION_ID, json_data)
 		assert reservation is not None
-		assert reservation['state'] == RESERVATION_STATE_CLOSED
+		assert reservation['state'] == ReservationState.CLOSED.value
 
 	# add new book with new associated entities (author, category...)
 	def test_add_new_book(self, client: ClientWrapper):

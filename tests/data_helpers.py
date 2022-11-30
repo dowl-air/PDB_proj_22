@@ -11,6 +11,7 @@ from app.entity.sql import (
 	Reservation as SQLReservation, Review as SQLReview
 )
 
+
 # Mongo entity -> Embedded Mongo entity
 def embed_category(category: Category) -> EmbeddedCategory:
 	return EmbeddedCategory(id=category.id, name=category.name, description=category.description)

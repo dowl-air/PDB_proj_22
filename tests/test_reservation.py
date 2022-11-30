@@ -3,14 +3,14 @@ from datetime import date
 from http import HTTPStatus
 from json import loads
 
+from app.entity import ReservationState
+
 from helpers import (
     ClientWrapper,
     assert_error_response, assert_ok_created,
-    find_by_id,
-    format_date
+    find_by_id, format_date
 )
 from data import (
-    RESERVATION_STATE_ACTIVE, RESERVATION_STATE_CLOSED,
     bc_1984_Brno_1, bc_1984_Brno_2, bc_Animal_Farm_Brno,
     user_customer_Customer,
     reservation_Brno
@@ -41,9 +41,9 @@ class TestReservation:
         json_data = loads(resp.data.decode())
         reservation = find_by_id(TestReservation.new_id, json_data)
         assert reservation is not None
-        assert reservation['book_copy']["id"] == BOOK_COPY.id
+        assert 'book_copy' in reservation and reservation['book_copy']['id'] == BOOK_COPY.id
         assert reservation['start_date'] == format_date(date.today())
-        assert reservation['state'] == RESERVATION_STATE_ACTIVE
+        assert reservation['state'] == ReservationState.ACTIVE.value
 
     def test_reservation_add_invalid_reserved(self, client: ClientWrapper):
         client.login(user=user_customer_Customer)
@@ -80,7 +80,7 @@ class TestReservation:
         json_data = loads(resp.data.decode())
         reservation = find_by_id(TestReservation.new_id, json_data)
         assert reservation is not None
-        assert reservation['state'] == RESERVATION_STATE_CLOSED
+        assert reservation['state'] == ReservationState.CLOSED.value
 
     def test_reservation_cancel_invalid(self, client: ClientWrapper):
         client.login(user=user_customer_Customer)
