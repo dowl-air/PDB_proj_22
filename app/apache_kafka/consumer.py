@@ -25,7 +25,7 @@ from entity.nosql.review import Review
 from entity.nosql.user import User
 from entity.nosql.reservation import Reservation
 from entity.nosql.borrowal import Borrowal
-from entity.nosql.schemas_mongo import author_schema, books_schema, category_schema, book_copy_schema, location_schema, book_copy_schema, book_schema, review_schema, user_schema, reservation_schema, borrowal_schema
+from entity.nosql.schemas_mongo import author_schema, books_schema, category_schema, book_copy_schema, location_schema, book_copy_schema, book_schema, review_schema, user_schema, reservation_schema, borrowal_schema, user_schema
 
 
 def manage_author(key, value):
@@ -133,6 +133,10 @@ def manage_location(key, value):
 
 def manage_book_copy(key, value):
     if (KafkaKey.CREATE.value == key):
+        # insert to book
+        book = Book.objects(id=int(value["book_id"])).first()
+        book.book_copies.append(value)
+        book.update(book_copies=book.book_copies)
 
         if "location_id" in value:
             location_id = int(value["location_id"])
@@ -311,6 +315,20 @@ def manage_borrowal(key, value):
         b.update(state=BorrowalState.RETURNED.value)
 
 
+def manage_user(key, value):
+    del value["password"]
+    del value["reservations"]
+    del value["borrowals"]
+    del value["reviews"]
+
+    if (KafkaKey.CREATE.value == key):
+        u = user_schema.load(value)
+        u.save()
+    if (KafkaKey.UPDATE.value == key):
+        u = User.objects(id=int(value["id"])).first()
+        u.update(**value)
+
+
 func_dict = {
     KafkaTopic.AUTHOR.value: manage_author,
     KafkaTopic.CATEGORY.value: manage_category,
@@ -319,7 +337,8 @@ func_dict = {
     KafkaTopic.BOOK.value: manage_book,
     KafkaTopic.REVIEW.value: manage_review,
     KafkaTopic.RESERVATION.value: manage_reservation,
-    KafkaTopic.BORROWAL.value: manage_borrowal
+    KafkaTopic.BORROWAL.value: manage_borrowal,
+    KafkaTopic.USER.value: manage_user,
 }
 
 
