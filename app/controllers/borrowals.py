@@ -42,13 +42,12 @@ def create(borrowal, user):
 
     # check if the book is not deleted
     book_copy = BookCopy.query.filter(BookCopy.id == int(borrowal["book_copy_id"])).one_or_none()
-    if book_copy.state != BookCopyState.GOOD.value:
-        abort(404, "This book copy has been deleted or damaged.")
+    if book_copy.state == BookCopyState.DELETED.value:
+        abort(404, "This book copy has been deleted.")
 
     # check if the book is not reserved
     reservations = Reservation.query.filter(Reservation.book_copy_id == int(borrowal["book_copy_id"])).all()
     for r in reservations:
-
         if (r.state == ReservationState.ACTIVE.value and r.end_date > date.today() and r.customer_id != customer_id):
             abort(409, "This book copy is already reserved by different customer.")
         if (r.customer_id == customer_id and r.state == ReservationState.ACTIVE.value):

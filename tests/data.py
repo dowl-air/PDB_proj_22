@@ -214,7 +214,7 @@ borrowal_Olomouc_active = Borrowal(
 )
 
 # RESERVATIONS
-start_date = date(2022, 11, 29)
+start_date = date(2022, 11, 20)
 reservation_Brno = Reservation(
     id=1, start_date=start_date, end_date=start_date + RESERVATION_LENGTH, state=ReservationState.CLOSED.value,
     book_copy=embed_book_copy(bc_1984_Brno_2), customer=embed_user(user_customer_Customer)

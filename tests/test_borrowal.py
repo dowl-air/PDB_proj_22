@@ -116,7 +116,7 @@ class TestBorrowal:
     def test_borrowal_add_valid_reservation_expired(self, client: ClientWrapper):
         client.login(user=user_employee_London)
 
-        BOOK_COPY = bc_Animal_Farm_Olomouc  # reserved by customer 'Smith'
+        BOOK_COPY = bc_Hobbit_London_1  # reserved by customer 'Smith'
         CUSTOMER = user_customer_Customer
 
         data = {
@@ -179,7 +179,7 @@ class TestBorrowal:
         reservation = find_by_id(RESERVATION.id, json_data)
         assert reservation is not None
         assert 'book_copy' in reservation and reservation['book_copy']['id'] == BOOK_COPY.id
-        assert reservation['state'] == ReservationState.CLOSED
+        assert reservation['state'] == ReservationState.CLOSED.value
 
     def test_borrowal_return(self, client: ClientWrapper):
         client.login(user=user_employee_Brno)
