@@ -216,28 +216,28 @@ borrowal_Olomouc_active = Borrowal(
 # RESERVATIONS
 start_date = date(2022, 11, 29)
 reservation_Brno = Reservation(
-	id=1, start_date=start_date, end_date=start_date + RESERVATION_LENGTH, state=ReservationState.CLOSED.value,
-	book_copy=embed_book_copy(bc_1984_Brno_2), customer=embed_user(user_customer_Customer)
+    id=1, start_date=start_date, end_date=start_date + RESERVATION_LENGTH, state=ReservationState.CLOSED.value,
+    book_copy=embed_book_copy(bc_1984_Brno_2), customer=embed_user(user_customer_Customer)
 )
 start_date = date(2020, 6, 6)
 reservation_Olomouc = Reservation(
-	id=2, start_date=start_date, end_date=start_date + RESERVATION_LENGTH, state=ReservationState.CLOSED.value,
-	book_copy=embed_book_copy(bc_Animal_Farm_Olomouc), customer=embed_user(user_customer_Smith)
+    id=2, start_date=start_date, end_date=start_date + RESERVATION_LENGTH, state=ReservationState.CLOSED.value,
+    book_copy=embed_book_copy(bc_Animal_Farm_Olomouc), customer=embed_user(user_customer_Smith)
 )
 start_date = date.today()
 reservation_Brno_active = Reservation(
-	id=3, start_date=start_date, end_date=start_date + RESERVATION_LENGTH, state=ReservationState.ACTIVE.value,
-	book_copy=embed_book_copy(bc_Animal_Farm_Brno), customer=embed_user(user_customer_Customer)
+    id=3, start_date=start_date, end_date=start_date + RESERVATION_LENGTH, state=ReservationState.ACTIVE.value,
+    book_copy=embed_book_copy(bc_Animal_Farm_Brno), customer=embed_user(user_customer_Customer)
 )
 start_date = date(2021, 4, 6)
 reservation_London_active_1 = Reservation(
-	id=4, start_date=start_date, end_date=start_date + RESERVATION_LENGTH, state=ReservationState.ACTIVE.value, # expired
-	book_copy=embed_book_copy(bc_Hobbit_London_1), customer=embed_user(user_customer_Smith)
+    id=4, start_date=start_date, end_date=start_date + RESERVATION_LENGTH, state=ReservationState.ACTIVE.value,  # expired
+    book_copy=embed_book_copy(bc_Hobbit_London_1), customer=embed_user(user_customer_Smith)
 )
 start_date = date.today()
 reservation_London_active_2 = Reservation(
-	id=5, start_date=start_date, end_date=start_date + RESERVATION_LENGTH, state=ReservationState.ACTIVE.value,
-	book_copy=embed_book_copy(bc_Hobbit_London_2), customer=embed_user(user_customer_Smith)
+    id=5, start_date=start_date, end_date=start_date + RESERVATION_LENGTH, state=ReservationState.ACTIVE.value,
+    book_copy=embed_book_copy(bc_Hobbit_London_2), customer=embed_user(user_customer_Smith)
 )
 
 # REVIEWS
@@ -302,24 +302,24 @@ SQL_REVIEWS = convert_review_list_to_sql(REVIEWS)
 
 
 def clear_db() -> None:
-	with create_app({'producer_log': False}).app_context():
-		db.drop_all()
-		mongo.connection['default'].drop_database(MONGODB_DATABASE)
+    with create_app({'producer_log': False}).app_context():
+        db.drop_all()
+        mongo.connection['default'].drop_database(MONGODB_DATABASE)
 
 # fills both databases with test data
 
 
 def fill_db() -> None:
-	with create_app({'producer_log': False}).app_context():
-		for arr in [LOCATIONS, CATEGORIES, AUTHORS, BOOKS, BOOK_COPIES, USERS, BORROWALS, RESERVATIONS, REVIEWS]:
-			for it in arr:
-				it.save()
-
-        db.create_all()
-        for arr in [SQL_LOCATIONS, SQL_CATEGORIES, SQL_AUTHORS, SQL_BOOKS, SQL_BOOK_COPIES, SQL_USERS, SQL_BORROWALS, SQL_RESERVATIONS, SQL_REVIEWS]:
+    with create_app({'producer_log': False}).app_context():
+        for arr in [LOCATIONS, CATEGORIES, AUTHORS, BOOKS, BOOK_COPIES, USERS, BORROWALS, RESERVATIONS, REVIEWS]:
             for it in arr:
-                db.session.add(it)
-            db.session.commit()
+                it.save()
+
+    db.create_all()
+    for arr in [SQL_LOCATIONS, SQL_CATEGORIES, SQL_AUTHORS, SQL_BOOKS, SQL_BOOK_COPIES, SQL_USERS, SQL_BORROWALS, SQL_RESERVATIONS, SQL_REVIEWS]:
+        for it in arr:
+            db.session.add(it)
+        db.session.commit()
 
 
 if __name__ == '__main__':

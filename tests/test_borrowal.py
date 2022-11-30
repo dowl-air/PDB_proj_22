@@ -48,14 +48,14 @@ class TestBorrowal:
 
         client.login(user=CUSTOMER)
 
-		resp = client.get('/profile/borrowals')
-		assert resp.status_code == HTTPStatus.OK
-		json_data = loads(resp.data.decode())
-		borrowal = find_by_id(TestBorrowal.new_id, json_data)
-		assert borrowal is not None
-		assert 'book_copy' in borrowal and borrowal['book_copy']['id'] == BOOK_COPY.id
-		assert borrowal['start_date'] == format_date(date.today())
-		assert borrowal['state'] == BORROWAL_STATE_ACTIVE
+        resp = client.get('/profile/borrowals')
+        assert resp.status_code == HTTPStatus.OK
+        json_data = loads(resp.data.decode())
+        borrowal = find_by_id(TestBorrowal.new_id, json_data)
+        assert borrowal is not None
+        assert 'book_copy' in borrowal and borrowal['book_copy']['id'] == BOOK_COPY.id
+        assert borrowal['start_date'] == format_date(date.today())
+        assert borrowal['state'] == BORROWAL_STATE_ACTIVE
 
     def test_borrowal_add_invalid_reserved(self, client: ClientWrapper):
         client.login(user=user_employee_Brno)
@@ -134,14 +134,14 @@ class TestBorrowal:
 
         client.login(user=CUSTOMER)
 
-		resp = client.get('/profile/borrowals')
-		assert resp.status_code == HTTPStatus.OK
-		json_data = loads(resp.data.decode())
-		borrowal = find_by_id(TestBorrowal.new_id, json_data)
-		assert borrowal is not None
-		assert 'book_copy' in borrowal and borrowal['book_copy']['id'] == BOOK_COPY.id
-		assert borrowal['start_date'] == format_date(date.today())
-		assert borrowal['state'] == BORROWAL_STATE_ACTIVE
+        resp = client.get('/profile/borrowals')
+        assert resp.status_code == HTTPStatus.OK
+        json_data = loads(resp.data.decode())
+        borrowal = find_by_id(TestBorrowal.new_id, json_data)
+        assert borrowal is not None
+        assert 'book_copy' in borrowal and borrowal['book_copy']['id'] == BOOK_COPY.id
+        assert borrowal['start_date'] == format_date(date.today())
+        assert borrowal['state'] == BORROWAL_STATE_ACTIVE
 
     def test_borrowal_add_valid_reserved(self, client: ClientWrapper):
         client.login(user=user_employee_London)
@@ -164,23 +164,23 @@ class TestBorrowal:
 
         client.login(user=CUSTOMER)
 
-		resp = client.get('/profile/borrowals')
-		assert resp.status_code == HTTPStatus.OK
-		json_data = loads(resp.data.decode())
-		borrowal = find_by_id(TestBorrowal.new_id, json_data)
-		assert borrowal is not None
-		assert 'book_copy' in borrowal and borrowal['book_copy']['id'] == BOOK_COPY.id
-		assert borrowal['start_date'] == format_date(date.today())
-		assert borrowal['state'] == BORROWAL_STATE_ACTIVE
+        resp = client.get('/profile/borrowals')
+        assert resp.status_code == HTTPStatus.OK
+        json_data = loads(resp.data.decode())
+        borrowal = find_by_id(TestBorrowal.new_id, json_data)
+        assert borrowal is not None
+        assert 'book_copy' in borrowal and borrowal['book_copy']['id'] == BOOK_COPY.id
+        assert borrowal['start_date'] == format_date(date.today())
+        assert borrowal['state'] == BORROWAL_STATE_ACTIVE
 
-		# reservation has been closed
-		resp = client.get('/profile/reservations')
-		assert resp.status_code == HTTPStatus.OK
-		json_data = loads(resp.data.decode())
-		reservation = find_by_id(RESERVATION.id, json_data)
-		assert reservation is not None
-		assert 'book_copy' in reservation and reservation['book_copy']['id'] == BOOK_COPY.id
-		assert reservation['state'] == ReservationState.CLOSED
+        # reservation has been closed
+        resp = client.get('/profile/reservations')
+        assert resp.status_code == HTTPStatus.OK
+        json_data = loads(resp.data.decode())
+        reservation = find_by_id(RESERVATION.id, json_data)
+        assert reservation is not None
+        assert 'book_copy' in reservation and reservation['book_copy']['id'] == BOOK_COPY.id
+        assert reservation['state'] == ReservationState.CLOSED
 
     def test_borrowal_return(self, client: ClientWrapper):
         client.login(user=user_employee_Brno)
