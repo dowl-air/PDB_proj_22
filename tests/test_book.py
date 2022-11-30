@@ -5,7 +5,7 @@ from json import loads
 
 from helpers import (
     ClientWrapper,
-    assert_dict_equal, assert_error_response,
+    assert_error_response,
     find_by_id, format_date
 )
 from data import (
@@ -57,10 +57,11 @@ class TestBook:
         assert author['first_name'] == AUTHOR.first_name
         assert author['last_name'] == AUTHOR.last_name
         assert len(book['categories']) == 2
-        assert_dict_equal(book['categories'], [
-            {'id': CATEGORY1.id, 'name': CATEGORY1.name, 'description': CATEGORY1.description},
-            {'id': CATEGORY2.id, 'name': CATEGORY2.name}
-        ])
+        category1 = find_by_id(CATEGORY1.id, book['categories'])
+        assert category1['name'] == CATEGORY1.name
+        assert category1['description'] == CATEGORY1.description
+        category2 = find_by_id(CATEGORY2.id, book['categories'])
+        assert category2['name'] == CATEGORY2.name
 
         resp = client.get('/authors/%d' % AUTHOR.id)
         assert resp.status_code == HTTPStatus.OK

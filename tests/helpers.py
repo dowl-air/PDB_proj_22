@@ -1,7 +1,6 @@
 
 from flask.testing import FlaskClient
 from werkzeug.test import TestResponse
-from deepdiff.diff import DeepDiff
 
 from datetime import date
 from http import HTTPStatus
@@ -32,17 +31,6 @@ def assert_error_response(resp: TestResponse) -> None:
     if resp.status_code == HTTPStatus.NOT_FOUND:
         json_data = loads(resp.data.decode())
         assert json_data['detail'] != 'The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.'
-
-# asserts that JSON objects equal while ignoring additional fields in the tested object
-def assert_dict_equal(actual, expected, ignore_list=['dictionary_item_removed', 'iterable_item_removed']) -> None:
-    diff = DeepDiff(actual, expected, ignore_order=True, report_repetition=True)
-    diff_keys = list(diff.keys())
-    if diff_keys:
-        diff_keys = list(filter(lambda x: x not in ignore_list, diff_keys))
-        if len(diff_keys) == 0:
-            return
-
-    assert actual == expected
 
 def find(fn, arr: list):
     arr = list(filter(fn, arr))
