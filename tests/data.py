@@ -315,11 +315,11 @@ def fill_db() -> None:
             for it in arr:
                 it.save()
 
-    db.create_all()
-    for arr in [SQL_LOCATIONS, SQL_CATEGORIES, SQL_AUTHORS, SQL_BOOKS, SQL_BOOK_COPIES, SQL_USERS, SQL_BORROWALS, SQL_RESERVATIONS, SQL_REVIEWS]:
-        for it in arr:
-            db.session.add(it)
-        db.session.commit()
+        db.create_all()
+        for arr in [SQL_LOCATIONS, SQL_CATEGORIES, SQL_AUTHORS, SQL_BOOKS, SQL_BOOK_COPIES, SQL_USERS, SQL_BORROWALS, SQL_RESERVATIONS, SQL_REVIEWS]:
+            for it in arr:
+                db.session.add(it)
+            db.session.commit()
 
 
 if __name__ == '__main__':
