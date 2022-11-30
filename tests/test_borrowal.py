@@ -13,7 +13,6 @@ from helpers import (
 )
 from data import (
     BORROWAL_STATE_ACTIVE, BORROWAL_STATE_RETURNED,
-    RESERVATION_STATE_CLOSED,
 
     bc_1984_Brno_1, bc_Animal_Farm_Brno, bc_Hobbit_Olomouc, bc_Brave_New_World_Brno,
     bc_Hobbit_London_1, bc_Hobbit_London_2, bc_1984_London_3, bc_Animal_Farm_Olomouc,
