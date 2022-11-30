@@ -5,11 +5,7 @@ from json import loads
 
 from app.entity import BookCopyState
 
-from helpers import (
-    ClientWrapper,
-    assert_error_response,
-    format_date, find_by_id
-)
+from helpers import ClientWrapper, assert_error_response, format_date, find_by_id
 from data import (
     book_1984, book_Animal_Farm,
     location_Brno, location_Olomouc,

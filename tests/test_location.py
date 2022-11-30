@@ -2,10 +2,7 @@
 from http import HTTPStatus
 from json import loads
 
-from helpers import (
-    ClientWrapper,
-    assert_error_response
-)
+from helpers import ClientWrapper, assert_error_response
 from data import (
     location_Brno,
     bc_1984_Brno_2,

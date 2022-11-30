@@ -6,10 +6,7 @@ from json import loads
 
 from app.entity import BookCopyState, BorrowalState
 
-from helpers import (
-    ClientWrapper, to_json,
-    assert_error_response
-)
+from helpers import ClientWrapper, to_json, assert_error_response
 from data import (
     BOOKS, BOOK_COPIES, BORROWALS, RESERVATIONS, REVIEWS,
     book_1984, book_Hobbit, book_Good_Omens, book_Brave_New_World,

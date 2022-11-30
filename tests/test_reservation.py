@@ -5,11 +5,7 @@ from json import loads
 
 from app.entity import ReservationState
 
-from helpers import (
-    ClientWrapper,
-    assert_error_response,
-    find_by_id, format_date
-)
+from helpers import ClientWrapper, assert_error_response, find_by_id, format_date
 from data import (
     bc_1984_Brno_1, bc_1984_Brno_2, bc_Animal_Farm_Brno,
     user_customer_Customer,
