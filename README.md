@@ -26,7 +26,7 @@ docker compose build
 docker compose up -d
 ```
 
-Pro vypnutí běžícího kontejneru na pozadí je nutné zadat níže uvedený příkaz.
+Pro vypnutí `Docker` containeru běžícího na pozadí je nutné zadat níže uvedený příkaz.
 
 ```bash
 docker compose down
@@ -34,7 +34,7 @@ docker compose down
 
 ### Lokální spuštění aplikace pro vývoj (bez dockerizace)
 
-Spuštění aplikace bez využití služeb programu `Docker` vyžaduje mít naistalovány všechny požadované služby a knihovny. Zejména se jedná o databáze MySQL, MongoDB a platformu Apache Kafka včetně programu Zookeeper.  
+Spuštění aplikace bez využití služeb programu `Docker` vyžaduje mít nainstalovány všechny požadované služby a knihovny. Zejména se jedná o databáze MySQL, MongoDB a platformu Apache Kafka včetně programu Zookeeper.  
 
 Je vhodné využít virtualizované prostředí `venv` pro Python.
 
@@ -46,9 +46,9 @@ python3 app/run.py
 
 ### Spuštění testů
 
-Pro spuštění testů je zapotřebí buď běžící docker container (spuštěný pomocí příkazů uvedených výše) nebo lokálně spuštěné všechny potřebné služby popsané v odstavci výše. Samotné spuštění testů se provede příkazem `./run_tests.sh`.
+Pro spuštění testů je zapotřebí buď běžící `Docker` container (spuštěný pomocí příkazů uvedených výše) nebo lokálně spuštěné všechny potřebné služby popsané v odstavci výše. Samotné spuštění testů se provede příkazem `./run_tests.sh`.
 
-V případě spouštění v docker containeru je nejprve potřeba se do daného konteineru připojit. K tomu slouží následující příkaz.
+V případě spouštění v `Docker` containeru je nejprve potřeba se do daného containeru připojit. K tomu slouží následující příkaz.
 
 ```bash
 docker exec -it rest_api bash
