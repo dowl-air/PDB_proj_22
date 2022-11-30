@@ -44,8 +44,9 @@ def create_app(config: dict = {}) -> Flask:
     mongo.init_app(app)
     ma.init_app(app)
 
-    producer_log = ('producer_log' in config and config['producer_log'])
-    init_producer(producer, log=producer_log)
+    if 'producer_init' not in config or config['producer_init']:
+        producer_log = ('producer_log' in config and config['producer_log'])
+        init_producer(producer, log=producer_log)
 
     @app.before_first_request
     def create_tables():
