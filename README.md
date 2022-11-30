@@ -19,20 +19,38 @@ sudo apt install docker docker-compose
 
 ### Spuštění aplikace
 
-Příkaz `make` provede sestavení a spuštění programu v prostředí `Docker`.  
+Sestavení a spuštění programu v prostředí `Docker` funguje pomocí dvou následujících příkazů. Volitelný parametr `-d` značí spuštění na pozadí.
 
 ```bash
-make
+docker compose build
+docker compose up -d
+```
+
+Pro vypnutí běžícího kontejneru na pozadí je nutné zadat níže uvedený příkaz.
+
+```bash
+docker compose down
 ```
 
 ### Lokální spuštění aplikace pro vývoj (bez dockerizace)
 
-Příkaz `make venv` provede spuštění aplikace bez využití služeb programu `Docker`.  Využívá k tomu virtualizované prostředí `venv` pro Python.
+Spuštění aplikace bez využití služeb programu `Docker` vyžaduje mít naistalovány všechny požadované služby a knihovny. Zejména se jedná o databáze MySQL, MongoDB a platformu Apache Kafka včetně 
+
+Je vhodné využít virtualizované prostředí `venv` pro Python.
 
 ```bash
-sudo apt install python3 python3-venv
-make venv
-source venv/bin/activate
-chmod 775 manage.py
-./manage.py flask run
+python3 install -r requirements.txt
+python3 app/run.py
+./run_consumer.sh
+```
+
+### Spuštění testů
+
+Pro spuštění testů je zapotřebí buď běžící docker container (spuštěný pomocí příkazů uvedených výše) nebo lokálně spuštěné všechny potřebné služby popsané v odstavci výše. Samotné spuštění testů se provede příkazem `./run_tests.sh`.
+
+V případě spouštění v docker containeru je nejprve potřeba se do daného konteineru připojit. K tomu slouží následující příkaz.
+
+```bash
+docker exec -it rest_api bash
+./run_tests.sh
 ```
