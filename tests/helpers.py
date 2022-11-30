@@ -30,18 +30,16 @@ def assert_error_response(resp: TestResponse) -> None:
     # check that this is not an automated response to a nonexistent endpoint
     if resp.status_code == HTTPStatus.NOT_FOUND:
         json_data = loads(resp.data.decode())
-        assert json_data['detail'] != 'The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.'
-
-def find(fn, arr: list):
-    arr = list(filter(fn, arr))
-    if len(arr) != 1:
-        return None
-    return arr[0]
+        if 'detail' in json_data:
+            assert json_data['detail'] != 'The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.'
 
 def find_by_id(id: int, arr: list):
     if len(arr) == 0 or not isinstance(arr[0], dict):
         return None
-    return find(lambda x: x['id'] == id, arr)
+    arr = list(filter(lambda x: x['id'] == id, arr))
+    if len(arr) != 1:
+        return None
+    return arr[0]
 
 def format_date(d: Optional[date]) -> Optional[str]:
     if d is None:
