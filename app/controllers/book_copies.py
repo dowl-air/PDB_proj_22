@@ -1,12 +1,14 @@
 
 from flask.helpers import make_response, abort
 from mongoengine.errors import DoesNotExist
+from datetime import date
 
 from entity.sql.base import db
 from entity.sql.book_copy import BookCopy
 from entity.sql.borrowal import Borrowal
+from entity.sql.reservation import Reservation
 from entity.sql.schemas import book_copy_schema, book_copies_schema
-from entity import BookCopyState
+from entity import BookCopyState, ReservationState, BorrowalState
 
 from entity.nosql.book_copy import BookCopy as MongoBookCopy
 from entity.nosql.schemas_mongo import book_copy_schema as mongo_book_copy_schema
@@ -32,6 +34,33 @@ def get(id):
         abort(404, f"Book copy with id {id} not found.")
 
     return mongo_book_copy_schema.dump(book)
+
+
+def get_reserved(id):
+    reserved = False
+    # check if the book is not reserved
+    reservations = Reservation.query.filter(Reservation.book_copy_id == int(id)).all()
+    for r in reservations:
+        if (r.state == ReservationState.ACTIVE.value and r.end_date > date.today()):
+            reserved = True
+    return {"reserved": reserved}, 200
+
+
+def get_borrowed(id):
+    borrowed = False
+    # check if the book is not already borrowed
+    old_borrowals = Borrowal.query.filter(Borrowal.book_copy_id == int(id)).all()
+    for b in old_borrowals:
+        if b.state == BorrowalState.ACTIVE.value:
+            borrowed = True
+
+    return {"borrowed": borrowed}, 200
+
+
+def get_book_copies(id):
+    # Get book copies of specified book
+    book_copies = MongoBookCopy.objects(book_id=int(id))
+    return mongo_book_copies_schema.dump(book_copies)
 
 
 def create(book_copy):

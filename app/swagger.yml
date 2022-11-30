@@ -411,6 +411,18 @@ paths:
       responses:
         200:
           description: Successfully read reviews.
+  /books/{id}/book-copies:
+    get:
+      operationId: controllers.book_copies.get_book_copies
+      tags:
+        - Book Copies
+        - Books
+      summary: Get all book copies from specified book
+      parameters:
+        - $ref: "#/components/parameters/book_id"
+      responses:
+        200:
+          description: Successfully read book copies.
   
   
   
@@ -484,6 +496,30 @@ paths:
       responses:
         204:
           description: Successfully deleted book copy.
+  /book-copies/{id}/borrowed:
+    get:
+      operationId: controllers.book_copies.get_borrowed
+      tags:
+        - Book Copies
+        - Borrowals
+      summary: Get borrow state of specified book copy
+      parameters:
+        - $ref:  "#/components/parameters/book_copy_id"
+      responses:
+        200:
+          description: Successfully read book copy.
+  /book-copies/{id}/reserved:
+    get:
+      operationId: controllers.book_copies.get_reserved
+      tags:
+        - Book Copies
+        - Reservations
+      summary: Get reservation state of specified book copy
+      parameters:
+        - $ref:  "#/components/parameters/book_copy_id"
+      responses:
+        200:
+          description: Successfully read book copy.
   
   
   
