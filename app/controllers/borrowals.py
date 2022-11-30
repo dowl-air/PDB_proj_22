@@ -9,6 +9,9 @@ from entity.sql.book_copy import BookCopy
 from entity.sql.user import User
 from entity.sql.schemas import borrowal_schema, borrowals_schema
 
+from entity.nosql.borrowal import Borrowal as BorrowalMongo
+from entity.nosql.schemas_mongo import borrowals_schema as borrowals_schema_mongo
+
 from controllers import producer
 from apache_kafka.enums import KafkaKey, KafkaTopic
 
@@ -17,10 +20,10 @@ def get_active(user):
     employee_id = int(user)
     employee = User.query.filter(User.id == employee_id).one_or_none()
     if employee.role == UserRole.CUSTOMER.value:
-        abort(403, f"You don't have rights to create borrowals.")
+        abort(403, f"You don't have rights to list active borrowals.")
 
-    bs = Borrowal.query.filter(Borrowal.state == BorrowalState.ACTIVE.value).all()
-    return borrowals_schema.dump(bs), 200
+    bs = BorrowalMongo.objects(state=BorrowalState.ACTIVE.value)
+    return borrowals_schema_mongo.dump(bs), 200
 
 
 def create(borrowal, user):
