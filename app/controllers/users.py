@@ -4,19 +4,25 @@ from entity.sql.base import db
 from entity.sql.user import User
 
 from entity.nosql.review import Review
+from entity.nosql.user import User as UserMongo
 from entity.nosql.reservation import Reservation
+from entity.nosql.borrowal import Borrowal
 
 from entity.sql.schemas import user_schema, users_schema
-from entity.nosql.schemas_mongo import reviews_schema, reservations_schema
+from entity.nosql.schemas_mongo import reviews_schema, reservations_schema, borrowals_schema
+from entity.nosql.schemas_mongo import user_schema as user_schema_mongo
+
+from controllers import producer
+from apache_kafka.enums import KafkaKey, KafkaTopic
 
 
 def get(user):
     # Get user object of currently signed in user
     user_id = int(user)
-    existing_user = User.query.filter(User.id == user_id).one_or_none()
+    existing_user = UserMongo.objects(id=user_id).first()
     if not existing_user:
         abort(404, f"User with id {user_id} not found.")
-    return user_schema.dump(existing_user), 200
+    return user_schema_mongo.dump(existing_user), 200
 
 
 def get_reviews(user):
@@ -33,18 +39,27 @@ def get_reservations(user):
     return reservations_schema.dump(reservations), 200
 
 
+def get_borrowals(user):
+    # get reservations of one specific user, who is signed in
+    user_id = int(user)
+    borrowals = Borrowal.objects(customer__id=user_id)
+    return borrowals_schema.dump(borrowals), 200
+
+
 def create(user):
     # create new user
     email = user.get("email")
     existing_user = User.query.filter(User.email == email).one_or_none()
-
-    if existing_user is None:
-        new_user = user_schema.load(user, session=db.session)
-        db.session.add(new_user)
-        db.session.commit()
-        return user_schema.dump(new_user), 201
-    else:
+    if existing_user:
         abort(406, f"User with email {email} already exists.")
+
+    new_user = user_schema.load(user, session=db.session)
+    db.session.add(new_user)
+    db.session.commit()
+
+    producer.send(KafkaTopic.USER.value, key=KafkaKey.CREATE.value, value=user_schema.dump(new_user))
+
+    return user_schema.dump(new_user), 201
 
 
 def update(user, user_data):
@@ -54,11 +69,16 @@ def update(user, user_data):
 
     if not existing_user:
         abort(404, f"User with id {user_id} not found.")
+
     if not "email" in user_data:
         user_data["email"] = existing_user.email
     if not "password" in user_data:
         user_data["password"] = existing_user.password
+
     update_user = user_schema.load(user_data, session=db.session, instance=existing_user)
     db.session.merge(update_user)
     db.session.commit()
+
+    producer.send(KafkaTopic.USER.value, key=KafkaKey.UPDATE.value, value=user_schema.dump(update_user))
+
     return user_schema.dump(update_user), 200

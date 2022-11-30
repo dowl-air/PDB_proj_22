@@ -411,6 +411,18 @@ paths:
       responses:
         200:
           description: Successfully read reviews.
+  /books/{id}/book-copies:
+    get:
+      operationId: controllers.book_copies.get_book_copies
+      tags:
+        - Book Copies
+        - Books
+      summary: Get all book copies from specified book
+      parameters:
+        - $ref: "#/components/parameters/book_id"
+      responses:
+        200:
+          description: Successfully read book copies.
   
   
   
@@ -484,6 +496,30 @@ paths:
       responses:
         204:
           description: Successfully deleted book copy.
+  /book-copies/{id}/borrowed:
+    get:
+      operationId: controllers.book_copies.get_borrowed
+      tags:
+        - Book Copies
+        - Borrowals
+      summary: Get borrow state of specified book copy
+      parameters:
+        - $ref:  "#/components/parameters/book_copy_id"
+      responses:
+        200:
+          description: Successfully read book copy.
+  /book-copies/{id}/reserved:
+    get:
+      operationId: controllers.book_copies.get_reserved
+      tags:
+        - Book Copies
+        - Reservations
+      summary: Get reservation state of specified book copy
+      parameters:
+        - $ref:  "#/components/parameters/book_copy_id"
+      responses:
+        200:
+          description: Successfully read book copy.
   
   
   
@@ -762,19 +798,31 @@ paths:
       responses:
         200:
           description: Successfully created borrowal.
-  /borrowals/{id}:
-    put:
+  /borrowals/{id}/return:
+    patch:
       operationId: controllers.borrowals.update
       tags:
         - Borrowals
-      summary: Finish borrowal
+      summary: Return borrowed book
       parameters:
         - $ref: "#/components/parameters/borrowal_id"
       security:
       - jwt: []
       responses:
         200:
-          description: Successfully finished borrowal.
+          description: Successfully returned borrowed book.
+
+  /active-borrowals:
+    get:
+      operationId: controllers.borrowals.get_active
+      tags:
+        - Borrowals
+      summary: Get only active borrowals
+      security:
+      - jwt: []
+      responses:
+        200:
+          description: Successfully got active borrowals.
 
 
 
@@ -867,3 +915,15 @@ paths:
       responses:
         200:
           description: Successfully got current user's reservations.
+  /profile/borrowals:
+    get:
+      operationId: controllers.users.get_borrowals
+      tags:
+        - Users
+        - Borrowals
+      summary: Get borrowals of currently signed in user
+      security:
+      - jwt: []
+      responses:
+        200:
+          description: Successfully got current user's borrowals.
