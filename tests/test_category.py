@@ -97,8 +97,7 @@ class TestCategory:
         category = find_by_id(CATEGORY.id, book['categories'])
         assert category is not None
         assert category['name'] == data['name']
-        # assert category['description'] == data['description']
-        # in book object  categories does not include descriptions
+        assert category['description'] == data['description']
 
     def test_category_delete(self, client: ClientWrapper):
         client.login(user=user_employee_Brno)
@@ -127,5 +126,4 @@ class TestCategory:
         resp = client.get('/books/%d' % BOOK.id)
         assert resp.status_code == HTTPStatus.OK
         book = loads(resp.data.decode())
-        category = find_by_id(CATEGORY.id, book['categories'])
-        assert category is None
+        assert find_by_id(CATEGORY.id, book['categories']) is None

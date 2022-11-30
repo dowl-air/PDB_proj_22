@@ -216,7 +216,7 @@ class TestBook:
             'release_date': format_date(date(1947, 7, 7)),
             'description': 'Animal Farm description (edited)',
             'authors': [NEW_AUTHOR.id],
-            'categories': []
+            'categories': [cat.id for cat in BOOK.categories] # keep the same categories
         }
 
         resp = client.put('/books/%d' % BOOK.id, data)

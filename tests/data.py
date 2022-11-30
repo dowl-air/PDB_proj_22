@@ -89,6 +89,12 @@ book_Brave_New_World.authors = embed_author_list([author_Huxley])
 book_Hobbit.authors = embed_author_list([author_Tolkien])
 book_Good_Omens.authors = embed_author_list([author_Gaiman, author_Pratchet])
 
+book_1984.categories = embed_category_list([category_sci_fi, category_dystopia])
+book_Animal_Farm.categories = embed_category_list([category_fable, category_satire])
+book_Brave_New_World.categories = embed_category_list([category_dystopia])
+book_Hobbit.categories = embed_category_list([category_fantasy])
+book_Good_Omens.categories = embed_category_list([category_fantasy, category_comedy])
+
 # BOOK COPIES
 bc_1984_Brno_1 = BookCopy(
     id=1, book_id=book_1984.id, print_date=date(2014, 10, 11), note='Slightly used',
@@ -156,12 +162,6 @@ book_Animal_Farm.book_copies = embed_book_copy_list([bc_Animal_Farm_Brno, bc_Ani
 book_Brave_New_World.book_copies = embed_book_copy_list([bc_Brave_New_World_Brno, bc_Brave_New_World_London])
 book_Hobbit.book_copies = embed_book_copy_list([bc_Hobbit_Brno, bc_Hobbit_London_1, bc_Hobbit_London_2, bc_Hobbit_Olomouc])
 book_Good_Omens.book_copies = embed_book_copy_list([bc_Good_Omens_Brno])
-
-book_1984.categories = embed_category_list([category_sci_fi, category_dystopia])
-book_Animal_Farm.categories = embed_category_list([category_fable, category_satire])
-book_Brave_New_World.categories = embed_category_list([category_dystopia])
-book_Hobbit.categories = embed_category_list([category_fantasy])
-book_Good_Omens.categories = embed_category_list([category_fantasy, category_comedy])
 
 # USERS
 user_customer_Customer = User(id=1, first_name='Customer', last_name='Customer', role=UserRole.CUSTOMER.value, email='customer@customer.com')
