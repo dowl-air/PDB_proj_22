@@ -1,4 +1,6 @@
 
+import pytest
+
 from http import HTTPStatus
 from json import loads
 
@@ -20,6 +22,7 @@ from data import (
 )
 
 
+@pytest.mark.order(1)
 class TestQueries:
     def test_get_books(self, client: ClientWrapper):
         resp = client.get('/books')
