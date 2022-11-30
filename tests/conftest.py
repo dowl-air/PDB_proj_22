@@ -14,8 +14,6 @@ def init_db() -> None:
     fill_db()
 
 # test client to send requests to endpoint
-
-
 @pytest.fixture
 def client() -> ClientWrapper:
     return ClientWrapper(create_app({'producer_log': False}).test_client())

@@ -2,11 +2,7 @@
 from http import HTTPStatus
 from json import loads
 
-from helpers import (
-    ClientWrapper,
-    assert_error_response, assert_ok_created,
-    find_by_id
-)
+from helpers import ClientWrapper, assert_error_response, find_by_id
 from data import (
     author_Huxley,
     book_Brave_New_World,
@@ -27,7 +23,7 @@ class TestAuthor:
         }
 
         resp = client.post('/authors', data)
-        assert_ok_created(resp.status_code)
+        assert resp.status_code == HTTPStatus.CREATED
         json_data = loads(resp.data.decode())
         assert 'id' in json_data
 

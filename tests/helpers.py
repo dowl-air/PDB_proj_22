@@ -1,7 +1,6 @@
 
 from flask.testing import FlaskClient
 from werkzeug.test import TestResponse
-from deepdiff.diff import DeepDiff
 
 from datetime import date
 from http import HTTPStatus
@@ -31,38 +30,16 @@ def assert_error_response(resp: TestResponse) -> None:
     # check that this is not an automated response to a nonexistent endpoint
     if resp.status_code == HTTPStatus.NOT_FOUND:
         json_data = loads(resp.data.decode())
-        assert json_data['detail'] != 'The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.'
-
-# asserts that JSON objects equal while ignoring additional fields in the tested object
-
-
-def assert_dict_equal(actual, expected, ignore_list=['dictionary_item_removed', 'iterable_item_removed']) -> None:
-    diff = DeepDiff(actual, expected, ignore_order=True, report_repetition=True)
-    diff_keys = list(diff.keys())
-    if diff_keys:
-        diff_keys = list(filter(lambda x: x not in ignore_list, diff_keys))
-        if len(diff_keys) == 0:
-            return
-
-    assert actual == expected
-
-
-def assert_ok_created(status_code: int) -> None:
-    assert status_code == HTTPStatus.OK or status_code == HTTPStatus.CREATED
-
-
-def find(fn, arr: list):
-    arr = list(filter(fn, arr))
-    if len(arr) != 1:
-        return None
-    return arr[0]
-
+        if 'detail' in json_data:
+            assert json_data['detail'] != 'The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.'
 
 def find_by_id(id: int, arr: list):
     if len(arr) == 0 or not isinstance(arr[0], dict):
         return None
-    return find(lambda x: x['id'] == id, arr)
-
+    arr = list(filter(lambda x: x['id'] == id, arr))
+    if len(arr) != 1:
+        return None
+    return arr[0]
 
 def format_date(d: Optional[date]) -> Optional[str]:
     if d is None:
@@ -70,8 +47,6 @@ def format_date(d: Optional[date]) -> Optional[str]:
     return d.strftime('%Y-%m-%d')
 
 # wrapper around a flask test client
-
-
 class ClientWrapper:
     TYPE_GET = 'GET'
     TYPE_POST = 'POST'
@@ -175,14 +150,11 @@ class ClientWrapper:
         return {'Authorization': f'Bearer {token}'}
 
 # converts a mongo entity to a dict (or a list of entities to a list of dicts)
-
-
 def to_json(arg, no_none_values: bool = True) -> dict:
     res = _to_json(arg)
     if no_none_values:
         return delete_none_values(res)
     return res
-
 
 def _to_json(arg) -> dict:
     if arg is None:
@@ -311,7 +283,6 @@ def _to_json(arg) -> dict:
         }
     else:
         raise InvalidTestException('Unexpected type')
-
 
 def delete_none_values(arg: Union[list, dict]) -> Union[list, dict]:
     if isinstance(arg, list):

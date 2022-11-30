@@ -5,11 +5,7 @@ from json import loads
 
 from app.entity import ReservationState
 
-from helpers import (
-    ClientWrapper,
-    assert_error_response, assert_ok_created,
-    find_by_id, format_date
-)
+from helpers import ClientWrapper, assert_error_response, find_by_id, format_date
 from data import (
     bc_1984_Brno_1, bc_1984_Brno_2, bc_Animal_Farm_Brno,
     user_customer_Customer,
@@ -30,7 +26,7 @@ class TestReservation:
         }
 
         resp = client.post('/reservations', data)
-        assert_ok_created(resp.status_code)
+        assert resp.status_code == HTTPStatus.CREATED
         json_data = loads(resp.data.decode())
         assert 'id' in json_data
 
