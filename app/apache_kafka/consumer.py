@@ -14,7 +14,7 @@ from appconfig import (
 
 from apache_kafka.enums import KafkaKey, KafkaTopic
 
-from entity import ReservationState
+from entity import ReservationState, BorrowalState
 
 from entity.nosql.author import Author
 from entity.nosql.book import Book
@@ -202,7 +202,8 @@ def manage_book(key, value):
         "ISBN": value["ISBN"],
         "release_date": value["release_date"],
         "id": value["id"],
-        "name": value["name"]
+        "name": value["name"],
+        "description": value["description"] if "description" in value else ""
     }
 
     # reformat authors field
@@ -279,6 +280,37 @@ def manage_reservation(key, value):
         reservation.save()
 
 
+def manage_borrowal(key, value):
+    if (KafkaKey.CREATE.value == key):
+        # create customer property
+        customer = User.objects(id=int(value["customer_id"])).first()
+        if customer:
+            value["customer"] = user_schema.dump(customer)
+        del value["customer_id"]
+
+        # create employee property
+        employee = User.objects(id=int(value["employee_id"])).first()
+        if employee:
+            value["employee"] = user_schema.dump(employee)
+        del value["employee_id"]
+
+        # create book_copy property
+        book_copy = BookCopy.objects(id=int(value["book_copy_id"])).first()
+        if book_copy:
+            value["book_copy"] = book_copy_schema.dump(book_copy)
+            value["book_copy"]["location_id"] = value["book_copy"]["location"]["id"]
+            del value["book_copy"]["location"]
+        del value["book_copy_id"]
+
+        # save the borrowal
+        b = borrowal_schema.load(value)
+        b.save()
+
+    if (KafkaKey.DELETE.value == key):
+        b = Borrowal.objects(id=int(value["id"]))
+        b.update(state=BorrowalState.RETURNED.value)
+
+
 func_dict = {
     KafkaTopic.AUTHOR.value: manage_author,
     KafkaTopic.CATEGORY.value: manage_category,
@@ -286,12 +318,15 @@ func_dict = {
     KafkaTopic.BOOKCOPY.value: manage_book_copy,
     KafkaTopic.BOOK.value: manage_book,
     KafkaTopic.REVIEW.value: manage_review,
-    KafkaTopic.RESERVATION.value: manage_reservation
+    KafkaTopic.RESERVATION.value: manage_reservation,
+    KafkaTopic.BORROWAL.value: manage_borrowal
 }
+
 
 def _signal_handler(signum: int, frame) -> None:
     print('Received interrupt, exiting...')
     sys.exit(0)
+
 
 def run_consumer() -> None:
     print("Connecting to mongo database...")

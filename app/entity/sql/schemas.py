@@ -9,6 +9,7 @@ class BorrowalSchema(ma.SQLAlchemyAutoSchema):
         model = Borrowal
         load_instance = True
         sqla_session = db.session
+        include_fk = True
 
 
 borrowal_schema = BorrowalSchema()

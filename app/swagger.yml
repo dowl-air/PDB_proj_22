@@ -762,19 +762,31 @@ paths:
       responses:
         200:
           description: Successfully created borrowal.
-  /borrowals/{id}:
-    put:
+  /borrowals/{id}/return:
+    patch:
       operationId: controllers.borrowals.update
       tags:
         - Borrowals
-      summary: Finish borrowal
+      summary: Return borrowed book
       parameters:
         - $ref: "#/components/parameters/borrowal_id"
       security:
       - jwt: []
       responses:
         200:
-          description: Successfully finished borrowal.
+          description: Successfully returned borrowed book.
+
+  /active-borrowals:
+    get:
+      operationId: controllers.borrowals.get_active
+      tags:
+        - Borrowals
+      summary: Get only active borrowals
+      security:
+      - jwt: []
+      responses:
+        200:
+          description: Successfully got active borrowals.
 
 
 
@@ -867,3 +879,15 @@ paths:
       responses:
         200:
           description: Successfully got current user's reservations.
+  /profile/borrowals:
+    get:
+      operationId: controllers.users.get_borrowals
+      tags:
+        - Users
+        - Borrowals
+      summary: Get borrowals of currently signed in user
+      security:
+      - jwt: []
+      responses:
+        200:
+          description: Successfully got current user's borrowals.
