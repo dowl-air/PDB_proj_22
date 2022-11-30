@@ -34,7 +34,7 @@ docker compose down
 
 ### Lokální spuštění aplikace pro vývoj (bez dockerizace)
 
-Spuštění aplikace bez využití služeb programu `Docker` vyžaduje mít naistalovány všechny požadované služby a knihovny. Zejména se jedná o databáze MySQL, MongoDB a platformu Apache Kafka včetně 
+Spuštění aplikace bez využití služeb programu `Docker` vyžaduje mít naistalovány všechny požadované služby a knihovny. Zejména se jedná o databáze MySQL, MongoDB a platformu Apache Kafka včetně programu Zookeeper.  
 
 Je vhodné využít virtualizované prostředí `venv` pro Python.
 
