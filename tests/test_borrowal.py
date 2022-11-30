@@ -12,14 +12,13 @@ from helpers import (
     format_date
 )
 from data import (
-    BORROWAL_STATE_ACTIVE, BORROWAL_STATE_RETURNED,
+    BORROWAL_STATE_ACTIVE,
 
-    bc_1984_Brno_1, bc_Animal_Farm_Brno, bc_Hobbit_Olomouc, bc_Brave_New_World_Brno,
-    bc_Hobbit_London_1, bc_Hobbit_London_2, bc_1984_London_3, bc_Animal_Farm_Olomouc,
+    bc_1984_Brno_1, bc_Hobbit_Olomouc, bc_Brave_New_World_Brno,
+    bc_Hobbit_London_1, bc_Hobbit_London_2, bc_1984_London_3,
 
     user_employee_Brno, user_customer_Customer, user_employee_London, user_customer_Smith,
     borrowal_London_3,
-    reservation_London_active_1,
     reservation_London_active_2
 )
 
@@ -191,8 +190,7 @@ class TestBorrowal:
         assert resp.status_code == HTTPStatus.OK
         json_data = loads(resp.data.decode())
         borrowal = find_by_id(TestBorrowal.new_id, json_data)
-        assert borrowal is None  # active-borrowals only return active ones
-        #assert borrowal['state'] == BORROWAL_STATE_RETURNED
+        assert borrowal is None  # active-borrowals only returns active ones
 
     def test_borrowal_return_invalid(self, client: ClientWrapper):
         client.login(user=user_employee_Brno)
