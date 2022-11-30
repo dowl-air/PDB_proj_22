@@ -209,7 +209,7 @@ borrowal_Brno_active = Borrowal(
 )
 start_date = date(2020, 11, 6)
 borrowal_Olomouc_active = Borrowal(
-    id=8, start_date=start_date, end_date=start_date + BORROWAL_LENGTH, state=BORROWAL_STATE_ACTIVE,  # expired
+    id=8, start_date=start_date, end_date=start_date + BORROWAL_LENGTH, state=BORROWAL_STATE_ACTIVE, # expired
     book_copy=embed_book_copy(bc_Brave_New_World_Brno), customer=embed_user(user_customer_Smith), employee=embed_user(user_employee_Brno)
 )
 
@@ -231,7 +231,7 @@ reservation_Brno_active = Reservation(
 )
 start_date = date(2021, 4, 6)
 reservation_London_active_1 = Reservation(
-    id=4, start_date=start_date, end_date=start_date + RESERVATION_LENGTH, state=ReservationState.ACTIVE.value,  # expired
+    id=4, start_date=start_date, end_date=start_date + RESERVATION_LENGTH, state=ReservationState.ACTIVE.value, # expired
     book_copy=embed_book_copy(bc_Hobbit_London_1), customer=embed_user(user_customer_Smith)
 )
 start_date = date.today()
@@ -299,16 +299,12 @@ SQL_RESERVATIONS = convert_reservation_list_to_sql(RESERVATIONS)
 SQL_REVIEWS = convert_review_list_to_sql(REVIEWS)
 
 # removes all data from both databases
-
-
 def clear_db() -> None:
     with create_app({'producer_log': False}).app_context():
         db.drop_all()
         mongo.connection['default'].drop_database(MONGODB_DATABASE)
 
 # fills both databases with test data
-
-
 def fill_db() -> None:
     with create_app({'producer_log': False}).app_context():
         for arr in [LOCATIONS, CATEGORIES, AUTHORS, BOOKS, BOOK_COPIES, USERS, BORROWALS, RESERVATIONS, REVIEWS]:
