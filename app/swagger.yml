@@ -3,8 +3,8 @@
 
 openapi: 3.0.0
 info:
-  title: "Bookshop API"
-  description: "An API about people and books. Project to PDB."
+  title: "Library API"
+  description: "An API about people and books. Project for PDB."
   version: "1.0.0"
 
 components:
