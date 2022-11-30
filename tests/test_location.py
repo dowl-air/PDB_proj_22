@@ -8,7 +8,7 @@ from helpers import (
 )
 from data import (
     location_Brno,
-    bc_1984_Brno_1,
+    bc_1984_Brno_2,
     user_admin_Admin
 )
 
@@ -84,7 +84,7 @@ class TestLocation:
         }
 
         LOCATION = location_Brno
-        BOOK_COPY = bc_1984_Brno_1
+        BOOK_COPY = bc_1984_Brno_2
 
         resp = client.put('/locations/%d' % LOCATION.id, data)
         assert resp.status_code == HTTPStatus.OK
